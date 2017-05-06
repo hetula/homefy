@@ -23,25 +23,40 @@
  *
  */
 
-package xyz.hetula.homefy;
+package xyz.hetula.homefy.setup;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
+import xyz.hetula.homefy.MainFragment;
+import xyz.hetula.homefy.R;
 import xyz.hetula.homefy.service.HomefyService;
-import xyz.hetula.homefy.setup.SetupFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class LoadingFragment extends Fragment {
 
+    private Handler loadTestWaiter;
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_loading, container, false);
+        loadTestWaiter = new Handler();
+        loadTestWaiter.postDelayed(() -> {
+                    HomefyService.loaded = true;
+                    getFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.container, new MainFragment())
+                            .commit();
+                },
+                3000);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, HomefyService.loaded ?
-                        new MainFragment() : new SetupFragment())
-                .commit();
+        return main;
     }
 }

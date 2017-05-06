@@ -23,25 +23,25 @@
  *
  */
 
-package xyz.hetula.homefy;
+package xyz.hetula.homefy.library;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
-import xyz.hetula.homefy.service.HomefyService;
-import xyz.hetula.homefy.setup.SetupFragment;
+import xyz.hetula.homefy.R;
 
-public class MainActivity extends AppCompatActivity {
+public class LibraryFragment extends Fragment {
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, HomefyService.loaded ?
-                        new MainFragment() : new SetupFragment())
-                .commit();
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_library, container, false);
+        return main;
     }
 }

@@ -28,18 +28,49 @@ package xyz.hetula.homefy;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-public class HomefyFragment extends Fragment {
+import xyz.hetula.homefy.library.LibraryFragment;
+import xyz.hetula.homefy.player.PlayerFragment;
+
+public class MainFragment extends Fragment {
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_library, container);
+        FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_main, container, false);
+        ViewPager viewPager = (ViewPager) main.findViewById(R.id.viewPager);
+        viewPager.setAdapter(new HomefyPagerAdapter(getFragmentManager()));
+        // Clear any backstack entries, just in case
+        int stackCount = getFragmentManager().getBackStackEntryCount();
+        for(int i = 0; i < stackCount; i++) {
+            getFragmentManager().popBackStackImmediate();
+        }
         return main;
+    }
+
+    private static class HomefyPagerAdapter extends FragmentPagerAdapter {
+
+        HomefyPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if(position == 1) return new PlayerFragment();
+            return new LibraryFragment();
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
     }
 }
