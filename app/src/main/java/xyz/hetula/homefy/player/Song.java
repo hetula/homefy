@@ -23,29 +23,12 @@
  *
  */
 
-package xyz.hetula.homefy;
+package xyz.hetula.homefy.player;
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+public class Song {
+    private String id;
 
-import xyz.hetula.homefy.service.HomefyService;
-import xyz.hetula.homefy.setup.SetupFragment;
-
-public class MainActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, HomefyService.isReady() ?
-                        new MainFragment() : new SetupFragment())
-                .commit();
-
-        Intent startService = new Intent(this, HomefyService.class);
-        startService(startService);
+    public String getId() {
+        return id;
     }
 }

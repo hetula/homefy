@@ -25,6 +25,35 @@
 
 package xyz.hetula.homefy.service;
 
-public class HomefyService {
-    public static boolean loaded = false;
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+
+public class HomefyService extends Service {
+    private static boolean loaded = false;
+
+    public static boolean isReady() {
+        return loaded;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if(loaded) return START_STICKY;
+        loaded = true;
+
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        loaded = false;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 }

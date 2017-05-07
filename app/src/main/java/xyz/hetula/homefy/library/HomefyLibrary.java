@@ -23,45 +23,25 @@
  *
  */
 
-package xyz.hetula.homefy.setup;
+package xyz.hetula.homefy.library;
 
-import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
-import xyz.hetula.homefy.MainFragment;
-import xyz.hetula.homefy.R;
+import java.util.List;
 
-public class LoadingFragment extends Fragment {
+import xyz.hetula.homefy.player.Song;
 
-    private Handler loadTestWaiter;
+public interface HomefyLibrary {
+    @NonNull
+    String libraryPath();
+
+    @NonNull
+    List<Song> getSongs();
 
     @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_loading, container, false);
-        loadTestWaiter = new Handler();
-        loadTestWaiter.postDelayed(() -> getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, new MainFragment())
-                .commit(),
-                3000);
-        return main;
-    }
+    Song getSong(@NonNull String id);
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
+    @NonNull
+    String getPlayPath(@NonNull Song song);
 }
