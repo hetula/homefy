@@ -23,38 +23,33 @@
  *
  */
 
-apply plugin: 'com.android.application'
+package xyz.hetula.homefy.service;
 
-android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
-    defaultConfig {
-        applicationId "xyz.hetula.homefy"
-        minSdkVersion 23
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
+import java.util.List;
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.volley:volley:1.0.0'
+import xyz.hetula.functional.Consumer;
+import xyz.hetula.homefy.player.Song;
+import xyz.hetula.homefy.service.protocol.VersionInfo;
 
-    testCompile 'junit:junit:4.12'
+public class MockHomefyProtocol implements HomefyProtocol {
+
+    @Override
+    public void setServer(String address) {
+
+    }
+
+    @Override
+    public void requestVersionInfo(Consumer<VersionInfo> versionConsumer) {
+
+    }
+
+    @Override
+    public void requestSongs(Consumer<List<Song>> songsConsumer) {
+
+    }
+
+    @Override
+    public void requestSong(Consumer<Song> songConsumer) {
+
+    }
 }

@@ -29,18 +29,29 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 public class HomefyService extends Service {
-    private static boolean loaded = false;
+    private static final String TAG = "HomefyService";
+    private static boolean mLoaded = false;
+    private static boolean mUseMock = false;
+
+    private HomefyProtocol mHomefy;
 
     public static boolean isReady() {
-        return loaded;
+        return mLoaded;
     }
+    public static void mock() {mUseMock = true;}
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(loaded) return START_STICKY;
-        loaded = true;
+        if(mLoaded) return START_STICKY;
+        mLoaded = true;
+
+        Log.d(TAG, "Starting HomefyService: Is Mock? " + mUseMock);
+
+        mHomefy = mUseMock ?
+                new MockHomefyProtocol() : new DefaultHomefyProtocol(getApplicationContext());
 
         return START_STICKY;
     }
@@ -48,7 +59,8 @@ public class HomefyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        loaded = false;
+        Log.d(TAG, "Destroying Homefy Service");
+        mLoaded = false;
     }
 
     @Nullable

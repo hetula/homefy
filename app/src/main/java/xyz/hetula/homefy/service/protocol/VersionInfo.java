@@ -23,38 +23,16 @@
  *
  */
 
-apply plugin: 'com.android.application'
+package xyz.hetula.homefy.service.protocol;
 
-android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
-    defaultConfig {
-        applicationId "xyz.hetula.homefy"
-        minSdkVersion 23
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
-}
+public class VersionInfo {
+    private String name;
+    private String version;
+    private AuthType authentication;
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.volley:volley:1.0.0'
-
-    testCompile 'junit:junit:4.12'
+    public enum AuthType {
+        NONE,
+        BASIC,
+        OAUTH2
+    }
 }
