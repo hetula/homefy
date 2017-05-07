@@ -28,6 +28,7 @@ package xyz.hetula.homefy.service;
 import android.content.Context;
 
 import xyz.hetula.homefy.library.HomefyLibrary;
+import xyz.hetula.homefy.player.HomefyPlayer;
 import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol;
 import xyz.hetula.homefy.service.protocol.HomefyProtocol;
 import xyz.hetula.homefy.service.protocol.MockHomefyProtocol;
@@ -36,6 +37,7 @@ public class Homefy {
     private static boolean mUseMock = false;
     private static HomefyProtocol mHomefy;
     private static HomefyLibrary mLibrary;
+    private static HomefyPlayer mPlayer;
 
 
     static void initialize(Context appContext) {
@@ -43,6 +45,7 @@ public class Homefy {
                 new DefaultHomefyProtocol(appContext);
 
         mLibrary = new HomefyLibrary();
+        mPlayer = new HomefyPlayer(appContext);
     }
 
     static void destroy() {
@@ -61,4 +64,6 @@ public class Homefy {
     public static HomefyLibrary library() {
         return mLibrary;
     }
+
+    public static HomefyPlayer player() {return mPlayer;}
 }

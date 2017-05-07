@@ -38,6 +38,7 @@ import java.util.Locale;
 import xyz.hetula.homefy.R;
 import xyz.hetula.homefy.Utils;
 import xyz.hetula.homefy.player.Song;
+import xyz.hetula.homefy.service.Homefy;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
     private List<Song> mSongs;
@@ -63,6 +64,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         }
         holder.txtArtistAlbum.setText(String.format(Locale.getDefault(), "%s - %s", song.getArtist(), song.getAlbum()));
         holder.txtLength.setText(Utils.parseSeconds(song.getLength()));
+        holder.itemView.setOnClickListener(v -> Homefy.player().play(song, mSongs));
     }
 
     @Override

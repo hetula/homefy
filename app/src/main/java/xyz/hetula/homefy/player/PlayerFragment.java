@@ -32,16 +32,51 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.util.Locale;
 
 import xyz.hetula.homefy.R;
+import xyz.hetula.homefy.service.Homefy;
 
 public class PlayerFragment extends Fragment {
+    private TextView mTxtTitle;
+    private TextView mTxtArtist;
+    private TextView mTxtAlbum;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         LinearLayout main = (LinearLayout) inflater.inflate(R.layout.fragment_player, container, false);
+        mTxtTitle = (TextView) main.findViewById(R.id.txt_song_title);
+        mTxtArtist = (TextView) main.findViewById(R.id.txt_song_artist);
+        mTxtAlbum = (TextView) main.findViewById(R.id.txt_song_album);
+        View btnStop = main.findViewById(R.id.btn_stop);
+        View btnNext = main.findViewById(R.id.btn_next);
+
+        btnStop.setOnClickListener(v -> Homefy.player().stop());
+        btnNext.setOnClickListener(v -> {
+            Homefy.player().next();
+            updateSongInfo();
+        });
+
         return main;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateSongInfo();
+    }
+
+    private void updateSongInfo() {
+        Song now = Homefy.player().nowPlaying();
+        if(now != null) {
+            mTxtTitle.setText(String.format(Locale.getDefault(),
+                    "%d - %s", now.getTrack(), now.getTitle()));
+            mTxtArtist.setText(now.getArtist());
+            mTxtAlbum.setText(now.getAlbum());
+        }
     }
 }

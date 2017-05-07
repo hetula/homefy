@@ -24,15 +24,57 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/colorPrimary">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:src="@drawable/ic_music"/>
+
+    <TextView
+        android:id="@+id/txt_song_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="4dp"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/control"
+        android:lines="1"
+        android:ellipsize="marquee"
+        tools:text="SONG TITLE"/>
+
+    <TextView
+        android:id="@+id/txt_song_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="4dp"
+        android:textSize="14sp"
+        android:textColor="@color/control"
+        android:lines="1"
+        android:ellipsize="marquee"
+        tools:text="SONG Artist"/>
+
+    <TextView
+        android:id="@+id/txt_song_album"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textSize="14sp"
+        android:textColor="@color/control"
+        android:lines="1"
+        android:ellipsize="marquee"
+        tools:text="SONG Album"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="32dp" />
 
 
     <LinearLayout
@@ -41,6 +83,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <ImageButton
+            android:id="@+id/btn_previous"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -49,6 +92,7 @@
             android:layout_width="16dp"
             android:layout_height="wrap_content" />
         <ImageButton
+            android:id="@+id/btn_playback"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -57,6 +101,7 @@
             android:layout_width="16dp"
             android:layout_height="wrap_content" />
         <ImageButton
+            android:id="@+id/btn_play_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -65,6 +110,7 @@
             android:layout_width="16dp"
             android:layout_height="wrap_content" />
         <ImageButton
+            android:id="@+id/btn_stop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -73,6 +119,7 @@
             android:layout_width="16dp"
             android:layout_height="wrap_content" />
         <ImageButton
+            android:id="@+id/btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
