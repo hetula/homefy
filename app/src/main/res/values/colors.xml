@@ -30,5 +30,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="divider">#ADADAD</color>
-    <color name="nav_view_color">#DFDFDF</color>
+    <color name="control">#DFDFDF</color>
+
+    <color name="music_ico">#12EDEDED</color>
 </resources>

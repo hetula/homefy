@@ -57,7 +57,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
-        <item name="android:textColor">@color/nav_view_color</item>
+        <item name="android:textColor">@color/control</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">@dimen/nav_font_size</item>
         <item name="android:drawablePadding">@dimen/nav_drawable_padding</item>
