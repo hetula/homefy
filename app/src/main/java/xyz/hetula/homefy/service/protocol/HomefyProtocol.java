@@ -20,45 +20,25 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-package xyz.hetula.homefy.service;
+package xyz.hetula.homefy.service.protocol;
 
-import android.content.Context;
+import com.android.volley.VolleyError;
 
-import xyz.hetula.homefy.library.HomefyLibrary;
-import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol;
-import xyz.hetula.homefy.service.protocol.HomefyProtocol;
-import xyz.hetula.homefy.service.protocol.MockHomefyProtocol;
+import xyz.hetula.functional.Consumer;
+import xyz.hetula.homefy.player.Song;
 
-public class Homefy {
-    private static boolean mUseMock = false;
-    private static HomefyProtocol mHomefy;
-    private static HomefyLibrary mLibrary;
+public interface HomefyProtocol {
+    void setServer(String address);
 
+    String getServer();
 
-    static void initialize(Context appContext) {
-        mHomefy = mUseMock ? new MockHomefyProtocol() :
-                new DefaultHomefyProtocol(appContext);
+    void requestVersionInfo(Consumer<VersionInfo> versionConsumer, Consumer<VolleyError> errorConsumer);
 
-        mLibrary = new HomefyLibrary();
-    }
+    void requestSongs(Consumer<Song[]> songsConsumer, Consumer<VolleyError> errorConsumer);
 
-    static void destroy() {
-        mHomefy.release();
-        mHomefy = null;
-    }
+    void requestSong(String id, Consumer<Song> songConsumer, Consumer<VolleyError> errorConsumer);
 
-    public static void mock() {
-        mUseMock = true;
-    }
-
-    public static HomefyProtocol protocol() {
-        return mHomefy;
-    }
-
-    public static HomefyLibrary library() {
-        return mLibrary;
-    }
+    void release();
 }

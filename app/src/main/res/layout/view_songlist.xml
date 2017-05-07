@@ -20,7 +20,6 @@
   ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
-  ~
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -28,18 +27,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/song_favorite"
-        android:layout_gravity="center_vertical|start"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:src="@drawable/ic_favorite"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
         android:orientation="vertical"
         android:paddingBottom="8dp"
         android:paddingEnd="4dp"
@@ -47,34 +37,25 @@
         android:paddingTop="8dp">
 
         <TextView
-            android:id="@+id/song_track_title"
+            android:id="@+id/txt_main_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textColor="@color/control"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@color/control"
-            android:lines="1"
-            android:ellipsize="end"
-            tools:text="01 - Testi" />
+            tools:text="Artisti" />
 
         <TextView
-            android:id="@+id/song_artist_album"
+            android:id="@+id/txt_more_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/control"
-            android:lines="1"
             android:ellipsize="end"
-            tools:text="Artist - Album" />
-
-        <TextView
-            android:id="@+id/song_length"
-            android:layout_marginEnd="32dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:lines="1"
             android:textColor="@color/control"
             android:textSize="12sp"
-            tools:text="00:00"/>
+            tools:text="Count 01234" />
     </LinearLayout>
 
     <View
@@ -82,5 +63,4 @@
         android:layout_height="1dp"
         android:layout_gravity="bottom"
         android:background="@color/divider" />
-
 </FrameLayout>

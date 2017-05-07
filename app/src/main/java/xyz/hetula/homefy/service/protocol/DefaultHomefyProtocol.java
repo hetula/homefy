@@ -20,24 +20,19 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-package xyz.hetula.homefy.service;
+package xyz.hetula.homefy.service.protocol;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-
-import java.util.List;
 
 import xyz.hetula.functional.Consumer;
 import xyz.hetula.homefy.player.Song;
-import xyz.hetula.homefy.service.protocol.VersionInfo;
 
 public class DefaultHomefyProtocol implements HomefyProtocol {
     private static final String TAG = "HomefyProtocol";
@@ -59,21 +54,52 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
-    public void requestVersionInfo(Consumer<VersionInfo> versionConsumer) {
-        Request<String> testReq = new StringRequest(Request.Method.GET, mServerAddress+"/version",
-                str -> versionConsumer.accept(new VersionInfo()),
-                error -> Log.e(TAG, error.toString()));
-        mQueryQueue.add(testReq);
+    public void requestVersionInfo(Consumer<VersionInfo> versionConsumer,
+                                   Consumer<VolleyError> errorConsumer) {
+        GsonRequest<VersionInfo> versionReq = new GsonRequest<>(
+                mServerAddress + "/version",
+                VersionInfo.class,
+                versionConsumer::accept,
+                error -> {
+                    Log.e(TAG, error.toString());
+                    if (errorConsumer != null) {
+                        errorConsumer.accept(error);
+                    }
+                });
+        mQueryQueue.add(versionReq);
     }
 
     @Override
-    public void requestSongs(Consumer<List<Song>> songsConsumer) {
-        // TODO Songs Requests and parsing from json!
+    public void requestSongs(Consumer<Song[]> songsConsumer,
+                             Consumer<VolleyError> errorConsumer) {
+        GsonRequest<Song[]> songsReq = new GsonRequest<>(
+                mServerAddress + "/songs",
+                Song[].class,
+                songsConsumer::accept,
+                error -> {
+                    Log.e(TAG, error.toString());
+                    if (errorConsumer != null) {
+                        errorConsumer.accept(error);
+                    }
+                });
+        mQueryQueue.add(songsReq);
     }
 
     @Override
-    public void requestSong(String id, Consumer<Song> songConsumer) {
-        // TODO Song request and parsing from json!
+    public void requestSong(String id, Consumer<Song> songConsumer,
+                            Consumer<VolleyError> errorConsumer) {
+        GsonRequest<Song> songReq = new GsonRequest<>(
+                mServerAddress + "/song/" + id,
+                Song.class,
+                songConsumer::accept,
+                error -> {
+                    Log.e(TAG, error.toString());
+                    if (errorConsumer != null) {
+                        errorConsumer.accept(error);
+                    }
+                }
+        );
+        mQueryQueue.add(songReq);
     }
 
     @Override

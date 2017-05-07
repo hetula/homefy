@@ -20,10 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-package xyz.hetula.homefy.service;
+package xyz.hetula.homefy.service.protocol;
+
+import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,6 @@ import java.util.Random;
 
 import xyz.hetula.functional.Consumer;
 import xyz.hetula.homefy.player.Song;
-import xyz.hetula.homefy.service.protocol.VersionInfo;
 
 public class MockHomefyProtocol implements HomefyProtocol {
     private List<Song> songs;
@@ -68,7 +68,8 @@ public class MockHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
-    public void requestVersionInfo(Consumer<VersionInfo> versionConsumer) {
+    public void requestVersionInfo(Consumer<VersionInfo> versionConsumer,
+                                   Consumer<VolleyError> errorConsumer) {
         versionConsumer.accept(new VersionInfo(
                 "Homefy",
                 "1.0_Mock",
@@ -76,12 +77,14 @@ public class MockHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
-    public void requestSongs(Consumer<List<Song>> songsConsumer) {
-        songsConsumer.accept(songs);
+    public void requestSongs(Consumer<Song[]> songsConsumer,
+                             Consumer<VolleyError> errorConsumer) {
+        songsConsumer.accept(songs.toArray(new Song[0]));
     }
 
     @Override
-    public void requestSong(String id, Consumer<Song> songConsumer) {
+    public void requestSong(String id, Consumer<Song> songConsumer,
+                            Consumer<VolleyError> errorConsumer) {
         for(Song s : songs) {
             if(s.getId().equals(id)) {
                 songConsumer.accept(s);

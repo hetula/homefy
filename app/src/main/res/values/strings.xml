@@ -32,7 +32,7 @@
     <string name="nav_favs">Favorites</string>
     <string name="nav_playlists">Playlists</string>
 
-    <string name="loading">Homefy is loading...</string>
+    <string name="loading">Homefy is loading…</string>
     <string name="homefy_server_setup">Homefy Server Setup</string>
     <string name="server_address">Server address</string>
     <string name="user_credentials">User credentials</string>
@@ -40,4 +40,9 @@
     <string name="password_if_needed">Password if needed</string>
     <string name="connect">Connect</string>
     <string name="test_connection">Test Connection</string>
+
+    <plurals name="song_count">
+        <item quantity="one">%d Song</item>
+        <item quantity="other">%d Songs</item>
+    </plurals>
 </resources>

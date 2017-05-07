@@ -33,8 +33,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-
-import java.util.List;
+import android.widget.Toast;
 
 import xyz.hetula.homefy.MainFragment;
 import xyz.hetula.homefy.R;
@@ -48,15 +47,17 @@ public class LoadingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_loading, container, false);
-        new Handler().postDelayed(this::initialize, 3000);
+        new Handler().post(this::initialize);
         return main;
     }
 
     private void initialize() {
-        Homefy.protocol().requestSongs(this::onSongs);
+        Homefy.protocol().requestSongs(this::onSongs,
+                volleyError -> Toast.makeText(getContext(),
+                        "Error when Connecting!", Toast.LENGTH_LONG).show());
     }
 
-    private void onSongs(List<Song> songs) {
+    private void onSongs(Song[] songs) {
         Homefy.library().initialize(songs);
         getFragmentManager()
                 .beginTransaction()

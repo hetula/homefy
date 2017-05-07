@@ -26,10 +26,12 @@
 package xyz.hetula.homefy.library;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +41,13 @@ import xyz.hetula.homefy.service.Homefy;
 
 public class SongListFragment extends Fragment {
     public static final String LIST_TYPE_KEY = "SongListFragment_LIST_TYPE_KEY";
+    public static final String LIST_NAME_KEY = "SongListFragment_LIST_NAME_KEY";
+
     public static final int ALL_MUSIC = 1;
+    public static final int ARTISTS = 2;
+    public static final int ALBUMS = 3;
+    public static final int ARTIST_MUSIC = 4;
+    public static final int ALBUM_MUSIC = 5;
 
     @Nullable
     @Override
@@ -52,14 +60,63 @@ public class SongListFragment extends Fragment {
 
         Bundle args = getArguments();
         int type = args.getInt(LIST_TYPE_KEY);
+        String name = args.getString(LIST_NAME_KEY, "ERRORROROR");
 
-        if(type == ALL_MUSIC) {
-            recyclerView.setAdapter(new SongAdapter(Homefy.library().getSongs()));
+        RecyclerView.Adapter<?> adapter;
+        switch (type) {
+            case ALL_MUSIC:
+                adapter = new SongAdapter(Homefy.library().getSongs());
+                break;
+            case ARTISTS:
+                adapter = new SongListAdapter(Homefy.library().getArtists(),
+                        artist -> Homefy.library().getArtistSongs(artist).size(),
+                        this::onArtistClick);
+                break;
+            case ALBUMS:
+                adapter = new SongListAdapter(Homefy.library().getAlbums(),
+                        album -> Homefy.library().getAlbumSongs(album).size(),
+                        this::onAlbumClick);
+                break;
+            case ARTIST_MUSIC:
+                adapter = new SongAdapter(Homefy.library().getArtistSongs(name));
+                break;
+            case ALBUM_MUSIC:
+                adapter = new SongAdapter(Homefy.library().getAlbumSongs(name));
+                break;
+            default:
+                adapter = null;
+                Log.e("SongListFragment", "Invalid TYPE: " + type);
+                break;
+
         }
-
+        if (adapter != null) {
+            recyclerView.setAdapter(adapter);
+        }
         return root;
     }
 
+    private void onArtistClick(String artist) {
+        Bundle args = new Bundle();
+        args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ARTIST_MUSIC);
+        args.putString(SongListFragment.LIST_NAME_KEY, artist);
+        createSongListFragment(args);
+    }
 
+    private void onAlbumClick(String album) {
+        Bundle args = new Bundle();
+        args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALBUM_MUSIC);
+        args.putString(SongListFragment.LIST_NAME_KEY, album);
+        createSongListFragment(args);
+    }
 
+    private void createSongListFragment(@NonNull Bundle args) {
+        SongListFragment fragment = new SongListFragment();
+        fragment.setArguments(args);
+        getFragmentManager()
+                .beginTransaction()
+                .addToBackStack(null)
+                .add(R.id.container, fragment)
+                .show(fragment)
+                .commit();
+    }
 }

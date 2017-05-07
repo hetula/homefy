@@ -37,22 +37,84 @@ import java.util.Map;
 import xyz.hetula.homefy.player.Song;
 import xyz.hetula.homefy.service.Homefy;
 
+/**
+ * Library Class that implements storing all songs
+ * from Server.
+ * Caches all artists and albums and creates song lists
+ * for each of them ready.
+ * All of this is held in memory so using very big
+ * Homefy Library will cause big memory usage.
+ */
 public class HomefyLibrary {
     private Map<String, Song> mSongDatabase;
+    private Map<String, List<Song>> mArtistCache;
+    private Map<String, List<Song>> mAlbumCache;
     private List<Song> mMusic;
+    private List<String> mAlbums;
+    private List<String> mArtists;
 
-    public void initialize(List<Song> music) {
-        mSongDatabase = new HashMap<>(music.size());
-        for(Song song : music) {
+    public void initialize(Song[] music) {
+        mSongDatabase = new HashMap<>(music.length);
+        mMusic = new ArrayList<>(music.length);
+
+        mArtistCache = new HashMap<>();
+        mAlbumCache = new HashMap<>();
+
+        for (Song song : music) {
+            mMusic.add(song);
             mSongDatabase.put(song.getId(), song);
+            createAndAdd(mArtistCache, song.getArtist(), song);
+            createAndAdd(mAlbumCache, song.getAlbum(), song);
         }
-        mMusic = new ArrayList<>(music);
+
+        // Init lists
+
+        mAlbums = new ArrayList<>(mAlbumCache.keySet());
+        mArtists = new ArrayList<>(mArtistCache.keySet());
+
+        // Sort
         Collections.sort(mMusic);
+        Collections.sort(mAlbums);
+        Collections.sort(mArtists);
+    }
+
+    private void createAndAdd(Map<String, List<Song>> cache, String key, Song song) {
+        List<Song> list = cache.get(key);
+        if (list == null) {
+            list = new ArrayList<>();
+            cache.put(key, list);
+        }
+        list.add(song);
     }
 
     @NonNull
     public List<Song> getSongs() {
         return mMusic;
+    }
+
+    @NonNull
+    public List<String> getArtists() {
+        return mArtists;
+    }
+
+    @NonNull
+    public List<String> getAlbums() {
+        return mAlbums;
+    }
+
+    @NonNull
+    public List<Song> getArtistSongs(@NonNull String artist) {
+        return getFromCache(mArtistCache, artist);
+    }
+
+    @NonNull
+    public List<Song> getAlbumSongs(@NonNull String album) {
+        return getFromCache(mAlbumCache, album);
+    }
+
+    private List<Song> getFromCache(Map<String, List<Song>> cache, String key) {
+        List<Song> songs = cache.get(key);
+        return songs == null ? Collections.emptyList() : songs;
     }
 
     @Nullable
@@ -62,6 +124,6 @@ public class HomefyLibrary {
 
     @NonNull
     public String getPlayPath(@NonNull Song song) {
-        return Homefy.protocol().getServer() + "/play/"+song.getId();
+        return Homefy.protocol().getServer() + "/play/" + song.getId();
     }
 }

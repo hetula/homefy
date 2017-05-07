@@ -25,23 +25,29 @@
 
 package xyz.hetula.homefy.setup;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import xyz.hetula.homefy.R;
 import xyz.hetula.homefy.service.Homefy;
 import xyz.hetula.homefy.service.protocol.VersionInfo;
 
 public class SetupFragment extends Fragment {
+    private static final String ADDRESS_KEY = "SetupFragement.ADDRESS_KEY";
     private EditText mAddress;
+    private boolean mConnecting;
 
     @Nullable
     @Override
@@ -51,14 +57,37 @@ public class SetupFragment extends Fragment {
         Button connect = (Button) main.findViewById(R.id.btn_connect);
         connect.setOnClickListener(this::onConnect);
         mAddress = (EditText) main.findViewById(R.id.txt_address);
+        mAddress.setOnEditorActionListener((v, actionId, event) -> {
+            if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                onConnect(mAddress);
+            }
+            return false;
+        });
+        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        mAddress.setText(pref.getString(ADDRESS_KEY, ""));
+        mConnecting = false;
         return main;
     }
 
     private void onConnect(View v) {
+        if (mConnecting) return;
         String address = mAddress.getText().toString();
-        if (address.isEmpty()) return;
+        if (address.isEmpty()) {
+            Toast.makeText(getContext(), "Enter Server address!", Toast.LENGTH_LONG).show();
+            return;
+        }
+        mConnecting = true;
+        // Save it for later
+        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        pref.edit().putString(ADDRESS_KEY, address).apply();
+
         Homefy.protocol().setServer(address);
-        Homefy.protocol().requestVersionInfo(this::onVersionInfo);
+        Homefy.protocol().requestVersionInfo(this::onVersionInfo,
+                volleyError -> {
+                    Toast.makeText(getContext(),
+                            "Error when Connecting!", Toast.LENGTH_LONG).show();
+                    mConnecting = false;
+                });
     }
 
     private void onVersionInfo(VersionInfo versionInfo) {
@@ -68,6 +97,7 @@ public class SetupFragment extends Fragment {
                     .beginTransaction()
                     .replace(R.id.container, new LoadingFragment())
                     .commit();
+            mConnecting = false;
         }
         // TODO Initialize possible authentication view here!
     }

@@ -26,15 +26,16 @@
 package xyz.hetula.homefy.library;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import xyz.hetula.homefy.R;
-import xyz.hetula.homefy.player.Song;
 
 public class LibraryFragment extends Fragment {
 
@@ -44,18 +45,41 @@ public class LibraryFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_library, container, false);
         View libraryMusic = main.findViewById(R.id.library_music);
-        libraryMusic.setOnClickListener(this::onLibraryMusicClick);
+        View libraryArtists = main.findViewById(R.id.library_artists);
+        View libraryAlbums = main.findViewById(R.id.library_albums);
+
+        View.OnClickListener clicks = this::onLibraryClick;
+        libraryMusic.setOnClickListener(clicks);
+        libraryArtists.setOnClickListener(clicks);
+        libraryAlbums.setOnClickListener(clicks);
         return main;
     }
 
-    private void onLibraryMusicClick(View v) {
-        SongListFragment fragment = new SongListFragment();
+    private void onLibraryClick(View v) {
         Bundle args = new Bundle();
-        args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALL_MUSIC);
+        switch (v.getId()) {
+            case R.id.library_music:
+                args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALL_MUSIC);
+                break;
+            case R.id.library_albums:
+                args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALBUMS);
+                break;
+            case R.id.library_artists:
+                args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ARTISTS);
+                break;
+            default:
+                Log.w("LibraryFragment", "Unhandled Click from " + v);
+                return;
+        }
+        createSongListFragment(args);
+    }
+
+    private void createSongListFragment(@NonNull Bundle args) {
+        SongListFragment fragment = new SongListFragment();
         fragment.setArguments(args);
         getFragmentManager()
                 .beginTransaction()
-                .addToBackStack("Library Music")
+                .addToBackStack(null)
                 .add(R.id.container, fragment)
                 .show(fragment)
                 .commit();
