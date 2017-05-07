@@ -30,6 +30,37 @@ public class VersionInfo {
     private String version;
     private AuthType authentication;
 
+    public VersionInfo() {
+        // Default
+    }
+
+    public VersionInfo(String name, String version, AuthType authentication) {
+        this.name = name;
+        this.version = version;
+        this.authentication = authentication;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public AuthType getAuthentication() {
+        return authentication;
+    }
+
+    @Override
+    public String toString() {
+        return "VersionInfo{" +
+                "name='" + name + '\'' +
+                ", version='" + version + '\'' +
+                ", authentication=" + authentication +
+                '}';
+    }
+
     public enum AuthType {
         NONE,
         BASIC,

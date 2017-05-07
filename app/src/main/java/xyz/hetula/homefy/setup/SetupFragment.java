@@ -28,27 +28,47 @@ package xyz.hetula.homefy.setup;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import xyz.hetula.homefy.R;
+import xyz.hetula.homefy.service.Homefy;
+import xyz.hetula.homefy.service.protocol.VersionInfo;
 
 public class SetupFragment extends Fragment {
+    private EditText mAddress;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        LinearLayout main = (LinearLayout) inflater.inflate(R.layout.fragment_initial_setup, container, false);
+        LinearLayout main = (LinearLayout) inflater.inflate(R.layout.fragment_setup, container, false);
         Button connect = (Button) main.findViewById(R.id.btn_connect);
-        connect.setOnClickListener(e -> getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, new LoadingFragment())
-                .commit());
+        connect.setOnClickListener(this::onConnect);
+        mAddress = (EditText) main.findViewById(R.id.txt_address);
         return main;
+    }
+
+    private void onConnect(View v) {
+        String address = mAddress.getText().toString();
+        if (address.isEmpty()) return;
+        Homefy.protocol().setServer(address);
+        Homefy.protocol().requestVersionInfo(this::onVersionInfo);
+    }
+
+    private void onVersionInfo(VersionInfo versionInfo) {
+        Log.d("SetupFragment", versionInfo.toString());
+        if (versionInfo.getAuthentication() == VersionInfo.AuthType.NONE) {
+            getFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.container, new LoadingFragment())
+                    .commit();
+        }
+        // TODO Initialize possible authentication view here!
     }
 }

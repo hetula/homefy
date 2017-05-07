@@ -31,13 +31,16 @@ import xyz.hetula.functional.Consumer;
 import xyz.hetula.homefy.player.Song;
 import xyz.hetula.homefy.service.protocol.VersionInfo;
 
-
-interface HomefyProtocol {
+public interface HomefyProtocol {
     void setServer(String address);
+
+    String getServer();
 
     void requestVersionInfo(Consumer<VersionInfo> versionConsumer);
 
     void requestSongs(Consumer<List<Song>> songsConsumer);
 
-    void requestSong(Consumer<Song> songConsumer);
+    void requestSong(String id, Consumer<Song> songConsumer);
+
+    void release();
 }

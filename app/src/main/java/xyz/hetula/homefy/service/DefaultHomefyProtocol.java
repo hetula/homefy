@@ -54,6 +54,11 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
+    public String getServer() {
+        return mServerAddress;
+    }
+
+    @Override
     public void requestVersionInfo(Consumer<VersionInfo> versionConsumer) {
         Request<String> testReq = new StringRequest(Request.Method.GET, mServerAddress+"/version",
                 str -> versionConsumer.accept(new VersionInfo()),
@@ -63,13 +68,17 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
 
     @Override
     public void requestSongs(Consumer<List<Song>> songsConsumer) {
-
+        // TODO Songs Requests and parsing from json!
     }
 
     @Override
-    public void requestSong(Consumer<Song> songConsumer) {
-
+    public void requestSong(String id, Consumer<Song> songConsumer) {
+        // TODO Song request and parsing from json!
     }
 
-
+    @Override
+    public void release() {
+        mQueryQueue.stop();
+        mQueryQueue = null;
+    }
 }

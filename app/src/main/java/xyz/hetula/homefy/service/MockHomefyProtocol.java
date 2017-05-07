@@ -25,31 +25,73 @@
 
 package xyz.hetula.homefy.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import xyz.hetula.functional.Consumer;
 import xyz.hetula.homefy.player.Song;
 import xyz.hetula.homefy.service.protocol.VersionInfo;
 
 public class MockHomefyProtocol implements HomefyProtocol {
+    private List<Song> songs;
+
+    public MockHomefyProtocol() {
+        songs = new ArrayList<>();
+        Random rnd = new Random(2);
+        for(int artist = 1; artist <= 25; artist++) {
+            for(int album = 1; album <= 10; album++) {
+                for(int title = 1; title <= 13; title++) {
+                    String id = Integer.toHexString(artist) +
+                            Integer.toHexString(album) +
+                            Integer.toHexString(title) +
+                            Integer.toHexString(rnd.nextInt(Integer.MAX_VALUE - 20));
+
+                    songs.add(new Song(id,
+                            "Title " + title,
+                            "Artist " + artist,
+                            "Album " + album,
+                            30 + rnd.nextInt(180)));
+                }
+            }
+        }
+    }
 
     @Override
     public void setServer(String address) {
+        // Not used
+    }
 
+    @Override
+    public String getServer() {
+        return "MOCK";
     }
 
     @Override
     public void requestVersionInfo(Consumer<VersionInfo> versionConsumer) {
-
+        versionConsumer.accept(new VersionInfo(
+                "Homefy",
+                "1.0_Mock",
+                VersionInfo.AuthType.NONE));
     }
 
     @Override
     public void requestSongs(Consumer<List<Song>> songsConsumer) {
-
+        songsConsumer.accept(songs);
     }
 
     @Override
-    public void requestSong(Consumer<Song> songConsumer) {
+    public void requestSong(String id, Consumer<Song> songConsumer) {
+        for(Song s : songs) {
+            if(s.getId().equals(id)) {
+                songConsumer.accept(s);
+            }
+        }
+    }
 
+    @Override
+    public void release() {
+        songs.clear();
+        songs = null;
     }
 }

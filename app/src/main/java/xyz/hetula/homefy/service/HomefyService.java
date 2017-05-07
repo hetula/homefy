@@ -34,24 +34,18 @@ import android.util.Log;
 public class HomefyService extends Service {
     private static final String TAG = "HomefyService";
     private static boolean mLoaded = false;
-    private static boolean mUseMock = false;
-
-    private HomefyProtocol mHomefy;
 
     public static boolean isReady() {
         return mLoaded;
     }
-    public static void mock() {mUseMock = true;}
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(mLoaded) return START_STICKY;
         mLoaded = true;
 
-        Log.d(TAG, "Starting HomefyService: Is Mock? " + mUseMock);
-
-        mHomefy = mUseMock ?
-                new MockHomefyProtocol() : new DefaultHomefyProtocol(getApplicationContext());
+        Log.d(TAG, "Starting HomefyService");
+        Homefy.initialize(getApplicationContext());
 
         return START_STICKY;
     }
@@ -61,6 +55,7 @@ public class HomefyService extends Service {
         super.onDestroy();
         Log.d(TAG, "Destroying Homefy Service");
         mLoaded = false;
+        Homefy.destroy();
     }
 
     @Nullable

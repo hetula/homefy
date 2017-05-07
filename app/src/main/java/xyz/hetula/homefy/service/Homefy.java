@@ -23,44 +23,39 @@
  *
  */
 
-package xyz.hetula.homefy.library;
+package xyz.hetula.homefy.service;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.content.Context;
 
-import java.util.ArrayList;
-import java.util.List;
+import xyz.hetula.homefy.library.HomefyLibrary;
 
-import xyz.hetula.homefy.player.Song;
+public class Homefy {
+    private static boolean mUseMock = false;
+    private static HomefyProtocol mHomefy;
+    private static HomefyLibrary mLibrary;
 
-public class DefaultHomefyLibrary implements HomefyLibrary {
-    private final String mHomefyPath;
 
-    public DefaultHomefyLibrary(@NonNull String homefyPath) {
-        mHomefyPath = homefyPath;
+    static void initialize(Context appContext) {
+        mHomefy = mUseMock ? new MockHomefyProtocol() :
+                new DefaultHomefyProtocol(appContext);
+
+        mLibrary = new HomefyLibrary();
     }
 
-    @NonNull
-    @Override
-    public String libraryPath() {
-        return mHomefyPath;
+    static void destroy() {
+        mHomefy.release();
+        mHomefy = null;
     }
 
-    @NonNull
-    @Override
-    public List<Song> getSongs() {
-        return new ArrayList<>();
+    public static void mock() {
+        mUseMock = true;
     }
 
-    @Nullable
-    @Override
-    public Song getSong(@NonNull String id) {
-        return null;
+    public static HomefyProtocol protocol() {
+        return mHomefy;
     }
 
-    @NonNull
-    @Override
-    public String getPlayPath(@NonNull Song song) {
-        return mHomefyPath + "/play/"+song.getId();
+    public static HomefyLibrary library() {
+        return mLibrary;
     }
 }

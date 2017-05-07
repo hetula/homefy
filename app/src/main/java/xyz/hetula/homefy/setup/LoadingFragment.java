@@ -34,34 +34,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.util.List;
+
 import xyz.hetula.homefy.MainFragment;
 import xyz.hetula.homefy.R;
+import xyz.hetula.homefy.player.Song;
+import xyz.hetula.homefy.service.Homefy;
 
 public class LoadingFragment extends Fragment {
-
-    private Handler loadTestWaiter;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_loading, container, false);
-        loadTestWaiter = new Handler();
-        loadTestWaiter.postDelayed(() -> getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, new MainFragment())
-                .commit(),
-                3000);
+        new Handler().postDelayed(this::initialize, 3000);
         return main;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    private void initialize() {
+        Homefy.protocol().requestSongs(this::onSongs);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
+    private void onSongs(List<Song> songs) {
+        Homefy.library().initialize(songs);
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container, new MainFragment())
+                .commit();
     }
 }

@@ -29,7 +29,9 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import xyz.hetula.homefy.service.Homefy;
 import xyz.hetula.homefy.service.HomefyService;
+import xyz.hetula.homefy.service.MockHomefyProtocol;
 import xyz.hetula.homefy.setup.SetupFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // TODO Remove when server is OK
+        Homefy.mock();
 
         getSupportFragmentManager()
                 .beginTransaction()

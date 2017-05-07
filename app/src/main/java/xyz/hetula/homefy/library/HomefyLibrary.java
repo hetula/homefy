@@ -28,20 +28,40 @@ package xyz.hetula.homefy.library;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import xyz.hetula.homefy.player.Song;
+import xyz.hetula.homefy.service.Homefy;
 
-public interface HomefyLibrary {
-    @NonNull
-    String libraryPath();
+public class HomefyLibrary {
+    private Map<String, Song> mSongDatabase;
+    private List<Song> mMusic;
+
+    public void initialize(List<Song> music) {
+        mSongDatabase = new HashMap<>(music.size());
+        for(Song song : music) {
+            mSongDatabase.put(song.getId(), song);
+        }
+        mMusic = new ArrayList<>(music);
+        Collections.sort(mMusic);
+    }
 
     @NonNull
-    List<Song> getSongs();
+    public List<Song> getSongs() {
+        return mMusic;
+    }
 
     @Nullable
-    Song getSong(@NonNull String id);
+    public Song getSong(@NonNull String id) {
+        return mSongDatabase.get(id);
+    }
 
     @NonNull
-    String getPlayPath(@NonNull Song song);
+    public String getPlayPath(@NonNull Song song) {
+        return Homefy.protocol().getServer() + "/play/"+song.getId();
+    }
 }
