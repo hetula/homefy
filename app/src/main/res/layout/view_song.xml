@@ -23,81 +23,59 @@
   ~
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
-    <TextView
+    <ImageView
+        android:id="@+id/song_favorite"
+        android:layout_gravity="center_vertical|start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/homefy_server_setup"
-        android:textColor="@color/control"
-        android:textSize="24sp" />
-
-    <EditText
-        android:id="@+id/txt_address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="12"
-        android:hint="@string/server_address"
-        android:inputType="textUri"
-        android:textColor="@color/control"
-        android:lines="1" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="32dp" />
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_favorite"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:layout_marginStart="48dp"
         android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:paddingBottom="8dp"
+        android:paddingEnd="4dp"
+        android:paddingStart="4dp"
+        android:paddingTop="8dp">
 
         <TextView
+            android:id="@+id/song_track_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/user_credentials"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:textColor="@color/control"
-            android:textSize="24sp" />
+            tools:text="01 - Testi" />
 
-        <EditText
-            android:id="@+id/txt_username"
+        <TextView
+            android:id="@+id/song_artist_album"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="12"
-            android:hint="@string/username_if_needed"
-            android:inputType="text"
             android:textColor="@color/control"
-            android:lines="1" />
-
-        <EditText
-            android:id="@+id/txt_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="12"
-            android:hint="@string/password_if_needed"
-            android:inputType="textPassword"
-            android:textColor="@color/control"
-            android:lines="1" />
+            tools:text="Artist - Album" />
     </LinearLayout>
 
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="32dp" />
-
-    <Button
-        android:id="@+id/btn_connect"
+    <TextView
+        android:id="@+id/song_length"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="32dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
         android:textColor="@color/control"
-        android:text="@string/connect" />
+        tools:text="00:00"/>
 
-</LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="bottom"
+        android:background="@color/divider" />
+
+</FrameLayout>

@@ -28,36 +28,38 @@ package xyz.hetula.homefy.library;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import xyz.hetula.homefy.R;
-import xyz.hetula.homefy.player.Song;
+import xyz.hetula.homefy.service.Homefy;
 
-public class LibraryFragment extends Fragment {
+public class SongListFragment extends Fragment {
+    public static final String LIST_TYPE_KEY = "SongListFragment_LIST_TYPE_KEY";
+    public static final int ALL_MUSIC = 1;
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        FrameLayout main = (FrameLayout) inflater.inflate(R.layout.fragment_library, container, false);
-        View libraryMusic = main.findViewById(R.id.library_music);
-        libraryMusic.setOnClickListener(this::onLibraryMusicClick);
-        return main;
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View root = inflater.inflate(R.layout.fragment_song_list, container, false);
+        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false));
+
+        Bundle args = getArguments();
+        int type = args.getInt(LIST_TYPE_KEY);
+
+        if(type == ALL_MUSIC) {
+            recyclerView.setAdapter(new SongAdapter(Homefy.library().getSongs()));
+        }
+
+        return root;
     }
 
-    private void onLibraryMusicClick(View v) {
-        SongListFragment fragment = new SongListFragment();
-        Bundle args = new Bundle();
-        args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALL_MUSIC);
-        fragment.setArguments(args);
-        getFragmentManager()
-                .beginTransaction()
-                .addToBackStack("Library Music")
-                .add(R.id.container, fragment)
-                .show(fragment)
-                .commit();
-    }
+
+
 }

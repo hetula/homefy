@@ -57,8 +57,8 @@
 
             <include layout="@layout/view_divider_vertical" />
 
-            <FrameLayout style="@style/NavigationView">
-
+            <FrameLayout style="@style/NavigationView"
+                android:id="@+id/library_music">
                 <TextView
                     style="@style/NavigationView.Content"
                     android:drawableStart="@drawable/ic_library_music"
@@ -67,7 +67,8 @@
 
             <include layout="@layout/view_divider_vertical" />
 
-            <FrameLayout style="@style/NavigationView">
+            <FrameLayout style="@style/NavigationView"
+                android:id="@+id/library_albums">
 
                 <TextView
                     style="@style/NavigationView.Content"
@@ -77,7 +78,8 @@
 
             <include layout="@layout/view_divider_vertical" />
 
-            <FrameLayout style="@style/NavigationView">
+            <FrameLayout style="@style/NavigationView"
+                android:id="@+id/library_favorites">
 
                 <TextView
                     style="@style/NavigationView.Content"
@@ -99,7 +101,8 @@
 
             <include layout="@layout/view_divider_vertical" />
 
-            <FrameLayout style="@style/NavigationView">
+            <FrameLayout style="@style/NavigationView"
+                android:id="@+id/library_search">
 
                 <TextView
                     style="@style/NavigationView.Content"
@@ -109,7 +112,8 @@
 
             <include layout="@layout/view_divider_vertical" />
 
-            <FrameLayout style="@style/NavigationView">
+            <FrameLayout style="@style/NavigationView"
+                android:id="@+id/library_artists">
 
                 <TextView
                     style="@style/NavigationView.Content"
@@ -119,7 +123,8 @@
 
             <include layout="@layout/view_divider_vertical" />
 
-            <FrameLayout style="@style/NavigationView">
+            <FrameLayout style="@style/NavigationView"
+                android:id="@+id/library_playlists">
 
                 <TextView
                     style="@style/NavigationView.Content"
