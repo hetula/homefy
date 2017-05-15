@@ -32,6 +32,9 @@ import xyz.hetula.functional.Consumer;
 import xyz.hetula.homefy.player.Song;
 
 public interface HomefyProtocol {
+
+    VersionInfo getInfo();
+
     void setServer(String address);
 
     String getServer();
@@ -46,7 +49,13 @@ public interface HomefyProtocol {
 
     void requestSongs(Consumer<Song[]> songsConsumer, Consumer<VolleyError> errorConsumer);
 
+    void requestSongs(Map<String, String> parameters, Consumer<Song[]> songsConsumer, Consumer<VolleyError> errorConsumer);
+
     void requestSong(String id, Consumer<Song> songConsumer, Consumer<VolleyError> errorConsumer);
+
+    void requestPages(int pageLength, Consumer<String[]> pagesConsumer, Consumer<VolleyError> errorConsumer);
+
+    <T> void request(String url, Consumer<T> consumer, Consumer<VolleyError> errorConsumer, Class<T> clasz);
 
     void release();
 }

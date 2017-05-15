@@ -104,6 +104,26 @@ public class MockHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
+    public VersionInfo getInfo() {
+        return null;
+    }
+
+    @Override
+    public void requestPages(int pageLength, Consumer<String[]> pagesConsumer, Consumer<VolleyError> errorConsumer) {
+
+    }
+
+    @Override
+    public void requestSongs(Map<String, String> parameters, Consumer<Song[]> songsConsumer, Consumer<VolleyError> errorConsumer) {
+
+    }
+
+    @Override
+    public <T> void request(String url, Consumer<T> consumer, Consumer<VolleyError> errorConsumer, Class<T> clasz) {
+
+    }
+
+    @Override
     public void release() {
         songs.clear();
         songs = null;

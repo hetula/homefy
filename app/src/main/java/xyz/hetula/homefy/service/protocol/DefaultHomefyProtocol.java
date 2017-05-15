@@ -41,6 +41,8 @@ import xyz.hetula.homefy.player.Song;
 
 public class DefaultHomefyProtocol implements HomefyProtocol {
     private static final String TAG = "HomefyProtocol";
+    private VersionInfo mCurrentInfo = new VersionInfo();
+
     private RequestQueue mQueryQueue;
     private String mServerAddress;
     private String mUserPass;
@@ -61,8 +63,13 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
 
     @Override
     public void setAuth(String user, String pass) {
-        mUserPass = new String(Base64.encode((user+":"+pass)
+        mUserPass = new String(Base64.encode((user + ":" + pass)
                 .getBytes(StandardCharsets.UTF_8), 0), StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public VersionInfo getInfo() {
+        return mCurrentInfo;
     }
 
     @Override
@@ -71,7 +78,10 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
         GsonRequest<VersionInfo> versionReq = new GsonRequest<>(
                 mServerAddress + "/version",
                 VersionInfo.class,
-                versionConsumer::accept,
+                v -> {
+                    mCurrentInfo = v;
+                    versionConsumer.accept(v);
+                },
                 error -> {
                     Log.e(TAG, error.toString());
                     if (errorConsumer != null) {
@@ -86,7 +96,10 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
         GsonRequest<VersionInfo> versionReq = new GsonRequest<>(
                 mServerAddress + "/version/auth",
                 VersionInfo.class,
-                versionConsumer::accept,
+                v -> {
+                    mCurrentInfo = v;
+                    versionConsumer.accept(v);
+                },
                 error -> {
                     Log.e(TAG, error.toString());
                     if (errorConsumer != null) {
@@ -98,10 +111,44 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
+    public void requestPages(int pageLength, Consumer<String[]> pagesConsumer, Consumer<VolleyError> errorConsumer) {
+        GsonRequest<String[]> pagesRequest = new GsonRequest<>(
+                mServerAddress + "/songs/pages?length=" + pageLength,
+                String[].class,
+                pagesConsumer::accept,
+                error -> {
+                    Log.e(TAG, error.toString());
+                    if (errorConsumer != null) {
+                        errorConsumer.accept(error);
+                    }
+                });
+        appendHeaders(pagesRequest);
+        mQueryQueue.add(pagesRequest);
+    }
+
+    @Override
     public void requestSongs(Consumer<Song[]> songsConsumer,
                              Consumer<VolleyError> errorConsumer) {
+        requestSongs(null, songsConsumer, errorConsumer);
+    }
+
+    @Override
+    public void requestSongs(Map<String, String> parameters,
+                             Consumer<Song[]> songsConsumer,
+                             Consumer<VolleyError> errorConsumer) {
+        StringBuilder params = new StringBuilder();
+        if (parameters != null && parameters.isEmpty()) {
+            params.append('?');
+            for (String key : parameters.keySet()) {
+                params.append(key)
+                        .append('=')
+                        .append(parameters.get(key))
+                        .append('&');
+            }
+            params.deleteCharAt(params.length() - 1);
+        }
         GsonRequest<Song[]> songsReq = new GsonRequest<>(
-                mServerAddress + "/songs",
+                mServerAddress + "/songs" + params.toString(),
                 Song[].class,
                 songsConsumer::accept,
                 error -> {
@@ -133,6 +180,23 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
+    public <T> void request(String url, Consumer<T> consumer, Consumer<VolleyError> errorConsumer, Class<T> clasz) {
+        GsonRequest<T> request = new GsonRequest<>(
+                url,
+                clasz,
+                consumer::accept,
+                error -> {
+                    Log.e(TAG, error.toString());
+                    if (errorConsumer != null) {
+                        errorConsumer.accept(error);
+                    }
+                }
+        );
+        appendHeaders(request);
+        mQueryQueue.add(request);
+    }
+
+    @Override
     public void release() {
         mQueryQueue.stop();
         mQueryQueue = null;
@@ -140,12 +204,12 @@ public class DefaultHomefyProtocol implements HomefyProtocol {
 
     @Override
     public void addAuthHeader(Map<String, String> headers) {
-        if(TextUtils.isEmpty(mUserPass)) return;
-        headers.put("Authorization", "Basic " +  mUserPass);
+        if (TextUtils.isEmpty(mUserPass)) return;
+        headers.put("Authorization", "Basic " + mUserPass);
     }
 
     private void appendHeaders(GsonRequest<?> request) {
-        if(TextUtils.isEmpty(mUserPass)) return;
-        request.putHeader("Authorization", "Basic " +  mUserPass);
+        if (TextUtils.isEmpty(mUserPass)) return;
+        request.putHeader("Authorization", "Basic " + mUserPass);
     }
 }

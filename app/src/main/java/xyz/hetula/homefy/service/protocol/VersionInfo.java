@@ -26,9 +26,10 @@
 package xyz.hetula.homefy.service.protocol;
 
 public class VersionInfo {
-    private String name;
-    private String version;
-    private AuthType authentication;
+    private String name = "DEFAULT";
+    private String version = "0";
+    private AuthType authentication = AuthType.NONE;
+    private int databaseSize = 0;
 
     public VersionInfo() {
         // Default
@@ -59,6 +60,10 @@ public class VersionInfo {
                 ", version='" + version + '\'' +
                 ", authentication=" + authentication +
                 '}';
+    }
+
+    public int getDatabaseSize() {
+        return databaseSize;
     }
 
     public enum AuthType {

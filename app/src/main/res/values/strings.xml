@@ -33,6 +33,7 @@
     <string name="nav_playlists">Playlists</string>
 
     <string name="loading">Homefy is loading…</string>
+    <string name="songs_loaded">%1$d / %2$d Songs loaded</string>
     <string name="homefy_server_setup">Homefy Server Setup</string>
     <string name="server_address">Server address</string>
     <string name="user_credentials">User credentials</string>

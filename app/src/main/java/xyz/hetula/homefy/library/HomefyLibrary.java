@@ -27,6 +27,7 @@ package xyz.hetula.homefy.library;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,15 +54,19 @@ public class HomefyLibrary {
     private List<String> mAlbums;
     private List<String> mArtists;
 
-    public void initialize(Song[] music) {
-        mSongDatabase = new HashMap<>(music.length);
-        mMusic = new ArrayList<>(music.length);
+    public void initialize(List<Song> music) {
+        Log.d("HomefyLibrary", "Initializing with " + music.size() + " songs!");
+        long start = System.currentTimeMillis();
+        mMusic = music;
+        Collections.sort(mMusic);
 
+        // Take account load factor, probably too low but can be optimized later
+        // TODO Check correct load factor
+        mSongDatabase = new HashMap<>((int)(music.size() * 1.1));
         mArtistCache = new HashMap<>();
         mAlbumCache = new HashMap<>();
 
         for (Song song : music) {
-            mMusic.add(song);
             mSongDatabase.put(song.getId(), song);
             createAndAdd(mArtistCache, song.getArtist(), song);
             createAndAdd(mAlbumCache, song.getAlbum(), song);
@@ -73,9 +78,10 @@ public class HomefyLibrary {
         mArtists = new ArrayList<>(mArtistCache.keySet());
 
         // Sort
-        Collections.sort(mMusic);
         Collections.sort(mAlbums);
         Collections.sort(mArtists);
+        long time = System.currentTimeMillis() - start;
+        Log.d("HomefyLibrary", "Library initialized in " + time + " ms");
     }
 
     private void createAndAdd(Map<String, List<Song>> cache, String key, Song song) {
