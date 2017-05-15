@@ -26,6 +26,8 @@ package xyz.hetula.homefy.service.protocol;
 
 import com.android.volley.VolleyError;
 
+import java.util.Map;
+
 import xyz.hetula.functional.Consumer;
 import xyz.hetula.homefy.player.Song;
 
@@ -34,7 +36,13 @@ public interface HomefyProtocol {
 
     String getServer();
 
+    void setAuth(String user, String pass);
+
+    void addAuthHeader(Map<String, String> headers);
+
     void requestVersionInfo(Consumer<VersionInfo> versionConsumer, Consumer<VolleyError> errorConsumer);
+
+    void requestVersionInfoAuth(Consumer<VersionInfo> versionConsumer, Consumer<VolleyError> errorConsumer);
 
     void requestSongs(Consumer<Song[]> songsConsumer, Consumer<VolleyError> errorConsumer);
 

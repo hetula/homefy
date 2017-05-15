@@ -46,43 +46,86 @@ import xyz.hetula.homefy.service.protocol.VersionInfo;
 
 public class SetupFragment extends Fragment {
     private static final String ADDRESS_KEY = "SetupFragement.ADDRESS_KEY";
+    private static final String USERNAME_KEY = "SetupFragement.USERNAME_KEY";
+    private static final String PASSWORD_KEY = "SetupFragement.PASSWORD_KEY";
+
+    private View mViewCredentials;
+    private Button mConnect;
     private EditText mAddress;
+    private EditText mUser;
+    private EditText mPass;
     private boolean mConnecting;
+    private boolean mNeedsAuth = false;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         LinearLayout main = (LinearLayout) inflater.inflate(R.layout.fragment_setup, container, false);
-        Button connect = (Button) main.findViewById(R.id.btn_connect);
-        connect.setOnClickListener(this::onConnect);
+        mConnect = (Button) main.findViewById(R.id.btn_connect);
+        mConnect.setOnClickListener(this::onConClick);
         mAddress = (EditText) main.findViewById(R.id.txt_address);
+        mUser = (EditText) main.findViewById(R.id.txt_username);
+        mPass = (EditText) main.findViewById(R.id.txt_password);
+        mViewCredentials = main.findViewById(R.id.view_credentials);
         mAddress.setOnEditorActionListener((v, actionId, event) -> {
             if (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                onConnect(mAddress);
+                onConnect();
             }
             return false;
         });
         SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
         mAddress.setText(pref.getString(ADDRESS_KEY, ""));
+        mUser.setText(pref.getString(USERNAME_KEY, ""));
+        mPass.setText(pref.getString(PASSWORD_KEY, ""));
+
         mConnecting = false;
         return main;
     }
 
-    private void onConnect(View v) {
+    private void onConClick(View v) {
         if (mConnecting) return;
         String address = mAddress.getText().toString();
-        if (address.isEmpty()) {
-            Toast.makeText(getContext(), "Enter Server address!", Toast.LENGTH_LONG).show();
-            return;
-        }
-        mConnecting = true;
+        Homefy.protocol().setServer(address);
         // Save it for later
         SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
         pref.edit().putString(ADDRESS_KEY, address).apply();
 
-        Homefy.protocol().setServer(address);
+        if (address.isEmpty()) {
+            Toast.makeText(getContext(), "Enter Server address!", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!mNeedsAuth) {
+            onConnect();
+        } else {
+            String user = mUser.getText().toString();
+            String pass = mPass.getText().toString();
+            if (user.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(getContext(), "Check Credentials!", Toast.LENGTH_LONG).show();
+                return;
+            }
+            pref.edit()
+                    .putString(USERNAME_KEY, user)
+                    .putString(PASSWORD_KEY, pass)
+                    .apply();
+            onAuth(user, pass);
+        }
+    }
+
+    private void onConnect() {
+        mConnecting = true;
         Homefy.protocol().requestVersionInfo(this::onVersionInfo,
+                volleyError -> {
+                    Toast.makeText(getContext(),
+                            "Error when Connecting!", Toast.LENGTH_LONG).show();
+                    mConnecting = false;
+                });
+    }
+
+    private void onAuth(String user, String pass) {
+        mConnecting = true;
+        Homefy.protocol().setAuth(user, pass);
+        Homefy.protocol().requestVersionInfoAuth(this::onVersionInfoAuth,
                 volleyError -> {
                     Toast.makeText(getContext(),
                             "Error when Connecting!", Toast.LENGTH_LONG).show();
@@ -92,13 +135,29 @@ public class SetupFragment extends Fragment {
 
     private void onVersionInfo(VersionInfo versionInfo) {
         Log.d("SetupFragment", versionInfo.toString());
-        if (versionInfo.getAuthentication() == VersionInfo.AuthType.NONE) {
-            getFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, new LoadingFragment())
-                    .commit();
-            mConnecting = false;
+        mConnecting = false;
+        switch (versionInfo.getAuthentication()) {
+            case NONE:
+                startLoading();
+                break;
+            case BASIC:
+                mNeedsAuth = true;
+                mConnect.setText(R.string.authenticate);
+                mViewCredentials.setVisibility(View.VISIBLE);
+                Toast.makeText(getContext(), "Enter Credentials!", Toast.LENGTH_LONG).show();
+                break;
         }
-        // TODO Initialize possible authentication view here!
+    }
+
+    private void onVersionInfoAuth(VersionInfo versionInfo) {
+        Log.d("SetupFragment", versionInfo.toString());
+        startLoading();
+    }
+
+    private void startLoading() {
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.container, new LoadingFragment())
+                .commit();
     }
 }

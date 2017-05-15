@@ -36,9 +36,10 @@
     <string name="homefy_server_setup">Homefy Server Setup</string>
     <string name="server_address">Server address</string>
     <string name="user_credentials">User credentials</string>
-    <string name="username_if_needed">Username if needed</string>
-    <string name="password_if_needed">Password if needed</string>
+    <string name="username_if_needed">Username</string>
+    <string name="password_if_needed">Password</string>
     <string name="connect">Connect</string>
+    <string name="authenticate">Authenticate</string>
     <string name="test_connection">Test Connection</string>
 
     <plurals name="song_count">

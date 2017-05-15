@@ -28,6 +28,7 @@ import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import xyz.hetula.functional.Consumer;
@@ -68,12 +69,22 @@ public class MockHomefyProtocol implements HomefyProtocol {
     }
 
     @Override
+    public void setAuth(String user, String pass) {
+
+    }
+
+    @Override
     public void requestVersionInfo(Consumer<VersionInfo> versionConsumer,
                                    Consumer<VolleyError> errorConsumer) {
         versionConsumer.accept(new VersionInfo(
                 "Homefy",
                 "1.0_Mock",
                 VersionInfo.AuthType.NONE));
+    }
+
+    @Override
+    public void requestVersionInfoAuth(Consumer<VersionInfo> versionConsumer, Consumer<VolleyError> errorConsumer) {
+
     }
 
     @Override
@@ -96,5 +107,10 @@ public class MockHomefyProtocol implements HomefyProtocol {
     public void release() {
         songs.clear();
         songs = null;
+    }
+
+    @Override
+    public void addAuthHeader(Map<String, String> headers) {
+
     }
 }

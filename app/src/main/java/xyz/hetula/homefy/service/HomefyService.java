@@ -27,12 +27,22 @@ package xyz.hetula.homefy.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+
+import xyz.hetula.homefy.R;
 
 public class HomefyService extends Service {
     private static final String TAG = "HomefyService";
+    private static final int NOTIFICATION_ID = 444;
+
     private static boolean mLoaded = false;
 
     public static boolean isReady() {
@@ -41,11 +51,13 @@ public class HomefyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(mLoaded) return START_STICKY;
+        if (mLoaded) return START_STICKY;
         mLoaded = true;
 
         Log.d(TAG, "Starting HomefyService");
         Homefy.initialize(getApplicationContext());
+
+        createNotification();
 
         return START_STICKY;
     }
@@ -56,11 +68,40 @@ public class HomefyService extends Service {
         Log.d(TAG, "Destroying Homefy Service");
         mLoaded = false;
         Homefy.destroy();
+        stopForeground(true);
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private void createNotification() {
+        MediaSessionCompat mediaSession = Homefy.player().getSession();
+        BitmapDrawable bd = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.album);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+        builder.setContentTitle("Test Title")
+                .setContentText("Test Text")
+                .setSubText("Test SubText")
+                .setLargeIcon(bd.getBitmap())
+                .setSmallIcon(R.drawable.ic_music)
+                .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+                .setOngoing(true)
+                .setShowWhen(false)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .setContentIntent(mediaSession.getController().getSessionActivity())
+                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                        PlaybackStateCompat.ACTION_STOP))
+                .addAction(new NotificationCompat.Action(
+                        R.drawable.ic_pause_circle, "Pause",
+                        MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                                PlaybackStateCompat.ACTION_PLAY_PAUSE)))
+                .setStyle(new android.support.v7.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(mediaSession.getSessionToken())
+                        .setShowActionsInCompactView(0));
+
+        startForeground(NOTIFICATION_ID, builder.build());
     }
 }

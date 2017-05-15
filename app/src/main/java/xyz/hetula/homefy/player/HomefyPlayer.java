@@ -25,35 +25,52 @@
 package xyz.hetula.homefy.player;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import xyz.hetula.homefy.service.Homefy;
 
 public class HomefyPlayer {
     private static final String TAG = "HomefyPlayer";
 
+    private final IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
     private final List<Song> mPlaylist;
 
     private Context mContext;
     private MediaPlayer mPlayer;
-    private MediaSession mSession;
+    private MediaSessionCompat mSession;
+    private PlaybackStateCompat.Builder mStateBuilder;
+    private AudioManager.OnAudioFocusChangeListener afChangeListener;
 
     private Song mNowPlaying;
 
     public HomefyPlayer(Context context) {
+        mPlaylist = new ArrayList<>();
+
         mContext = context;
-        mSession = new MediaSession(context, "Homefy Player");
+        mSession = new MediaSessionCompat(context, "Homefy Player");
+
+        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+        mStateBuilder = new PlaybackStateCompat.Builder().setActions(
+                PlaybackStateCompat.ACTION_PLAY |
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE);
+        mSession.setPlaybackState(mStateBuilder.build());
+        mSession.setActive(true);
 
         mPlayer = new MediaPlayer();
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -65,10 +82,33 @@ public class HomefyPlayer {
         mPlayer.setOnPreparedListener(this::onPrepareComplete);
         mPlayer.setOnErrorListener(this::onError);
 
-        mPlaylist = new ArrayList<>();
+        MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
+            @Override
+            public void onPlay() {
+                AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            }
+
+            @Override
+            public void onPause() {
+                AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            }
+
+            @Override
+            public void onSkipToNext() {
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+            }
+
+            @Override
+            public void onStop() {
+                AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            }
+        };
     }
 
-    public MediaSession getSession() {
+    public MediaSessionCompat getSession() {
         return mSession;
     }
 
@@ -88,15 +128,15 @@ public class HomefyPlayer {
     }
 
     public void play(Song song, @Nullable List<Song> playlist) {
-        if(setupPlay(song) && playlist != null) {
+        if (setupPlay(song) && playlist != null) {
             mPlaylist.clear();
             mPlaylist.addAll(playlist);
         }
     }
 
     public void pauseResume() {
-        if(mNowPlaying == null) return;
-        if(mPlayer.isPlaying()) {
+        if (mNowPlaying == null) return;
+        if (mPlayer.isPlaying()) {
             mPlayer.pause();
         } else {
             mPlayer.start();
@@ -111,14 +151,14 @@ public class HomefyPlayer {
     }
 
     public void next() {
-        if(mPlaylist.isEmpty()) return;
+        if (mPlaylist.isEmpty()) return;
         // Normal Playback mode implementation
         // This needs own classes/methods etc for proper impl
         // TODO Implement Playback modes
         int id = mPlaylist.indexOf(mNowPlaying);
-        if(id == -1) return;
+        if (id == -1) return;
         id++;
-        if(id >= mPlaylist.size()) return;
+        if (id >= mPlaylist.size()) return;
         setupPlay(mPlaylist.get(id));
     }
 
@@ -126,7 +166,9 @@ public class HomefyPlayer {
         try {
             Uri uri = Uri.parse(Homefy.library().getPlayPath(song));
             mPlayer.reset();
-            mPlayer.setDataSource(mContext, uri, new HashMap<>());
+            Map<String, String> headers = new HashMap<>();
+            Homefy.protocol().addAuthHeader(headers);
+            mPlayer.setDataSource(mContext, uri, headers);
             mPlayer.prepareAsync();
 
             mNowPlaying = song;
@@ -146,7 +188,7 @@ public class HomefyPlayer {
     }
 
     private boolean onError(MediaPlayer mp, int what, int extra) {
-        Log.e(TAG, "Playback Error: " + what +" extra: " + extra);
+        Log.e(TAG, "Playback Error: " + what + " extra: " + extra);
         return true;
     }
 }

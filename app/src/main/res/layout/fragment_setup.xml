@@ -52,6 +52,7 @@
         android:layout_height="32dp" />
 
     <LinearLayout
+        android:id="@+id/view_credentials"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
