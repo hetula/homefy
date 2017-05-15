@@ -31,6 +31,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -40,9 +41,12 @@ import xyz.hetula.homefy.R;
 import xyz.hetula.homefy.service.Homefy;
 
 public class PlayerFragment extends Fragment {
+    private PlaybackListener mPlaybackListener = (song, state) -> updateSongInfo();
     private TextView mTxtTitle;
     private TextView mTxtArtist;
     private TextView mTxtAlbum;
+    private ImageButton mBtnPausePlay;
+
 
     @Nullable
     @Override
@@ -52,14 +56,18 @@ public class PlayerFragment extends Fragment {
         mTxtTitle = (TextView) main.findViewById(R.id.txt_song_title);
         mTxtArtist = (TextView) main.findViewById(R.id.txt_song_artist);
         mTxtAlbum = (TextView) main.findViewById(R.id.txt_song_album);
+        mBtnPausePlay = (ImageButton) main.findViewById(R.id.btn_play_pause);
+        ImageButton btnPlayback = (ImageButton) main.findViewById(R.id.btn_playback);
         View btnStop = main.findViewById(R.id.btn_stop);
         View btnNext = main.findViewById(R.id.btn_next);
+        View btnPrevious = main.findViewById(R.id.btn_previous);
 
         btnStop.setOnClickListener(v -> Homefy.player().stop());
         btnNext.setOnClickListener(v -> {
             Homefy.player().next();
             updateSongInfo();
         });
+        mBtnPausePlay.setOnClickListener(v -> Homefy.player().pauseResume());
 
         return main;
     }
@@ -68,6 +76,13 @@ public class PlayerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         updateSongInfo();
+        Homefy.player().registerPlaybackListener(mPlaybackListener);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Homefy.player().unregisterPlaybackListener(mPlaybackListener);
     }
 
     private void updateSongInfo() {
@@ -77,6 +92,17 @@ public class PlayerFragment extends Fragment {
                     "%d - %s", now.getTrack(), now.getTitle()));
             mTxtArtist.setText(now.getArtist());
             mTxtAlbum.setText(now.getAlbum());
+            if(Homefy.player().isPaused()) {
+                mBtnPausePlay.setImageResource(R.drawable.ic_play_circle);
+            } else if(Homefy.player().isPlaying()) {
+                mBtnPausePlay.setImageResource(R.drawable.ic_pause_circle);
+            }
+        } else {
+            mTxtTitle.setText(null);
+            mTxtArtist.setText(null);
+            mTxtAlbum.setText(null);
+            mBtnPausePlay.setImageResource(R.drawable.ic_play_circle);
         }
+
     }
 }

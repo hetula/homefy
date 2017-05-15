@@ -51,6 +51,12 @@ public class Homefy {
     static void destroy() {
         mHomefy.release();
         mHomefy = null;
+
+        mLibrary.release();
+        mLibrary = null;
+
+        mPlayer.release();
+        mPlayer = null;
     }
 
     public static void mock() {

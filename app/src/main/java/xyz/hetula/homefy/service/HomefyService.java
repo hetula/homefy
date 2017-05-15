@@ -27,7 +27,8 @@ package xyz.hetula.homefy.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -79,12 +80,12 @@ public class HomefyService extends Service {
 
     private void createNotification() {
         MediaSessionCompat mediaSession = Homefy.player().getSession();
-        BitmapDrawable bd = (BitmapDrawable) ContextCompat.getDrawable(this, R.drawable.album);
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_album_big);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
         builder.setContentTitle("Test Title")
                 .setContentText("Test Text")
                 .setSubText("Test SubText")
-                .setLargeIcon(bd.getBitmap())
+                .setLargeIcon(largeIcon)
                 .setSmallIcon(R.drawable.ic_music)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                 .setOngoing(true)

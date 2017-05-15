@@ -20,32 +20,19 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-package xyz.hetula.homefy;
+package xyz.hetula.homefy.player;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+/**
+ * Created by tuomo on 15.5.2017.
+ */
 
-import xyz.hetula.homefy.service.HomefyService;
-import xyz.hetula.homefy.setup.SetupFragment;
+public interface PlaybackListener {
+    int STATE_PLAY = 0;
+    int STATE_PAUSE = 1;
+    int STATE_RESUME = 2;
+    int STATE_STOP = 3;
 
-public class MainActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, HomefyService.isReady() ?
-                        new MainFragment() : new SetupFragment())
-                .commit();
-
-        Intent startService = new Intent(this, HomefyService.class);
-        startService(startService);
-    }
+    void onSongPlay(Song song, int state);
 }

@@ -84,6 +84,16 @@ public class HomefyLibrary {
         Log.d("HomefyLibrary", "Library initialized in " + time + " ms");
     }
 
+    public void release() {
+        mSongDatabase.clear();
+        mArtistCache.clear();
+        mAlbumCache.clear();
+        mMusic.clear();
+        mAlbums.clear();
+        mArtists.clear();
+
+    }
+
     private void createAndAdd(Map<String, List<Song>> cache, String key, Song song) {
         List<Song> list = cache.get(key);
         if (list == null) {
