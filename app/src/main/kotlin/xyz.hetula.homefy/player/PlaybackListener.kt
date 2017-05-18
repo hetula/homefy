@@ -20,19 +20,19 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-package xyz.hetula.homefy.player;
+package xyz.hetula.homefy.player
 
-/**
- * Created by tuomo on 15.5.2017.
- */
+interface PlaybackListener {
 
-public interface PlaybackListener {
-    int STATE_PLAY = 0;
-    int STATE_PAUSE = 1;
-    int STATE_RESUME = 2;
-    int STATE_STOP = 3;
+    fun onSongPlay(song: Song, state: Int)
 
-    void onSongPlay(Song song, int state);
+    companion object {
+        val STATE_PLAY = 0
+        val STATE_PAUSE = 1
+        val STATE_RESUME = 2
+        val STATE_STOP = 3
+    }
 }

@@ -2,9 +2,11 @@
 Music Player for Android using simple REST interface to communicate with
 HomefyServer protocol.
 
+Homefy is written in Kotlin
+
 ## Requirements
 
- - Android Studio >=2.4 (for Java 8 support)
+ - Android Studio >=3.0 (for Official Kotlin support, might work on lower too)
  - Android API 23
 
 

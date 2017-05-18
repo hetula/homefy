@@ -23,14 +23,30 @@
  *
  */
 
-package xyz.hetula.homefy;
+package xyz.hetula.homefy
 
-import java.util.Locale;
+import android.content.Intent
+import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 
-public class Utils {
-    public static String parseSeconds(long seconds) {
-        long min = seconds / 60;
-        seconds -= min * 60;
-        return String.format(Locale.getDefault(), "%02d:%02d", min, seconds);
+import xyz.hetula.homefy.service.HomefyService
+import xyz.hetula.homefy.setup.SetupFragment
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container, if (HomefyService.isReady)
+                    MainFragment()
+                else
+                    SetupFragment())
+                .commit()
+
+        val startService = Intent(this, HomefyService::class.java)
+        startService(startService)
     }
 }

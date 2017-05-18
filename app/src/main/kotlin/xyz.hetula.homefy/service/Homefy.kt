@@ -20,10 +20,56 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
  */
 
-package xyz.hetula.functional;
+package xyz.hetula.homefy.service
 
-public interface Function<T, R> {
-    R apply(T t);
+import android.content.Context
+
+import xyz.hetula.homefy.library.HomefyLibrary
+import xyz.hetula.homefy.player.HomefyPlayer
+import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
+import xyz.hetula.homefy.service.protocol.HomefyProtocol
+
+object Homefy {
+    private var mUseMock = false
+    private var mHomefy: HomefyProtocol? = null
+    private var mLibrary: HomefyLibrary? = null
+    private var mPlayer: HomefyPlayer? = null
+
+
+    internal fun initialize(appContext: Context) {
+        mHomefy = DefaultHomefyProtocol(appContext)
+
+        mLibrary = HomefyLibrary()
+        mPlayer = HomefyPlayer(appContext)
+    }
+
+    internal fun destroy() {
+        mHomefy!!.release()
+        mHomefy = null
+
+        mLibrary!!.release()
+        mLibrary = null
+
+        mPlayer!!.release()
+        mPlayer = null
+    }
+
+    fun mock() {
+        mUseMock = true
+    }
+
+    fun protocol(): HomefyProtocol {
+        return mHomefy!!
+    }
+
+    fun library(): HomefyLibrary {
+        return mLibrary!!
+    }
+
+    fun player(): HomefyPlayer {
+        return mPlayer!!
+    }
 }
