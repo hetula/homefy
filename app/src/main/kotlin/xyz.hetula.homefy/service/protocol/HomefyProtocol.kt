@@ -28,6 +28,11 @@ import com.android.volley.VolleyError
 
 import xyz.hetula.homefy.player.Song
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 interface HomefyProtocol {
 
     var info: VersionInfo

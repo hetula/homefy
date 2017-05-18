@@ -31,6 +31,7 @@
 
     <color name="divider">#ADADAD</color>
     <color name="control">#DFDFDF</color>
+    <color name="control_pressed">#5F5F5F</color>
 
     <color name="music_ico">#12EDEDED</color>
 </resources>

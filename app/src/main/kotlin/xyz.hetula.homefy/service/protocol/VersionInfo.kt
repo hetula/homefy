@@ -25,6 +25,11 @@
 
 package xyz.hetula.homefy.service.protocol
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class VersionInfo {
     val name: String
     val version: String

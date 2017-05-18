@@ -27,18 +27,20 @@ package xyz.hetula.homefy.service
 
 import android.app.Service
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.media.session.MediaButtonReceiver
-import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-
 import xyz.hetula.homefy.R
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class HomefyService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {

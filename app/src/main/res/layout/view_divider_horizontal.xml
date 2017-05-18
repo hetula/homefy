@@ -23,5 +23,5 @@
   ~ SOFTWARE.
   ~
   -->
-
+<!-- Scales oddly if view is used... -->
 <FrameLayout style="@style/NavigationDivider.Horizontal"/>

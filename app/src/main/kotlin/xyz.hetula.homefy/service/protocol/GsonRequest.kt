@@ -4,13 +4,14 @@ import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-
 import java.io.UnsupportedEncodingException
-import java.util.HashMap
+import java.util.*
 
 /**
- * From https://developer.android.com/training/volley/request-custom.html
- */
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+*/
 class GsonRequest<T> : Request<T> {
     private val gson = Gson()
     private val clazz: Class<T>

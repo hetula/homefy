@@ -20,23 +20,26 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-package xyz.hetula.homefy;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+package xyz.hetula.homefy.player
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
  */
-public class ExampleUnitTest {
-    @Test
-    public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+class Playback {
+    private val mPrevious: ArrayList<Song> = ArrayList()
+    private val mPlaylist: ArrayList<Song> = ArrayList()
+    private var mMode: PlaybackMode = PlaybackMode.NORMAL
+    private var mCurrent: Song? = null
+
+
+    fun setup(song: Song, playlist: ArrayList<Song>) {
+        mPlaylist.clear()
+        mPlaylist.addAll(playlist)
+
+        mCurrent = song
     }
 }

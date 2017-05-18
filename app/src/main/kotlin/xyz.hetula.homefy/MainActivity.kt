@@ -32,6 +32,11 @@ import android.support.v7.app.AppCompatActivity
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

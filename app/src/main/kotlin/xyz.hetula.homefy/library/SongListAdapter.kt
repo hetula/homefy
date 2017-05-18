@@ -30,13 +30,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
-import java.util.ArrayList
-
 import xyz.hetula.homefy.R
+import java.util.*
 
 /**
  * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
  */
 internal class SongListAdapter(names: List<String>,
                                private val mCountFetch: (String) -> Int,

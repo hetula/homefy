@@ -25,6 +25,11 @@
 
 package xyz.hetula.homefy.player
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class Song : Comparable<Song> {
     val id: String
     val track: Int

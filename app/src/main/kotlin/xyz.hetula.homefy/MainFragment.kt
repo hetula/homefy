@@ -38,6 +38,11 @@ import android.widget.FrameLayout
 import xyz.hetula.homefy.library.LibraryFragment
 import xyz.hetula.homefy.player.PlayerFragment
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class MainFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,

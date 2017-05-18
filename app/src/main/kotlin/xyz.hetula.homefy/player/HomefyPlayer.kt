@@ -30,6 +30,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioAttributes
 import android.media.AudioManager
+import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
 import android.media.MediaPlayer
 import android.net.Uri
 import android.net.wifi.WifiManager
@@ -39,23 +41,22 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-
+import xyz.hetula.homefy.service.Homefy
 import java.io.IOException
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
+import java.util.*
 import java.util.concurrent.TimeUnit
 
-import xyz.hetula.homefy.service.Homefy
-
-import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
-
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class HomefyPlayer(private var mContext: Context?) {
 
     private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
     private val mPlaybackListeners = HashSet<(Song, Int) -> Unit>()
     private val mHandler = Handler()
+    private val mRandom = Random()
 
     private val mPlaylist: MutableList<Song>
     private var mPlayer: MediaPlayer? = null
@@ -167,12 +168,12 @@ class HomefyPlayer(private var mContext: Context?) {
         if (mPlayer!!.isPlaying) {
             mPlayer!!.pause()
             for (listener in mPlaybackListeners) {
-                listener(nowPlaying()!!, PlaybackListener.STATE_PAUSE)
+                listener(nowPlaying()!!, STATE_PAUSE)
             }
         } else {
             mPlayer!!.start()
             for (listener in mPlaybackListeners) {
-                listener(nowPlaying()!!, PlaybackListener.STATE_RESUME)
+                listener(nowPlaying()!!, STATE_RESUME)
             }
         }
     }
@@ -186,22 +187,23 @@ class HomefyPlayer(private var mContext: Context?) {
     fun stop() {
         abandonAudioFocus()
         for (listener in mPlaybackListeners) {
-            listener(nowPlaying()!!, PlaybackListener.STATE_STOP)
+            listener(nowPlaying()!!, STATE_STOP)
         }
         mPlayer!!.stop()
     }
 
     fun previous() {}
 
-    operator fun next() {
+    fun next() {
         if (mPlaylist.isEmpty()) return
         // Normal Playback mode implementation
         // This needs own classes/methods etc for proper impl
         // TODO Implement Playback modes
-        var id = mPlaylist.indexOf(mNowPlaying)
-        if (id == -1) return
-        id++
-        if (id >= mPlaylist.size) return
+//        var id = mPlaylist.indexOf(mNowPlaying)
+//        if (id == -1) return
+//        id++
+//        if (id >= mPlaylist.size) return
+        val id = mRandom.nextInt(mPlaylist.size)
         setupPlay(mPlaylist[id])
     }
 
@@ -237,7 +239,7 @@ class HomefyPlayer(private var mContext: Context?) {
     private fun onPrepareComplete(mp: MediaPlayer) {
         mp.start()
         for (listener in mPlaybackListeners) {
-            listener(nowPlaying()!!, PlaybackListener.STATE_PLAY)
+            listener(nowPlaying()!!, STATE_PLAY)
         }
     }
 
@@ -250,7 +252,7 @@ class HomefyPlayer(private var mContext: Context?) {
         Log.e(TAG, "Playback Error: $what extra: $extra")
         abandonAudioFocus()
         for (listener in mPlaybackListeners) {
-            listener(nowPlaying()!!, PlaybackListener.STATE_STOP)
+            listener(nowPlaying()!!, STATE_STOP)
         }
         return true
     }
@@ -282,7 +284,7 @@ class HomefyPlayer(private var mContext: Context?) {
             mPlayer!!.setVolume(0.1f, 0.1f)
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             mPlayer!!.setVolume(1f, 1f)
-            // TODO deside if continueing playback is wanted here.
+            // TODO deside if continuing playback is wanted here.
             // ducking wont pause, so receiving messages doesn't cause problems
             // Phone calls etc can cause problems if headset is removed during call
             // after call end playback can possibly continue from wrong speaker.
@@ -308,5 +310,13 @@ class HomefyPlayer(private var mContext: Context?) {
 
     companion object {
         private val TAG = "HomefyPlayer"
+
+        /*
+         * Playback Codes
+         */
+        val STATE_PLAY = 0
+        val STATE_PAUSE = 1
+        val STATE_RESUME = 2
+        val STATE_STOP = 3
     }
 }

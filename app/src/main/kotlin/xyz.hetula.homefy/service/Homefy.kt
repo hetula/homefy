@@ -32,6 +32,11 @@ import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 object Homefy {
     private var mUseMock = false
     private var mHomefy: HomefyProtocol? = null

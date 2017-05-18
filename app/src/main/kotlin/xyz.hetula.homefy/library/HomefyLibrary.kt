@@ -26,13 +26,9 @@
 package xyz.hetula.homefy.library
 
 import android.util.Log
-
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashMap
-
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
+import java.util.*
 
 /**
  * Library Class that implements storing all songs
@@ -41,6 +37,10 @@ import xyz.hetula.homefy.service.Homefy
  * for each of them ready.
  * All of this is held in memory so using very big
  * Homefy Library will cause big memory usage.
+ *
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
  */
 class HomefyLibrary {
     private var mSongDatabase: MutableMap<String, Song>? = null

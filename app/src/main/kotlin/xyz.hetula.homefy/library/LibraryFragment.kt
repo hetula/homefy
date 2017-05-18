@@ -35,6 +35,11 @@ import android.widget.FrameLayout
 
 import xyz.hetula.homefy.R
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class LibraryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,

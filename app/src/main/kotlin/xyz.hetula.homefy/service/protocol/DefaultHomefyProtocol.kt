@@ -28,16 +28,18 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
-
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley
-
+import xyz.hetula.homefy.player.Song
 import java.nio.charset.StandardCharsets
 
-import xyz.hetula.homefy.player.Song
-
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
     private var mQueryQueue: RequestQueue? = null
     private var mUserPass: String = ""

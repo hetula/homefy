@@ -25,8 +25,14 @@
 
 package xyz.hetula.homefy
 
-import java.util.Locale
+import java.util.*
 
+
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 object Utils {
     fun parseSeconds(seconds: Long): String {
         val min = seconds / 60

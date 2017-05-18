@@ -33,12 +33,15 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-
-import java.util.Locale
-
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.Homefy
+import java.util.*
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class PlayerFragment : Fragment() {
     private val mPlaybackListener = { _: Song, _: Int -> updateSongInfo() }
     private var mTxtTitle: TextView? = null

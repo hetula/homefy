@@ -37,6 +37,11 @@ import android.view.ViewGroup
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.Homefy
 
+/**
+ * @author Tuomo Heino
+ * @version 1.0
+ * @since 1.0
+ */
 class SongListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {

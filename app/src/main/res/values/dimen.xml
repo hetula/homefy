@@ -28,6 +28,8 @@
     <dimen name="nav_view_height">96dp</dimen>
     <dimen name="nav_div_size">2dp</dimen>
     <dimen name="nav_drawable_padding">4dp</dimen>
+    <dimen name="smaller_control_size">36dp</dimen>
+    <dimen name="larger_control_size">64dp</dimen>
 
     <!-- Font sizes -->
     <dimen name="main_big_font">32sp</dimen>
