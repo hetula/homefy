@@ -23,50 +23,36 @@
  *
  */
 
-package xyz.hetula.homefy.service.protocol;
+package xyz.hetula.homefy.service.protocol
 
-public class VersionInfo {
-    private String name = "DEFAULT";
-    private String version = "0";
-    private AuthType authentication = AuthType.NONE;
-    private int databaseSize = 0;
+class VersionInfo {
+    val name: String
+    val version: String
+    val authentication: AuthType
+    var databaseSize = 0
+        set(value) {databaseSize = value}
 
-    public VersionInfo() {
-        // Default
+    constructor() {
+        this.name = "DEFAULT"
+        this.version = "0"
+        this.authentication = AuthType.NONE
     }
 
-    public VersionInfo(String name, String version, AuthType authentication) {
-        this.name = name;
-        this.version = version;
-        this.authentication = authentication;
+    constructor(name: String, version: String, authentication: AuthType) {
+        this.name = name
+        this.version = version
+        this.authentication = authentication
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public AuthType getAuthentication() {
-        return authentication;
-    }
-
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "VersionInfo{" +
                 "name='" + name + '\'' +
                 ", version='" + version + '\'' +
                 ", authentication=" + authentication +
-                '}';
+                '}'
     }
 
-    public int getDatabaseSize() {
-        return databaseSize;
-    }
-
-    public enum AuthType {
+    enum class AuthType {
         NONE,
         BASIC,
         OAUTH2

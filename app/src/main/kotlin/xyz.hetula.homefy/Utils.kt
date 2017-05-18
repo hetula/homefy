@@ -23,8 +23,13 @@
  *
  */
 
-package xyz.hetula.functional;
+package xyz.hetula.homefy
 
-public interface Consumer<T> {
-    void accept(T t);
+import java.util.Locale
+
+object Utils {
+    fun parseSeconds(seconds: Long): String {
+        val min = seconds / 60
+        return String.format(Locale.getDefault(), "%02d:%02d", min, seconds - min * 60)
+    }
 }
