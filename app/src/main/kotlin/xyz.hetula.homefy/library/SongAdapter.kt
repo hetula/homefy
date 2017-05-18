@@ -42,11 +42,7 @@ import java.util.*
  * @since 1.0
  */
 class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
-    private val mSongs: List<Song>
-
-    init {
-        this.mSongs = ArrayList(songs)
-    }
+    private val mSongs: ArrayList<Song> = ArrayList(songs)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val inflater = LayoutInflater.from(parent.context)

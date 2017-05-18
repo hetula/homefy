@@ -45,6 +45,7 @@ import xyz.hetula.homefy.service.Homefy
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 /**
  * @author Tuomo Heino
@@ -52,25 +53,21 @@ import java.util.concurrent.TimeUnit
  * @since 1.0
  */
 class HomefyPlayer(private var mContext: Context?) {
+    private val afChangeListener = AudioManager.OnAudioFocusChangeListener(this::onAudioFocusChange)
+    private val mPlaybackListeners = HashSet<(Song, Int) -> Unit>()
+    private val mStateBuilder: PlaybackStateCompat.Builder
+    private val mController: MediaControllerCompat
+    private val mWifiLock: WifiManager.WifiLock
+    private val mPlayback = Playback()
+    private val mHandler = Handler()
 
     private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
-    private val mPlaybackListeners = HashSet<(Song, Int) -> Unit>()
-    private val mHandler = Handler()
-    private val mRandom = Random()
-
-    private val mPlaylist: MutableList<Song>
     private var mPlayer: MediaPlayer? = null
+
     var session: MediaSessionCompat? = null
         private set
-    private val mController: MediaControllerCompat
-    private val mStateBuilder: PlaybackStateCompat.Builder
-    private val afChangeListener = AudioManager.OnAudioFocusChangeListener { this.onAudioFocusChange(it) }
-    private val mWifiLock: WifiManager.WifiLock
-
-    private var mNowPlaying: Song? = null
 
     init {
-        mPlaylist = ArrayList<Song>()
         val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
         mContext!!.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
 
@@ -153,18 +150,20 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     fun nowPlaying(): Song? {
-        return mNowPlaying
+        return mPlayback.getCurrent()
     }
 
-    fun play(song: Song, playlist: List<Song>?) {
-        if (setupPlay(song) && playlist != null) {
-            mPlaylist.clear()
-            mPlaylist.addAll(playlist)
+    fun play(song: Song, playlist: ArrayList<Song>?) {
+        if (setupPlay(song)) {
+            if(playlist == null)
+                mPlayback.playSong(song, ArrayList())
+            else
+                mPlayback.playSong(song, playlist)
         }
     }
 
     fun pauseResume() {
-        if (mNowPlaying == null) return
+        if (mPlayback.isEmpty()) return
         if (mPlayer!!.isPlaying) {
             mPlayer!!.pause()
             for (listener in mPlaybackListeners) {
@@ -179,32 +178,35 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     val isPlaying: Boolean
-        get() = mNowPlaying != null && mPlayer!!.isPlaying
+        get() = !mPlayback.isEmpty() && mPlayer!!.isPlaying
 
     val isPaused: Boolean
-        get() = mNowPlaying != null && !mPlayer!!.isPlaying
+        get() = !mPlayback.isEmpty() && !mPlayer!!.isPlaying
 
     fun stop() {
         abandonAudioFocus()
         for (listener in mPlaybackListeners) {
             listener(nowPlaying()!!, STATE_STOP)
         }
+        mPlayback.stop()
         mPlayer!!.stop()
     }
 
-    fun previous() {}
+    fun previous() {
+        mPlayback.previous()
+        if (mPlayback.isEmpty()) return
+        setupPlay(mPlayback.getCurrent()!!)
+    }
 
     fun next() {
-        if (mPlaylist.isEmpty()) return
-        // Normal Playback mode implementation
-        // This needs own classes/methods etc for proper impl
-        // TODO Implement Playback modes
-//        var id = mPlaylist.indexOf(mNowPlaying)
-//        if (id == -1) return
-//        id++
-//        if (id >= mPlaylist.size) return
-        val id = mRandom.nextInt(mPlaylist.size)
-        setupPlay(mPlaylist[id])
+        mPlayback.next()
+        if (mPlayback.isEmpty()) return
+        setupPlay(mPlayback.getCurrent()!!)
+    }
+
+    fun cyclePlaybackMode(): PlaybackMode {
+        mPlayback.cyclePlaybackMode()
+        return mPlayback.playbackMode
     }
 
     private fun setupPlay(song: Song): Boolean {
@@ -226,8 +228,6 @@ class HomefyPlayer(private var mContext: Context?) {
             Homefy.protocol().addAuthHeader(headers)
             mPlayer!!.setDataSource(mContext!!, uri, headers)
             mPlayer!!.prepareAsync()
-
-            mNowPlaying = song
             return true
         } catch (e: IOException) {
             Log.e(TAG, "Error when playing", e)
@@ -281,9 +281,9 @@ class HomefyPlayer(private var mContext: Context?) {
         } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT) {
             mController.transportControls.pause()
         } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-            mPlayer!!.setVolume(0.1f, 0.1f)
+            mPlayer?.setVolume(0.1f, 0.1f)
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            mPlayer!!.setVolume(1f, 1f)
+            mPlayer?.setVolume(1f, 1f)
             // TODO deside if continuing playback is wanted here.
             // ducking wont pause, so receiving messages doesn't cause problems
             // Phone calls etc can cause problems if headset is removed during call
@@ -302,8 +302,8 @@ class HomefyPlayer(private var mContext: Context?) {
     private inner class BecomingNoisyReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
-                if (mNowPlaying == null) return
-                mPlayer!!.pause()
+                if (mPlayback.isEmpty()) return
+                mPlayer?.pause()
             }
         }
     }

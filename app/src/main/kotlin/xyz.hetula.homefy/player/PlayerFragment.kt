@@ -27,6 +27,7 @@ package xyz.hetula.homefy.player
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,12 +63,17 @@ class PlayerFragment : Fragment() {
         val btnNext = main.findViewById(R.id.btn_next)
         val btnPrevious = main.findViewById(R.id.btn_previous)
 
-        btnStop.setOnClickListener { v -> Homefy.player().stop() }
-        btnNext.setOnClickListener { v ->
+        btnStop.setOnClickListener { _ -> Homefy.player().stop() }
+        btnNext.setOnClickListener { _ ->
             Homefy.player().next()
             updateSongInfo()
         }
-        mBtnPausePlay!!.setOnClickListener { v -> Homefy.player().pauseResume() }
+        btnPrevious.setOnClickListener({ _ ->
+            Homefy.player().previous()
+            updateSongInfo()
+        })
+        mBtnPausePlay!!.setOnClickListener { _ -> Homefy.player().pauseResume() }
+        btnPlayback.setOnClickListener(this::onPlaybackModeClick)
 
         return main
     }
@@ -86,8 +92,12 @@ class PlayerFragment : Fragment() {
     private fun updateSongInfo() {
         val now = Homefy.player().nowPlaying()
         if (now != null) {
-            mTxtTitle!!.text = String.format(Locale.getDefault(),
-                    "%d - %s", now.track, now.title)
+            if (now.track >= 0)
+                mTxtTitle!!.text = String.format(Locale.getDefault(),
+                        "%d - %s", now.track, now.title)
+            else
+                mTxtTitle!!.text = now.title
+
             mTxtArtist!!.text = now.artist
             mTxtAlbum!!.text = now.album
             if (Homefy.player().isPaused) {
@@ -101,6 +111,18 @@ class PlayerFragment : Fragment() {
             mTxtAlbum!!.text = null
             mBtnPausePlay!!.setImageResource(R.drawable.ic_play_circle)
         }
+    }
 
+    private fun onPlaybackModeClick(v: View) {
+        val button = v as ImageButton
+        val mode = Homefy.player().cyclePlaybackMode()
+        val imgRes: Int
+        when(mode) {
+            PlaybackMode.NORMAL -> imgRes = R.drawable.ic_repeat_off
+            PlaybackMode.REPEAT -> imgRes = R.drawable.ic_repeat
+            PlaybackMode.REPEAT_SINGLE -> imgRes = R.drawable.ic_repeat_one
+            PlaybackMode.RANDOM -> imgRes = R.drawable.ic_shuffle
+        }
+        button.setImageDrawable(ContextCompat.getDrawable(context, imgRes))
     }
 }

@@ -24,22 +24,123 @@
 
 package xyz.hetula.homefy.player
 
+import android.util.Log
+import java.util.*
+
+
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
 class Playback {
-    private val mPrevious: ArrayList<Song> = ArrayList()
-    private val mPlaylist: ArrayList<Song> = ArrayList()
-    private var mMode: PlaybackMode = PlaybackMode.NORMAL
-    private var mCurrent: Song? = null
+    private val previous = ArrayDeque<Song>()
+    private val queue = ArrayList<Song>()
+    private val next = ArrayList<Song>()
 
+    private var playback: PlaybackProvider = RANDOM_PROVIDER
+    private var lastRequest: PlayRequest? = null
+    private var playing: Song? = null
 
-    fun setup(song: Song, playlist: ArrayList<Song>) {
-        mPlaylist.clear()
-        mPlaylist.addAll(playlist)
+    var playbackMode: PlaybackMode = PlaybackMode.RANDOM
+        get
+        private set(value) {
+            field = value
+            setupPlaybackStyle(value)
+        }
 
-        mCurrent = song
+    fun stop() {
+        playing = null
+    }
+
+    fun playSong(play: Song, playlist: ArrayList<Song>) {
+        playing = play
+        lastRequest = PlayRequest(play, playlist)
+
+        next.clear()
+        next.addAll(playlist)
+        queue.clear()
+    }
+
+    private fun setupPlaybackStyle(mode: PlaybackMode) {
+        when(mode) {
+            PlaybackMode.NORMAL -> playback = NORMAL_PROVIDER
+            PlaybackMode.REPEAT -> playback = REPEAT_PROVIDER
+            PlaybackMode.REPEAT_SINGLE -> playback = REPEAT_SINGLE_PROVIDER
+            PlaybackMode.RANDOM -> playback = RANDOM_PROVIDER
+        }
+    }
+
+    fun queueSong(queue: List<Song>) {
+        this.queue.addAll(0, queue)
+    }
+
+    private fun queueSong(song: Song) {
+        queue.add(0, song)
+    }
+
+    fun isEmpty(): Boolean {
+        return playing == null
+    }
+
+    fun getCurrent(): Song? {
+        return playing
+    }
+
+    fun previous() {
+        if (!isEmpty()) {
+            queueSong(playing!!)
+        }
+        playing = if (previous.isEmpty()) null else previous.removeLast()
+    }
+
+    fun next() {
+        if (playing != null && playing != previous.peekLast()) {
+            addToPrevious(playing!!)
+        }
+        if (!queue.isEmpty()) {
+            playing = queue.removeAt(0)
+        } else {
+            playing = playback(playing, next, lastRequest)
+        }
+    }
+
+    fun cyclePlaybackMode() {
+        val ord = playbackMode.ordinal + 1
+        if(ord >= PlaybackMode.values().size)
+            playbackMode = PlaybackMode.values()[0]
+        else
+            playbackMode = PlaybackMode.values()[ord]
+
+    }
+
+    private fun addToPrevious(song: Song) {
+        if (previous.size >= 100) {
+            do { // Truncate
+                Log.v("Playback", "Previous list is full => " + previous.size)
+                previous.removeFirst()
+            } while (previous.size >= 100)
+        }
+        previous.addLast(song)
+    }
+
+    private companion object {
+        private val rnd = Random()
+        val NORMAL_PROVIDER: PlaybackProvider = { _, nowPlaying, _ ->
+            if (nowPlaying == null || nowPlaying.isEmpty()) null else nowPlaying.removeAt(0)
+        }
+        val REPEAT_PROVIDER: PlaybackProvider = { _, nowPlaying, lastRequest ->
+            if (nowPlaying == null || lastRequest == null) null
+            else {
+                if (nowPlaying.isEmpty()) {
+                    lastRequest.fill(nowPlaying)
+                }
+                nowPlaying.removeAt(0)
+            }
+        }
+        val REPEAT_SINGLE_PROVIDER: PlaybackProvider = { now, _, _ -> now }
+        val RANDOM_PROVIDER: PlaybackProvider = { _, _, lastRequest -> lastRequest?.getAny(rnd) }
     }
 }
+
+typealias PlaybackProvider = (Song?, ArrayList<Song>?, PlayRequest?) -> Song?
