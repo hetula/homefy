@@ -35,6 +35,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlinx.android.synthetic.main.fragment_player.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.Homefy
 import java.util.*
@@ -55,27 +56,23 @@ class PlayerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_player, container, false) as LinearLayout
-        mTxtTitle = main.findViewById(R.id.txt_song_title) as TextView
-        mTxtArtist = main.findViewById(R.id.txt_song_artist) as TextView
-        mTxtAlbum = main.findViewById(R.id.txt_song_album) as TextView
-        mBtnPausePlay = main.findViewById(R.id.btn_play_pause) as ImageButton
-        val btnPlayback = main.findViewById(R.id.btn_playback) as ImageButton
-        val btnStop = main.findViewById(R.id.btn_stop)
-        val btnNext = main.findViewById(R.id.btn_next)
-        val btnPrevious = main.findViewById(R.id.btn_previous)
+        mTxtTitle = main.txt_song_title!!
+        mTxtArtist = main.txt_song_artist!!
+        mTxtAlbum = main.txt_song_album!!
+        mBtnPausePlay = main.btn_play_pause!!
 
-        btnStop.setOnClickListener { _ -> Homefy.player().stop() }
-        btnNext.setOnClickListener { _ ->
+        mBtnPausePlay!!.setOnClickListener { _ -> Homefy.player().pauseResume() }
+
+        main.btn_stop!!.setOnClickListener { _ -> Homefy.player().stop() }
+        main.btn_next!!.setOnClickListener { _ ->
             Homefy.player().next()
             updateSongInfo()
         }
-        btnPrevious.setOnClickListener({ _ ->
+        main.btn_previous.setOnClickListener({ _ ->
             Homefy.player().previous()
             updateSongInfo()
         })
-        mBtnPausePlay!!.setOnClickListener { _ -> Homefy.player().pauseResume() }
-        btnPlayback.setOnClickListener(this::onPlaybackModeClick)
-
+        main.btn_playback!!.setOnClickListener(this::onPlaybackModeClick)
         return main
     }
 

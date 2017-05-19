@@ -25,10 +25,12 @@
 
 package xyz.hetula.homefy.library
 
+import android.os.AsyncTask
 import android.util.Log
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Library Class that implements storing all songs
@@ -49,6 +51,8 @@ class HomefyLibrary {
     private var mMusic: MutableList<Song>? = null
     private var mAlbums: MutableList<String>? = null
     private var mArtists: MutableList<String>? = null
+
+    private var mSearchTask: AsyncTask<SearchRequest, Void, List<Song>>? = null
 
     fun initialize(music: MutableList<Song>) {
         Log.d("HomefyLibrary", "Initializing with " + music.size + " songs!")
@@ -124,5 +128,42 @@ class HomefyLibrary {
 
     fun getPlayPath(song: Song): String {
         return Homefy.protocol().server + "/play/" + song.id
+    }
+
+    @Synchronized fun search(search: String, type: SearchType,callback: (List<Song>) -> Unit) {
+        mSearchTask?.cancel(true)
+        mSearchTask = SearchTask(mMusic!!, callback)
+        mSearchTask?.execute(SearchRequest(search, type))
+    }
+
+    data class SearchRequest(val search: String, val type: SearchType)
+
+    private class SearchTask(val music: List<Song>, val callback: (List<Song>) -> Unit) :
+            AsyncTask<SearchRequest, Void, List<Song>>() {
+
+        override fun doInBackground(vararg params: SearchRequest?): List<Song> {
+            val req = params[0]!!
+            return search(req.search, req.type)
+        }
+
+        override fun onPostExecute(result: List<Song>?) {
+            if(result != null) {
+                callback(result)
+            }
+        }
+
+        private fun search(search: String, type: SearchType): List<Song> {
+            return music.filter {
+                when(type)  {
+                    SearchType.TITLE  -> it.title.contains(search, true)
+                    SearchType.ALBUM  -> it.album.contains(search, true)
+                    SearchType.ARTIST -> it.artist.contains(search, true)
+                    SearchType.GENRE  -> it.genre.contains(search, true)
+                    else -> it.title.contains(search, true) ||
+                            it.album.contains(search, true) ||
+                            it.artist.contains(search, true)
+                }
+            }
+        }
     }
 }

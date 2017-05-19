@@ -34,6 +34,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.fragment_song_list.view.*
 
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.Homefy
@@ -48,15 +49,14 @@ class SongListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater!!.inflate(R.layout.fragment_song_list, container, false)
-        val recyclerView = root.findViewById(R.id.recyclerView) as RecyclerView
-        recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = LinearLayoutManager(context,
+        root.recyclerView!!.setHasFixedSize(true)
+        root.recyclerView.layoutManager = LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false)
 
         val type = arguments.getInt(LIST_TYPE_KEY)
-        val name = arguments.getString(LIST_NAME_KEY, "ERRORROROR")
+        val name = arguments.getString(LIST_NAME_KEY, "Invalid Name")
 
-        val adapter: RecyclerView.Adapter<*>?
+        val adapter: RecyclerView.Adapter<*>
         when (type) {
             ALL_MUSIC -> {
                 adapter = SongAdapter(Homefy.library().songs)
@@ -88,13 +88,11 @@ class SongListFragment : Fragment() {
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             else -> {
-                adapter = null
-                Log.e("SongListFragment", "Invalid TYPE: " + type)
+                Log.e(TAG, "Invalid TYPE: " + type)
+                throw IllegalArgumentException("Calling SongListFragment with invalid type: $type")
             }
         }
-        if (adapter != null) {
-            recyclerView.adapter = adapter
-        }
+        root.recyclerView.adapter = adapter
         return root
     }
 

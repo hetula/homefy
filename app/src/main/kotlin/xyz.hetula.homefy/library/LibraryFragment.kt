@@ -33,6 +33,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import kotlinx.android.synthetic.main.fragment_library.view.*
 import xyz.hetula.homefy.R
 
 /**
@@ -45,14 +46,12 @@ class LibraryFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_library, container, false) as FrameLayout
-        val libraryMusic = main.findViewById(R.id.library_music)
-        val libraryArtists = main.findViewById(R.id.library_artists)
-        val libraryAlbums = main.findViewById(R.id.library_albums)
 
         val clicks = View.OnClickListener { this.onLibraryClick(it) }
-        libraryMusic.setOnClickListener(clicks)
-        libraryArtists.setOnClickListener(clicks)
-        libraryAlbums.setOnClickListener(clicks)
+        main.library_music.setOnClickListener(clicks)
+        main.library_artists.setOnClickListener(clicks)
+        main.library_albums.setOnClickListener(clicks)
+        main.library_search.setOnClickListener(clicks)
         return main
     }
 
@@ -68,16 +67,35 @@ class LibraryFragment : Fragment() {
             R.id.library_albums -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALBUMS)
             R.id.library_artists -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ARTISTS)
             else -> {
-                Log.w("LibraryFragment", "Unhandled Click from " + v)
+                onSpecialLibClick(v)
                 return
             }
         }
         createSongListFragment(args)
     }
 
+    private fun onSpecialLibClick(v: View) {
+        when(v.id) {
+            R.id.library_search -> createSearchFragment()
+            else -> {
+                Log.w("LibraryFragment", "Unhandled Click from " + v)
+            }
+        }
+    }
+
     private fun createSongListFragment(args: Bundle) {
         val fragment = SongListFragment()
         fragment.arguments = args
+        fragmentManager
+                .beginTransaction()
+                .addToBackStack(null)
+                .add(R.id.container, fragment)
+                .show(fragment)
+                .commit()
+    }
+
+    private fun createSearchFragment() {
+        val fragment = SongSearchFragment()
         fragmentManager
                 .beginTransaction()
                 .addToBackStack(null)

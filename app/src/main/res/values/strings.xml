@@ -24,6 +24,13 @@
   -->
 
 <resources>
+    <!-- Content Desc START -->
+    <string name="music_lib_desc">Music Library</string>
+    <string name="album_lib_desc">Albums</string>
+    <string name="artist_lib_desc">Artist</string>
+    <string name="search_lib_desc">Search</string>
+    <!-- Content Desc END -->
+
     <string name="app_name">Homefy</string>
     <string name="nav_music">Music</string>
     <string name="nav_albums">Albums</string>
@@ -43,7 +50,9 @@
     <string name="authenticate">Authenticate</string>
     <string name="test_connection">Test Connection</string>
     <string name="http">http://</string>
+    <string name="search_hint">Search…</string>
 
+    <!-- Plurals -->
     <plurals name="song_count">
         <item quantity="one">%d Song</item>
         <item quantity="other">%d Songs</item>
