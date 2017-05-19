@@ -43,6 +43,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        supportActionBar?.setShowHideAnimationEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.hide()
+
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.container, if (HomefyService.isReady)
@@ -53,5 +58,10 @@ class MainActivity : AppCompatActivity() {
 
         val startService = Intent(this, HomefyService::class.java)
         startService(startService)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

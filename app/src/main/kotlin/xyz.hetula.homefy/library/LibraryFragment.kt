@@ -27,12 +27,12 @@ package xyz.hetula.homefy.library
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-
 import xyz.hetula.homefy.R
 
 /**
@@ -54,6 +54,11 @@ class LibraryFragment : Fragment() {
         libraryArtists.setOnClickListener(clicks)
         libraryAlbums.setOnClickListener(clicks)
         return main
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as AppCompatActivity).supportActionBar?.hide()
     }
 
     private fun onLibraryClick(v: View) {

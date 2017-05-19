@@ -27,6 +27,7 @@ package xyz.hetula.homefy.library
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -43,6 +44,7 @@ import xyz.hetula.homefy.service.Homefy
  * @since 1.0
  */
 class SongListFragment : Fragment() {
+    private var mParentTitle: String = ""
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater!!.inflate(R.layout.fragment_song_list, container, false)
@@ -51,21 +53,40 @@ class SongListFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false)
 
-        val args = arguments
-        val type = args.getInt(LIST_TYPE_KEY)
-        val name = args.getString(LIST_NAME_KEY, "ERRORROROR")
+        val type = arguments.getInt(LIST_TYPE_KEY)
+        val name = arguments.getString(LIST_NAME_KEY, "ERRORROROR")
 
         val adapter: RecyclerView.Adapter<*>?
         when (type) {
-            ALL_MUSIC -> adapter = SongAdapter(Homefy.library().songs)
-            ARTISTS -> adapter = SongListAdapter(Homefy.library().artists,
-                    { artist -> Homefy.library().getArtistSongs(artist).size },
-                    this::onArtistClick)
-            ALBUMS -> adapter = SongListAdapter(Homefy.library().albums,
-                    { album -> Homefy.library().getAlbumSongs(album).size },
-                    this::onAlbumClick)
-            ARTIST_MUSIC -> adapter = SongAdapter(Homefy.library().getArtistSongs(name))
-            ALBUM_MUSIC -> adapter = SongAdapter(Homefy.library().getAlbumSongs(name))
+            ALL_MUSIC -> {
+                adapter = SongAdapter(Homefy.library().songs)
+                (activity as AppCompatActivity).supportActionBar?.title =
+                        context.getString(R.string.nav_music)
+            }
+            ARTISTS -> {
+                adapter = SongListAdapter(Homefy.library().artists,
+                        { artist -> Homefy.library().getArtistSongs(artist).size },
+                        this::onArtistClick)
+                (activity as AppCompatActivity).supportActionBar?.title =
+                        context.getString(R.string.nav_artists)
+            }
+            ALBUMS -> {
+                adapter = SongListAdapter(Homefy.library().albums,
+                        { album -> Homefy.library().getAlbumSongs(album).size },
+                        this::onAlbumClick)
+                (activity as AppCompatActivity).supportActionBar?.title =
+                        context.getString(R.string.nav_albums)
+            }
+            ARTIST_MUSIC -> {
+                adapter = SongAdapter(Homefy.library().getArtistSongs(name))
+                mParentTitle = context.getString(R.string.nav_artists)
+                (activity as AppCompatActivity).supportActionBar?.title = name
+            }
+            ALBUM_MUSIC -> {
+                adapter = SongAdapter(Homefy.library().getAlbumSongs(name))
+                mParentTitle = context.getString(R.string.nav_albums)
+                (activity as AppCompatActivity).supportActionBar?.title = name
+            }
             else -> {
                 adapter = null
                 Log.e("SongListFragment", "Invalid TYPE: " + type)
@@ -77,17 +98,32 @@ class SongListFragment : Fragment() {
         return root
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as AppCompatActivity).supportActionBar?.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(mParentTitle.isBlank()) {
+            (activity as AppCompatActivity).supportActionBar?.hide()
+        } else {
+            (activity as AppCompatActivity).supportActionBar?.title = mParentTitle
+            (activity as AppCompatActivity).supportActionBar?.show()
+        }
+    }
+
     private fun onArtistClick(artist: String) {
         val args = Bundle()
-        args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ARTIST_MUSIC)
-        args.putString(SongListFragment.LIST_NAME_KEY, artist)
+        args.putInt(LIST_TYPE_KEY, ARTIST_MUSIC)
+        args.putString(LIST_NAME_KEY, artist)
         createSongListFragment(args)
     }
 
     private fun onAlbumClick(album: String) {
         val args = Bundle()
-        args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALBUM_MUSIC)
-        args.putString(SongListFragment.LIST_NAME_KEY, album)
+        args.putInt(LIST_TYPE_KEY, ALBUM_MUSIC)
+        args.putString(LIST_NAME_KEY, album)
         createSongListFragment(args)
     }
 
@@ -103,6 +139,7 @@ class SongListFragment : Fragment() {
     }
 
     companion object {
+        val TAG = "SongListFragment"
         val LIST_TYPE_KEY = "SongListFragment_LIST_TYPE_KEY"
         val LIST_NAME_KEY = "SongListFragment_LIST_NAME_KEY"
 

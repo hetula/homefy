@@ -137,7 +137,6 @@ class SetupFragment : Fragment() {
                 mNeedsAuth = true
                 mConnect!!.setText(R.string.authenticate)
                 mViewCredentials!!.visibility = View.VISIBLE
-                Toast.makeText(context, "Enter Credentials!", Toast.LENGTH_LONG).show()
             }
             else -> {
                 Log.w(TAG, "Unsupported auth method")

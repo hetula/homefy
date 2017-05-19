@@ -83,11 +83,11 @@ class HomefyPlayer(private var mContext: Context?) {
         mController = session!!.controller
 
         mPlayer = MediaPlayer()
-        mPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
         mPlayer!!.setAudioAttributes(AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .build())
+
         mPlayer!!.setOnCompletionListener(this::onPlayComplete)
         mPlayer!!.setOnPreparedListener(this::onPrepareComplete)
         mPlayer!!.setOnErrorListener(this::onError)
