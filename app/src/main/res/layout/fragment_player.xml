@@ -27,14 +27,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     android:orientation="vertical">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:src="@drawable/ic_music" />
+        android:src="@drawable/ic_music"
+        android:contentDescription="@string/music_preview_desc" />
 
     <TextView
         android:id="@+id/txt_song_title"
@@ -110,7 +110,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_skip_previous" />
+            android:src="@drawable/ic_skip_previous"
+            android:contentDescription="@string/previous_desc" />
 
         <Space
             android:layout_width="16dp"
@@ -121,7 +122,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_shuffle" />
+            android:src="@drawable/ic_shuffle"
+            android:contentDescription="@string/playback_mode_desc" />
 
         <Space
             android:layout_width="16dp"
@@ -132,7 +134,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_play_circle" />
+            android:src="@drawable/ic_play_circle"
+            android:contentDescription="@string/play_pause_desc" />
 
         <Space
             android:layout_width="16dp"
@@ -143,7 +146,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_stop" />
+            android:src="@drawable/ic_stop"
+            android:contentDescription="@string/stop_desc" />
 
         <Space
             android:layout_width="16dp"
@@ -154,7 +158,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_skip_next" />
+            android:src="@drawable/ic_skip_next"
+            android:contentDescription="@string/next_desc" />
 
     </LinearLayout>
 

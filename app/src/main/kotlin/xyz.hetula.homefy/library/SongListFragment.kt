@@ -130,6 +130,7 @@ class SongListFragment : Fragment() {
         fragment.arguments = args
         fragmentManager
                 .beginTransaction()
+                .hide(this)
                 .addToBackStack(null)
                 .add(R.id.container, fragment)
                 .show(fragment)

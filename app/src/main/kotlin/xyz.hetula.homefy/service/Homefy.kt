@@ -25,8 +25,8 @@
 
 package xyz.hetula.homefy.service
 
+import android.annotation.SuppressLint
 import android.content.Context
-
 import xyz.hetula.homefy.library.HomefyLibrary
 import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
@@ -37,8 +37,8 @@ import xyz.hetula.homefy.service.protocol.HomefyProtocol
  * @version 1.0
  * @since 1.0
  */
+@SuppressLint("StaticFieldLeak")
 object Homefy {
-    private var mUseMock = false
     private var mHomefy: HomefyProtocol? = null
     private var mLibrary: HomefyLibrary? = null
     private var mPlayer: HomefyPlayer? = null
@@ -60,10 +60,6 @@ object Homefy {
 
         mPlayer!!.release()
         mPlayer = null
-    }
-
-    fun mock() {
-        mUseMock = true
     }
 
     fun protocol(): HomefyProtocol {

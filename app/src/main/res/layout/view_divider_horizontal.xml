@@ -24,4 +24,6 @@
   ~
   -->
 <!-- Scales oddly if view is used... -->
-<FrameLayout style="@style/NavigationDivider.Horizontal"/>
+<FrameLayout xmlns:tools="http://schemas.android.com/tools"
+    style="@style/NavigationDivider.Horizontal"
+    tools:ignore="MergeRootFrame" />

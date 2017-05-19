@@ -88,6 +88,7 @@ class LibraryFragment : Fragment() {
         fragment.arguments = args
         fragmentManager
                 .beginTransaction()
+                .hide(this)
                 .addToBackStack(null)
                 .add(R.id.container, fragment)
                 .show(fragment)
@@ -98,6 +99,7 @@ class LibraryFragment : Fragment() {
         val fragment = SongSearchFragment()
         fragmentManager
                 .beginTransaction()
+                .hide(this)
                 .addToBackStack(null)
                 .add(R.id.container, fragment)
                 .show(fragment)

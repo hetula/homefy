@@ -45,7 +45,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
     private var mUserPass: String = ""
 
     override var server: String = ""
-    override var info = VersionInfo()
+    override var info = VersionInfo("Homefy", "0.0", VersionInfo.AuthType.NONE)
         set
 
     init {

@@ -51,7 +51,7 @@ internal class SongListAdapter(names: List<String>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongListViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val songView = inflater.inflate(R.layout.view_songlist, parent, false)
+        val songView = inflater.inflate(R.layout.list_item_songlist, parent, false)
         return SongListViewHolder(songView)
     }
 

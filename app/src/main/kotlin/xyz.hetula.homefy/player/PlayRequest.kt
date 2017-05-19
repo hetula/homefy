@@ -39,10 +39,6 @@ class PlayRequest internal constructor(val play: Song, val playContext: ArrayLis
         }
     }
 
-    fun getPlayContext(): List<Song> {
-        return playContext
-    }
-
     fun fill(next: MutableCollection<Song>) {
         next.addAll(playContext)
     }

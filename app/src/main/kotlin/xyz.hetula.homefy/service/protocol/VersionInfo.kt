@@ -30,24 +30,9 @@ package xyz.hetula.homefy.service.protocol
  * @version 1.0
  * @since 1.0
  */
-class VersionInfo {
-    val name: String
-    val version: String
-    val authentication: AuthType
+data class VersionInfo(val name: String, val version: String, val authentication: AuthType) {
     var databaseSize = 0
         set(value) {databaseSize = value}
-
-    constructor() {
-        this.name = "DEFAULT"
-        this.version = "0"
-        this.authentication = AuthType.NONE
-    }
-
-    constructor(name: String, version: String, authentication: AuthType) {
-        this.name = name
-        this.version = version
-        this.authentication = authentication
-    }
 
     override fun toString(): String {
         return "VersionInfo{" +

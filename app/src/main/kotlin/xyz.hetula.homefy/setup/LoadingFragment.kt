@@ -34,15 +34,12 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.concurrent.atomic.AtomicInteger
-
 import xyz.hetula.homefy.MainFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 class LoadingFragment : Fragment() {
     private var mCount: AtomicInteger? = null
@@ -92,7 +89,9 @@ class LoadingFragment : Fragment() {
 
     private fun onSongs(songs: Array<Song>) {
         mSongs.addAll(Arrays.asList(*songs))
-        mLoaded!!.text = context.getString(R.string.songs_loaded, mSongs.size, mSongsTotal)
+        mLoaded!!.text = context.resources
+                .getQuantityString(R.plurals.songs_loaded, mSongs.size, mSongs.size, mSongsTotal)
+
         if (ready()) {
             val time = System.currentTimeMillis() - mLoadStarted
             Log.d("LoadingFragment", "Songs loaded in $time ms")
