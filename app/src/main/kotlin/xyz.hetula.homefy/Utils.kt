@@ -38,4 +38,8 @@ object Utils {
         val min = seconds / 60
         return String.format(Locale.getDefault(), "%02d:%02d", min, seconds - min * 60)
     }
+
+    fun parseTime(pos: Long, dur: Long): String {
+        return parseSeconds(pos) + "/" + parseSeconds(dur)
+    }
 }

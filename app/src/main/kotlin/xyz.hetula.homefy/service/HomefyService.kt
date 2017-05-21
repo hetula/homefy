@@ -68,7 +68,7 @@ class HomefyService : Service() {
     }
 
     private fun createNotification() {
-        val mediaSession = Homefy.player().session
+        val mediaSession = Homefy.player().mSession
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         val builder = NotificationCompat.Builder(applicationContext)
         builder.setContentTitle("Test Title")

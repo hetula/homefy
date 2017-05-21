@@ -26,17 +26,21 @@
 package xyz.hetula.homefy.player
 
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_player.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.service.Homefy
 import java.util.*
 
@@ -46,11 +50,16 @@ import java.util.*
  * @since 1.0
  */
 class PlayerFragment : Fragment() {
-    private val mPlaybackListener = { _: Song, _: Int -> updateSongInfo() }
+    private val mPlaybackListener = this::onSongUpdate
     private var mTxtTitle: TextView? = null
     private var mTxtArtist: TextView? = null
     private var mTxtAlbum: TextView? = null
+    private var mTxtLength: TextView? = null
+    private var mTxtBuffering: TextView? = null
     private var mBtnPausePlay: ImageButton? = null
+    private var mSeekBar: SeekBar? = null
+    private val mPositionLoop = Handler()
+    private val mUpdateRunnable = this::posQuery
 
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -59,6 +68,9 @@ class PlayerFragment : Fragment() {
         mTxtTitle = main.txt_song_title!!
         mTxtArtist = main.txt_song_artist!!
         mTxtAlbum = main.txt_song_album!!
+        mTxtLength = main.txt_song_length!!
+        mTxtBuffering = main.txt_buffering!!
+        mSeekBar = main.seek_song_length!!
         mBtnPausePlay = main.btn_play_pause!!
 
         mBtnPausePlay!!.setOnClickListener { _ -> Homefy.player().pauseResume() }
@@ -66,11 +78,17 @@ class PlayerFragment : Fragment() {
         main.btn_stop!!.setOnClickListener { _ -> Homefy.player().stop() }
         main.btn_next!!.setOnClickListener { _ ->
             Homefy.player().next()
-            updateSongInfo()
+            val song = Homefy.player().nowPlaying()
+            if(song != null) {
+                updateSongInfo(song)
+            }
         }
         main.btn_previous.setOnClickListener({ _ ->
             Homefy.player().previous()
-            updateSongInfo()
+            val song = Homefy.player().nowPlaying()
+            if(song != null) {
+                updateSongInfo(song)
+            }
         })
         main.btn_playback!!.setOnClickListener(this::onPlaybackModeClick)
         return main
@@ -78,37 +96,98 @@ class PlayerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        updateSongInfo()
+        val song = Homefy.player().nowPlaying()
+        if(song != null) {
+            updateSongInfo(song)
+        }
         (activity as AppCompatActivity).supportActionBar?.hide()
         Homefy.player().registerPlaybackListener(mPlaybackListener)
+        mPositionLoop.post(mUpdateRunnable)
     }
 
     override fun onPause() {
         super.onPause()
         Homefy.player().unregisterPlaybackListener(mPlaybackListener)
+        mPositionLoop.removeCallbacks(mUpdateRunnable)
+        mTxtBuffering!!.visibility = View.INVISIBLE
     }
 
-    private fun updateSongInfo() {
-        val now = Homefy.player().nowPlaying()
-        if (now != null) {
-            if (now.track >= 0)
-                mTxtTitle!!.text = String.format(Locale.getDefault(),
-                        "%d - %s", now.track, now.title)
-            else
-                mTxtTitle!!.text = now.title
+    private fun onSongUpdate(song: Song?, state: Int, param: Int) {
+        when (state) {
+            HomefyPlayer.STATE_BUFFERING -> onBuffer(param)
+            HomefyPlayer.STATE_PLAY -> onDurUpdate(false)
+            HomefyPlayer.STATE_PAUSE -> onDurUpdate(true)
+            HomefyPlayer.STATE_STOP -> clear()
+            HomefyPlayer.STATE_RESUME -> onDurUpdate(false)
+        }
+        if(song != null) {
+            updateSongInfo(song)
+        }
+    }
 
-            mTxtArtist!!.text = now.artist
-            mTxtAlbum!!.text = now.album
-            if (Homefy.player().isPaused) {
-                mBtnPausePlay!!.setImageResource(R.drawable.ic_play_circle)
-            } else if (Homefy.player().isPlaying) {
-                mBtnPausePlay!!.setImageResource(R.drawable.ic_pause_circle)
-            }
+    private fun onBuffer(buffered: Int) {
+        Log.d(TAG, "Buffering $buffered")
+        if(buffered >= 100) {
+            mTxtBuffering!!.visibility = View.INVISIBLE
+            mTxtBuffering!!.text = context.getString(R.string.buffering, 0)
         } else {
-            mTxtTitle!!.text = null
-            mTxtArtist!!.text = null
-            mTxtAlbum!!.text = null
+            mTxtBuffering!!.visibility = View.VISIBLE
+            mTxtBuffering!!.text = context.getString(R.string.buffering, buffered)
+        }
+    }
+
+    private fun onDurUpdate(paused: Boolean) {
+        if(paused) {
+            mPositionLoop.removeCallbacks(mUpdateRunnable)
+        } else {
+            mPositionLoop.post(mUpdateRunnable)
+        }
+    }
+
+    private fun clear() {
+        mBtnPausePlay!!.setImageResource(R.drawable.ic_play_circle)
+        mTxtLength!!.text = Utils.parseTime(0, 0)
+    }
+
+    private fun updateSongInfo(now: Song) {
+        if (now.track >= 0) {
+            mTxtTitle!!.text = String.format(Locale.getDefault(),
+                    "%d - %s", now.track, now.title)
+        } else {
+            mTxtTitle!!.text = now.title
+        }
+        val position = Homefy.player().queryPosition().toLong()
+
+        mTxtArtist!!.text = now.artist
+        mTxtAlbum!!.text = now.album
+        mTxtLength!!.text = Utils.parseTime(position, now.length)
+
+        if (Homefy.player().isPaused) {
             mBtnPausePlay!!.setImageResource(R.drawable.ic_play_circle)
+        } else if (Homefy.player().isPlaying) {
+            mBtnPausePlay!!.setImageResource(R.drawable.ic_pause_circle)
+        }
+    }
+
+    private fun posQuery() {
+        val song = Homefy.player().nowPlaying()
+        var pos: Long
+        val dur: Long
+        if(song != null) {
+            pos = Homefy.player().queryPosition().toLong()
+            dur = song.length
+        } else {
+            pos = 0
+            dur = 0
+        }
+        if(pos > dur) {
+            pos = dur
+        }
+        mSeekBar!!.max = dur.toInt()
+        mSeekBar!!.progress = pos.toInt()
+        mTxtLength!!.text = Utils.parseTime(pos, dur)
+        if(song != null) {
+            mPositionLoop.postDelayed(mUpdateRunnable, 750)
         }
     }
 
@@ -116,12 +195,16 @@ class PlayerFragment : Fragment() {
         val button = v as ImageButton
         val mode = Homefy.player().cyclePlaybackMode()
         val imgRes: Int
-        when(mode) {
+        when (mode) {
             PlaybackMode.NORMAL -> imgRes = R.drawable.ic_repeat_off
             PlaybackMode.REPEAT -> imgRes = R.drawable.ic_repeat
             PlaybackMode.REPEAT_SINGLE -> imgRes = R.drawable.ic_repeat_one
             PlaybackMode.RANDOM -> imgRes = R.drawable.ic_shuffle
         }
         button.setImageDrawable(ContextCompat.getDrawable(context, imgRes))
+    }
+
+    companion object {
+        val TAG = "HomefyPlayer"
     }
 }

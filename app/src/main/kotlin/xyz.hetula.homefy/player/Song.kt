@@ -25,6 +25,8 @@
 
 package xyz.hetula.homefy.player
 
+import android.support.v4.media.MediaMetadataCompat
+
 /**
  * @author Tuomo Heino
  * @version 1.0
@@ -94,4 +96,18 @@ class Song : Comparable<Song> {
         if (c != 0) return c
         return title.compareTo(other.title)
     }
+
+    fun toMediaMetadata(): MediaMetadataCompat {
+        val metadata = MediaMetadataCompat.Builder()
+        if(track > 0) metadata.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, track.toLong())
+        return metadata
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
+                .putString(MediaMetadataCompat.METADATA_KEY_GENRE, genre)
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, id)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, length * 1000)
+                .build()
+    }
+
 }

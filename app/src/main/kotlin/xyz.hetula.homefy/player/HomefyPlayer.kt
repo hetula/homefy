@@ -54,7 +54,7 @@ import kotlin.collections.ArrayList
  */
 class HomefyPlayer(private var mContext: Context?) {
     private val afChangeListener = AudioManager.OnAudioFocusChangeListener(this::onAudioFocusChange)
-    private val mPlaybackListeners = HashSet<(Song, Int) -> Unit>()
+    private val mPlaybackListeners = HashSet<(Song?, Int, Int) -> Unit>()
     private val mStateBuilder: PlaybackStateCompat.Builder
     private val mController: MediaControllerCompat
     private val mWifiLock: WifiManager.WifiLock
@@ -64,23 +64,24 @@ class HomefyPlayer(private var mContext: Context?) {
     private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
     private var mPlayer: MediaPlayer? = null
 
-    var session: MediaSessionCompat? = null
+    var mSession: MediaSessionCompat? = null
         private set
 
     init {
         val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
         mContext!!.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
 
-        session = MediaSessionCompat(mContext, "Homefy Player")
+        mSession = MediaSessionCompat(mContext, "Homefy Player")
 
-        session!!.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+        mSession!!.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
 
         mStateBuilder = PlaybackStateCompat.Builder().setActions(
                 PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PLAY_PAUSE)
-        session!!.setPlaybackState(mStateBuilder.build())
-        session!!.isActive = true
+        mSession!!.setPlaybackState(mStateBuilder.build())
+        mSession!!.isActive = true
 
-        mController = session!!.controller
+        mController = mSession!!.controller
 
         mPlayer = MediaPlayer()
         mPlayer!!.setAudioAttributes(AudioAttributes.Builder()
@@ -94,41 +95,33 @@ class HomefyPlayer(private var mContext: Context?) {
         mPlayer!!.setOnBufferingUpdateListener(this::onBuffering)
         mPlayer!!.setWakeMode(mContext!!.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
 
-        mWifiLock = (mContext!!
-                .applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
+        mWifiLock = (mContext!!.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "HomefyPlayerWifiLock")
 
-        val callback = object : MediaSessionCompat.Callback() {
+        mSession!!.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {
-                val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                pauseResume()
+                play()
             }
-
             override fun onPause() {
-                val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                pauseResume()
+                pause()
             }
-
             override fun onSkipToNext() {
                 next()
             }
-
             override fun onSkipToPrevious() {
                 previous()
             }
-
             override fun onStop() {
-                val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
                 stop()
             }
-        }
+        })
     }
 
     fun release() {
         mPlaybackListeners.clear()
 
-        session!!.release()
-        session = null
+        mSession!!.release()
+        mSession = null
 
         mPlayer!!.release()
         mPlayer = null
@@ -165,16 +158,22 @@ class HomefyPlayer(private var mContext: Context?) {
     fun pauseResume() {
         if (mPlayback.isEmpty()) return
         if (mPlayer!!.isPlaying) {
-            mPlayer!!.pause()
-            for (listener in mPlaybackListeners) {
-                listener(nowPlaying()!!, STATE_PAUSE)
-            }
+            pause()
         } else {
-            mPlayer!!.start()
-            for (listener in mPlaybackListeners) {
-                listener(nowPlaying()!!, STATE_RESUME)
-            }
+            play()
         }
+    }
+
+    private fun pause() {
+        if (mPlayback.isEmpty()) return
+        mPlayer!!.pause()
+        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PAUSE, -1) }
+    }
+
+    private fun play() {
+        if (mPlayback.isEmpty()) return
+        mPlayer!!.start()
+        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
     }
 
     val isPlaying: Boolean
@@ -185,9 +184,7 @@ class HomefyPlayer(private var mContext: Context?) {
 
     fun stop() {
         abandonAudioFocus()
-        for (listener in mPlaybackListeners) {
-            listener(nowPlaying()!!, STATE_STOP)
-        }
+        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
         mPlayback.stop()
         mPlayer!!.stop()
     }
@@ -209,6 +206,11 @@ class HomefyPlayer(private var mContext: Context?) {
         return mPlayback.playbackMode
     }
 
+    fun queryPosition(): Int {
+        if(mPlayback.isEmpty()) return 0
+        return mPlayer!!.currentPosition / 1000
+    }
+
     private fun setupPlay(song: Song): Boolean {
         val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         // Request audio focus for playback
@@ -227,6 +229,7 @@ class HomefyPlayer(private var mContext: Context?) {
             val headers = HashMap<String, String>()
             Homefy.protocol().addAuthHeader(headers)
             mPlayer!!.setDataSource(mContext!!, uri, headers)
+            mSession!!.setMetadata(song.toMediaMetadata())
             mPlayer!!.prepareAsync()
             return true
         } catch (e: IOException) {
@@ -238,9 +241,7 @@ class HomefyPlayer(private var mContext: Context?) {
 
     private fun onPrepareComplete(mp: MediaPlayer) {
         mp.start()
-        for (listener in mPlaybackListeners) {
-            listener(nowPlaying()!!, STATE_PLAY)
-        }
+        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PLAY, -1) }
     }
 
     private fun onPlayComplete(mp: MediaPlayer) {
@@ -251,13 +252,12 @@ class HomefyPlayer(private var mContext: Context?) {
     private fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
         Log.e(TAG, "Playback Error: $what extra: $extra")
         abandonAudioFocus()
-        for (listener in mPlaybackListeners) {
-            listener(nowPlaying()!!, STATE_STOP)
-        }
+        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
         return true
     }
 
     private fun onBuffering(mediaPlayer: MediaPlayer, i: Int) {
+        mPlaybackListeners.forEach { it(nowPlaying(), STATE_BUFFERING, i) }
         if (i < 100) return
         Log.d(TAG, "Fully buffered!")
         if (mWifiLock.isHeld) {
@@ -274,6 +274,7 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     private fun onAudioFocusChange(focusChange: Int) {
+        Log.d(TAG, "Focus Change!! " + focusChange)
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             mController.transportControls.pause()
             mHandler.postDelayed({ mController.transportControls.stop() },
@@ -291,19 +292,18 @@ class HomefyPlayer(private var mContext: Context?) {
         }
     }
 
-    fun unregisterPlaybackListener(mPlaybackListener: (Song, Int) -> Unit) {
+    fun unregisterPlaybackListener(mPlaybackListener: (Song?, Int, Int) -> Unit) {
         mPlaybackListeners.remove(mPlaybackListener)
     }
 
-    fun registerPlaybackListener(mPlaybackListener: (Song, Int) -> Unit) {
+    fun registerPlaybackListener(mPlaybackListener: (Song?, Int, Int) -> Unit) {
         mPlaybackListeners.add(mPlaybackListener)
     }
 
     private inner class BecomingNoisyReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
-                if (mPlayback.isEmpty()) return
-                mPlayer?.pause()
+                pause()
             }
         }
     }
@@ -318,5 +318,6 @@ class HomefyPlayer(private var mContext: Context?) {
         val STATE_PAUSE = 1
         val STATE_RESUME = 2
         val STATE_STOP = 3
+        val STATE_BUFFERING = 4
     }
 }
