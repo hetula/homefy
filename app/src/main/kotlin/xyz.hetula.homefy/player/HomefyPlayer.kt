@@ -60,6 +60,8 @@ class HomefyPlayer(private var mContext: Context?) {
     private val mWifiLock: WifiManager.WifiLock
     private val mPlayback = Playback()
     private val mHandler = Handler()
+    private val mDelayPlayPress = { pauseResume(); mPostedDelay = false}
+    private var mPostedDelay = false
 
     private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
     private var mPlayer: MediaPlayer? = null
@@ -100,7 +102,19 @@ class HomefyPlayer(private var mContext: Context?) {
 
         mSession!!.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {
-                pauseResume()
+                if(isPaused) {
+                    pauseResume()
+                    return
+                }
+
+                mHandler.removeCallbacks(mDelayPlayPress)
+                if(mPostedDelay) {
+                    mPostedDelay = false
+                    onSkipToNext()
+                } else {
+                    mPostedDelay = true
+                    mHandler.postDelayed(mDelayPlayPress, 750)
+                }
             }
             override fun onSkipToNext() {
                 next()
