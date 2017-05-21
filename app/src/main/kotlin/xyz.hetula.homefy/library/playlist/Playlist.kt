@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-package xyz.hetula.homefy.service.protocol
-
-import com.android.volley.VolleyError
+package xyz.hetula.homefy.library.playlist
 
 import xyz.hetula.homefy.player.Song
 
@@ -33,31 +31,4 @@ import xyz.hetula.homefy.player.Song
  * @version 1.0
  * @since 1.0
  */
-interface HomefyProtocol {
-
-    var info: VersionInfo
-
-    var server: String
-
-    var serverId: String
-
-    fun setAuth(user: String, pass: String)
-
-    fun addAuthHeader(headers: HashMap<String, String>)
-
-    fun requestVersionInfo(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (VolleyError) -> Unit)
-
-    fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (VolleyError) -> Unit)
-
-    fun requestSongs(songsConsumer: (Array<Song>) -> Unit, errorConsumer: (VolleyError) -> Unit)
-
-    fun requestSongs(parameters: Map<String, String>?, songsConsumer: (Array<Song>) -> Unit, errorConsumer: (VolleyError) -> Unit)
-
-    fun requestSong(id: String, songConsumer: (Song) -> Unit, errorConsumer: (VolleyError) -> Unit)
-
-    fun requestPages(pageLength: Int, pagesConsumer: (Array<String>) -> Unit, errorConsumer: (VolleyError) -> Unit)
-
-    fun <T> request(url: String, consumer: (T) -> Unit, errorConsumer: (VolleyError) -> Unit, clasz: Class<T>)
-
-    fun release()
-}
+data class Playlist(val id: String, val songs: List<Song>)

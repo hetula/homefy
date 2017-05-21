@@ -43,14 +43,20 @@ import java.nio.charset.StandardCharsets
 class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
     private var mQueryQueue: RequestQueue? = null
     private var mUserPass: String = ""
+    private var mServerId: String = ""
 
     override var server: String = ""
+
     override var info = VersionInfo("Homefy", "0.0", VersionInfo.AuthType.NONE)
         set
 
     init {
         mQueryQueue = Volley.newRequestQueue(context.applicationContext)
     }
+
+    override var serverId: String
+        get() = mServerId
+        set(value) {}
 
     override fun setAuth(user: String, pass: String) {
         mUserPass = String(Base64.encode((user + ":" + pass)

@@ -55,7 +55,7 @@ class HomefyService : Service() {
     private var mSession: MediaSessionCompat? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if(intent.action == CLOSE_INTENT) {
+        if (intent.action == CLOSE_INTENT) {
             closeApp()
             return Service.START_NOT_STICKY
         }
@@ -183,7 +183,9 @@ class HomefyService : Service() {
     }
 
     private fun onPlay(song: Song?, state: Int, param: Int) {
-        if (state == HomefyPlayer.STATE_PLAY || state == HomefyPlayer.STATE_PAUSE) {
+        if (state == HomefyPlayer.STATE_PLAY ||
+                state == HomefyPlayer.STATE_PAUSE ||
+                state == HomefyPlayer.STATE_RESUME) {
             updateNotification()
         }
     }

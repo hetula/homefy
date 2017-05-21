@@ -35,7 +35,6 @@ import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
 import android.media.MediaPlayer
 import android.net.Uri
 import android.net.wifi.WifiManager
-import android.os.Handler
 import android.os.PowerManager
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -57,7 +56,7 @@ class HomefyPlayer(private var mContext: Context?) {
     private val mController: MediaControllerCompat
     private val mWifiLock: WifiManager.WifiLock
     private val mPlayback = Playback()
-    private val mHandler = Handler()
+    private var mHasFocus = false
 
     private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
     private var mPlayer: MediaPlayer? = null
@@ -112,9 +111,12 @@ class HomefyPlayer(private var mContext: Context?) {
                 stop()
             }
         })
+
+        tryGainAudioFocus()
     }
 
     fun release() {
+        loseAudioFocus()
         mPlaybackListeners.clear()
 
         mSession!!.release()
@@ -162,14 +164,14 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     private fun pause() {
-        if (mPlayback.isEmpty()) return
+        if (mPlayback.isEmpty() || !mPlayer!!.isPlaying) return
         mPlayer!!.pause()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PAUSE, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
     }
 
     private fun play() {
-        if (mPlayback.isEmpty() || !canGainAudioFocus()) return
+        if (mPlayback.isEmpty()) return
         mPlayer!!.start()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
@@ -182,7 +184,6 @@ class HomefyPlayer(private var mContext: Context?) {
         get() = !mPlayback.isEmpty() && !mPlayer!!.isPlaying
 
     fun stop() {
-        abandonAudioFocus()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
         mPlayback.stop()
         mPlayer!!.stop()
@@ -192,7 +193,6 @@ class HomefyPlayer(private var mContext: Context?) {
     fun previous() {
         mPlayback.previous()
         if (mPlayback.isEmpty()) return
-        abandonAudioFocus()
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
         setupPlay(mPlayback.getCurrent()!!)
     }
@@ -200,7 +200,6 @@ class HomefyPlayer(private var mContext: Context?) {
     fun next() {
         mPlayback.next()
         if (mPlayback.isEmpty()) return
-        abandonAudioFocus()
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
         setupPlay(mPlayback.getCurrent()!!)
     }
@@ -221,9 +220,17 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     private fun setupPlay(song: Song): Boolean {
-        if(!canGainAudioFocus()) return false
+        if(!mHasFocus){
+            tryGainAudioFocus()
+            if(!mHasFocus) {
+                return false
+            }
+        }
+        Log.d(TAG, "Setuping new song to play!")
         try {
-            mWifiLock.acquire()
+            if(!mWifiLock.isHeld) {
+                mWifiLock.acquire()
+            }
             val uri = Uri.parse(Homefy.library().getPlayPath(song))
             mPlayer!!.reset()
             val headers = HashMap<String, String>()
@@ -239,20 +246,8 @@ class HomefyPlayer(private var mContext: Context?) {
         }
     }
 
-    private fun canGainAudioFocus(): Boolean {
-        val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        // Request audio focus for playback
-        val result = am.requestAudioFocus(afChangeListener,
-                AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN)
-        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.w(TAG, "No AudioFocus Granted!")
-            return false
-        }
-        return true
-    }
-
     private fun onPrepareComplete(mp: MediaPlayer) {
+        Log.d(TAG, "onPrepareComlete, Starting Playback")
         mp.start()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PLAY, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
@@ -260,13 +255,12 @@ class HomefyPlayer(private var mContext: Context?) {
 
     private fun onPlayComplete(mp: MediaPlayer) {
         Log.d(TAG, "onPlayComplete $mp")
-        abandonAudioFocus()
         next()
     }
 
     private fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
         Log.e(TAG, "Playback Error: $what extra: $extra MediaPlayer: $mp")
-        abandonAudioFocus()
+        MediaPlayer.MEDIA_ERROR_IO
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_ERROR)
         return true
@@ -281,7 +275,20 @@ class HomefyPlayer(private var mContext: Context?) {
         }
     }
 
-    private fun abandonAudioFocus() {
+    private fun tryGainAudioFocus() {
+        val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        // Request audio focus for playback
+        val result = am.requestAudioFocus(afChangeListener,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN)
+        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            Log.w(TAG, "No AudioFocus Granted!")
+            mHasFocus = false
+        }
+        mHasFocus = true
+    }
+
+    private fun loseAudioFocus() {
         val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         am.abandonAudioFocus(afChangeListener)
         if (mWifiLock.isHeld) {
@@ -299,10 +306,6 @@ class HomefyPlayer(private var mContext: Context?) {
             mPlayer?.setVolume(0.1f, 0.1f)
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             mPlayer?.setVolume(1f, 1f)
-            // TODO deside if continuing playback is wanted here.
-            // ducking wont pause, so receiving messages doesn't cause problems
-            // Phone calls etc can cause problems if headset is removed during call
-            // after call end playback can possibly continue from wrong speaker.
         }
     }
 
