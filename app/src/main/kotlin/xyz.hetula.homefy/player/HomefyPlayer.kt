@@ -100,10 +100,7 @@ class HomefyPlayer(private var mContext: Context?) {
 
         mSession!!.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {
-                play()
-            }
-            override fun onPause() {
-                pause()
+                pauseResume()
             }
             override fun onSkipToNext() {
                 next()
