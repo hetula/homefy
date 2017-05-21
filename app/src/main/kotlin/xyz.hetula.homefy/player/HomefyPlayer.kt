@@ -182,7 +182,7 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     private fun play() {
-        if (mPlayback.isEmpty()) return
+        if (mPlayback.isEmpty() || !canGainAudioFocus()) return
         mPlayer!!.start()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
     }
@@ -223,16 +223,7 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     private fun setupPlay(song: Song): Boolean {
-        val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        // Request audio focus for playback
-        val result = am.requestAudioFocus(afChangeListener,
-                AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN)
-
-        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.w(TAG, "No AudioFocus Granted!")
-            return false
-        }
+        if(!canGainAudioFocus()) return false
         try {
             mWifiLock.acquire()
             val uri = Uri.parse(Homefy.library().getPlayPath(song))
@@ -247,7 +238,20 @@ class HomefyPlayer(private var mContext: Context?) {
             Log.e(TAG, "Error when playing", e)
             return false
         }
+    }
 
+    private fun canGainAudioFocus(): Boolean {
+        val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        // Request audio focus for playback
+        val result = am.requestAudioFocus(afChangeListener,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN)
+
+        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            Log.w(TAG, "No AudioFocus Granted!")
+            return false
+        }
+        return true
     }
 
     private fun onPrepareComplete(mp: MediaPlayer) {
