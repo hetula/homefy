@@ -27,6 +27,7 @@ package xyz.hetula.homefy.service
 
 import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -39,6 +40,7 @@ import android.support.v7.app.NotificationCompat
 import android.util.Log
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.HomefyPlayer
+import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
 
 /**
@@ -91,16 +93,17 @@ class HomefyService : Service() {
 
     private fun setupNotification(): Notification {
         val song = Homefy.player().nowPlaying()
-        val mediaSession = Homefy.player().mSession
+        val mediaSession = Homefy.player().mSession!!
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         val builder = NotificationCompat.Builder(applicationContext)
         builder.setLargeIcon(largeIcon)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_music_notification)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                 .setOngoing(true)
                 .setShowWhen(false)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(mediaSession!!.controller.sessionActivity)
+                .setContentIntent(contentIntent())
 
         if (song != null) {
             builder.addAction(android.support.v4.app.NotificationCompat.Action(
@@ -126,6 +129,20 @@ class HomefyService : Service() {
         }
 
         return builder.build()
+    }
+
+    private fun contentIntent(): PendingIntent {
+        val launchMe = Intent(this, PlayerActivity::class.java)
+        launchMe.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                         Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                         Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+
+        return PendingIntent.getActivity(
+                this,
+                0,
+                launchMe,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
     }
 
     private fun onPlay(song: Song?, state: Int, param: Int) {
