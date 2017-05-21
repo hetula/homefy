@@ -52,7 +52,8 @@
     <string name="authenticate">Authenticate</string>
     <string name="http">http://</string>
     <string name="search_hint">Search…</string>
-    <string name="buffering">%d%% Buffering</string>
+    <string name="buffering">%03d%% Buffering</string>
+    <string name="buffering_place_holder">100% Buffering</string>
 
     <!-- Plurals -->
     <plurals name="song_count">
