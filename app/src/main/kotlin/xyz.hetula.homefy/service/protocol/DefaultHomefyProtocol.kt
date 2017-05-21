@@ -32,6 +32,7 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley
+import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
 import java.nio.charset.StandardCharsets
 
@@ -46,6 +47,10 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
     private var mServerId: String = ""
 
     override var server: String = ""
+        set(value) {
+            field = value
+            mServerId = Utils.getHash(value)
+        }
 
     override var info = VersionInfo("Homefy", "0.0", VersionInfo.AuthType.NONE)
         set
