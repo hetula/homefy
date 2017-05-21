@@ -48,7 +48,7 @@ class HomefyLibrary {
     private var mSongDatabase: MutableMap<String, Song>? = null
     private val mArtistCache = HashMap<String, ArrayList<Song>>()
     private val mAlbumCache = HashMap<String, ArrayList<Song>>()
-    private var mMusic: MutableList<Song>? = null
+    private var mMusic: List<Song>? = null
     private var mAlbums: MutableList<String>? = null
     private var mArtists: MutableList<String>? = null
 
@@ -57,14 +57,14 @@ class HomefyLibrary {
     fun initialize(music: MutableList<Song>) {
         Log.d("HomefyLibrary", "Initializing with " + music.size + " songs!")
         val start = System.currentTimeMillis()
-        mMusic = music
+        mMusic = sanitizeMusic(music)
         Collections.sort(mMusic!!)
 
         // Take account load factor, probably too low but can be optimized later
         // TODO Check correct load factor
-        mSongDatabase = HashMap<String, Song>((music.size * 1.1).toInt())
+        mSongDatabase = HashMap<String, Song>((mMusic!!.size * 1.1).toInt())
 
-        for (song in music) {
+        for (song in mMusic!!) {
             mSongDatabase!!.put(song.id, song)
             createAndAdd(mArtistCache, song.artist, song)
             createAndAdd(mAlbumCache, song.album, song)
@@ -85,10 +85,14 @@ class HomefyLibrary {
         mSongDatabase?.clear()
         mArtistCache.clear()
         mAlbumCache.clear()
-        mMusic?.clear()
         mAlbums?.clear()
         mArtists?.clear()
+        mMusic = null
+    }
 
+    private fun sanitizeMusic(music: MutableList<Song>): List<Song> {
+        // WMA filter
+        return music.filter { !it.type.startsWith("ASF") }
     }
 
     private fun createAndAdd(cache: MutableMap<String, ArrayList<Song>>, key: String, song: Song) {

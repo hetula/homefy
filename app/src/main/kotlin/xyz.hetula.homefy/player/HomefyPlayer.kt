@@ -44,7 +44,6 @@ import android.util.Log
 import xyz.hetula.homefy.service.Homefy
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 /**
@@ -193,6 +192,7 @@ class HomefyPlayer(private var mContext: Context?) {
     fun previous() {
         mPlayback.previous()
         if (mPlayback.isEmpty()) return
+        abandonAudioFocus()
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
         setupPlay(mPlayback.getCurrent()!!)
     }
@@ -200,6 +200,7 @@ class HomefyPlayer(private var mContext: Context?) {
     fun next() {
         mPlayback.next()
         if (mPlayback.isEmpty()) return
+        abandonAudioFocus()
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
         setupPlay(mPlayback.getCurrent()!!)
     }
@@ -292,7 +293,6 @@ class HomefyPlayer(private var mContext: Context?) {
         Log.d(TAG, "Focus Change!! " + focusChange)
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             pause()
-            mHandler.postDelayed(this::stop, TimeUnit.SECONDS.toMillis(30))
         } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT) {
             pause()
         } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
