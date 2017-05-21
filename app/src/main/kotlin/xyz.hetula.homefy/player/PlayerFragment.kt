@@ -205,6 +205,6 @@ class PlayerFragment : Fragment() {
     }
 
     companion object {
-        val TAG = "HomefyPlayer"
+        val TAG = "PlayerFragment"
     }
 }

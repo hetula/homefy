@@ -60,8 +60,6 @@ class HomefyPlayer(private var mContext: Context?) {
     private val mWifiLock: WifiManager.WifiLock
     private val mPlayback = Playback()
     private val mHandler = Handler()
-    private val mDelayPlayPress = { pauseResume(); mPostedDelay = false}
-    private var mPostedDelay = false
 
     private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
     private var mPlayer: MediaPlayer? = null
@@ -79,7 +77,13 @@ class HomefyPlayer(private var mContext: Context?) {
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
 
         mStateBuilder = PlaybackStateCompat.Builder().setActions(
-                PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PLAY_PAUSE)
+                        PlaybackStateCompat.ACTION_PLAY or
+                        PlaybackStateCompat.ACTION_PAUSE or
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                        PlaybackStateCompat.ACTION_STOP)
+
         mSession!!.setPlaybackState(mStateBuilder.build())
         mSession!!.isActive = true
 
@@ -102,19 +106,10 @@ class HomefyPlayer(private var mContext: Context?) {
 
         mSession!!.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {
-                if(isPaused) {
-                    pauseResume()
-                    return
-                }
-
-                mHandler.removeCallbacks(mDelayPlayPress)
-                if(mPostedDelay) {
-                    mPostedDelay = false
-                    onSkipToNext()
-                } else {
-                    mPostedDelay = true
-                    mHandler.postDelayed(mDelayPlayPress, 750)
-                }
+                pauseResume()
+            }
+            override fun onPause() {
+                pauseResume()
             }
             override fun onSkipToNext() {
                 next()

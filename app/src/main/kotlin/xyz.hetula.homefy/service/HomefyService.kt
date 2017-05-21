@@ -25,16 +25,21 @@
 
 package xyz.hetula.homefy.service
 
+import android.app.Notification
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
-import android.support.v4.content.ContextCompat
 import android.support.v4.media.session.MediaButtonReceiver
+import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.HomefyPlayer
+import xyz.hetula.homefy.player.Song
 
 /**
  * @author Tuomo Heino
@@ -42,8 +47,13 @@ import xyz.hetula.homefy.R
  * @since 1.0
  */
 class HomefyService : Service() {
+    private val mPlaybackListener = this::onPlay
+    private var mSession: MediaSessionCompat? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        if (mSession != null) {
+            MediaButtonReceiver.handleIntent(mSession, intent)
+        }
         if (isReady) return Service.START_STICKY
         isReady = true
 
@@ -51,6 +61,8 @@ class HomefyService : Service() {
         Homefy.initialize(applicationContext)
 
         createNotification()
+        Homefy.player().registerPlaybackListener(mPlaybackListener)
+        mSession = Homefy.player().mSession
 
         return Service.START_STICKY
     }
@@ -59,6 +71,7 @@ class HomefyService : Service() {
         super.onDestroy()
         Log.d(TAG, "Destroying Homefy Service")
         isReady = false
+        Homefy.player().unregisterPlaybackListener(mPlaybackListener)
         Homefy.destroy()
         stopForeground(true)
     }
@@ -68,31 +81,56 @@ class HomefyService : Service() {
     }
 
     private fun createNotification() {
+        startForeground(NOTIFICATION_ID, setupNotification())
+    }
+
+    private fun updateNotification() {
+        val nM = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nM.notify(NOTIFICATION_ID, setupNotification())
+    }
+
+    private fun setupNotification(): Notification {
+        val song = Homefy.player().nowPlaying()
         val mediaSession = Homefy.player().mSession
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         val builder = NotificationCompat.Builder(applicationContext)
-        builder.setContentTitle("Test Title")
-                .setContentText("Test Text")
-                .setSubText("Test SubText")
-                .setLargeIcon(largeIcon)
-                .setSmallIcon(R.drawable.ic_music)
+        builder.setLargeIcon(largeIcon)
+                .setSmallIcon(R.drawable.ic_music_notification)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                 .setOngoing(true)
                 .setShowWhen(false)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
                 .setContentIntent(mediaSession!!.controller.sessionActivity)
-                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                        PlaybackStateCompat.ACTION_STOP))
-                .addAction(NotificationCompat.Action(
-                        R.drawable.ic_pause_circle, "Pause",
-                        MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                                PlaybackStateCompat.ACTION_PLAY_PAUSE)))
-                .setStyle(android.support.v7.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mediaSession.sessionToken)
-                        .setShowActionsInCompactView(0))
 
-        startForeground(NOTIFICATION_ID, builder.build())
+        if (song != null) {
+            builder.addAction(NotificationCompat.Action(
+                    R.drawable.ic_pause_notification, "Pause",
+                    MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                            PlaybackStateCompat.ACTION_PLAY)))
+                    .addAction(NotificationCompat.Action(
+                            R.drawable.ic_skip_next_notification, "Next",
+                            MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT)))
+                    .addAction(NotificationCompat.Action(
+                            R.drawable.ic_stop_notification, "Stop",
+                            MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                                    PlaybackStateCompat.ACTION_STOP)))
+                    .setStyle(android.support.v7.app.NotificationCompat.MediaStyle()
+                            .setMediaSession(mediaSession.sessionToken)
+                            .setShowActionsInCompactView(0, 1, 2))
+                    .setContentTitle(song.title)
+                    .setContentText("${song.artist} - ${song.album}")
+        } else {
+            builder.setContentTitle("Homefy")
+                    .setContentText("Nothing is playing")
+        }
+
+        return builder.build()
+    }
+
+    private fun onPlay(song: Song?, state: Int, param: Int) {
+        if (state != HomefyPlayer.STATE_PLAY) return
+        updateNotification()
     }
 
     companion object {
