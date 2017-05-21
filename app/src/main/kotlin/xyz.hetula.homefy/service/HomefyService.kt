@@ -76,6 +76,7 @@ class HomefyService : Service() {
         Homefy.player().unregisterPlaybackListener(mPlaybackListener)
         Homefy.destroy()
         stopForeground(true)
+        stopSelf()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -104,6 +105,8 @@ class HomefyService : Service() {
                 .setShowWhen(false)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(contentIntent())
+                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                        PlaybackStateCompat.ACTION_STOP))
 
         if (song != null) {
             builder.addAction(android.support.v4.app.NotificationCompat.Action(
@@ -134,8 +137,8 @@ class HomefyService : Service() {
     private fun contentIntent(): PendingIntent {
         val launchMe = Intent(this, PlayerActivity::class.java)
         launchMe.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                         Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
-                         Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
 
         return PendingIntent.getActivity(
                 this,
