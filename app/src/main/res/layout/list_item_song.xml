@@ -29,13 +29,14 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground">
 
-    <ImageView
+    <ImageButton
         android:id="@+id/song_favorite"
         android:layout_gravity="center_vertical|start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:src="@drawable/ic_favorite"
+        android:src="@drawable/ic_not_favorite"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/favorite_desc" />
 
     <LinearLayout
@@ -54,7 +55,6 @@
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@color/control"
             android:lines="1"
             android:ellipsize="end"
             tools:text="01 - Testi" />
@@ -64,7 +64,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="@color/control"
             android:lines="1"
             android:ellipsize="end"
             tools:text="Artist - Album" />
@@ -74,7 +73,6 @@
             android:layout_marginEnd="32dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/control"
             android:textSize="12sp"
             tools:text="00:00"/>
     </LinearLayout>

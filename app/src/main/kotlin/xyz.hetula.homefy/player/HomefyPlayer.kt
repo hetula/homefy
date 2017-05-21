@@ -53,7 +53,7 @@ import kotlin.collections.ArrayList
  * @since 1.0
  */
 class HomefyPlayer(private var mContext: Context?) {
-    private val afChangeListener = AudioManager.OnAudioFocusChangeListener(this::onAudioFocusChange)
+    private val afChangeListener = this::onAudioFocusChange
     private val mPlaybackListeners = HashSet<(Song?, Int, Int) -> Unit>()
     private val mController: MediaControllerCompat
     private val mWifiLock: WifiManager.WifiLock
@@ -244,7 +244,6 @@ class HomefyPlayer(private var mContext: Context?) {
         val result = am.requestAudioFocus(afChangeListener,
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN)
-
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             Log.w(TAG, "No AudioFocus Granted!")
             return false
@@ -259,12 +258,13 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     private fun onPlayComplete(mp: MediaPlayer) {
+        Log.d(TAG, "onPlayComplete $mp")
         abandonAudioFocus()
         next()
     }
 
     private fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-        Log.e(TAG, "Playback Error: $what extra: $extra")
+        Log.e(TAG, "Playback Error: $what extra: $extra MediaPlayer: $mp")
         abandonAudioFocus()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_ERROR)
@@ -274,7 +274,7 @@ class HomefyPlayer(private var mContext: Context?) {
     private fun onBuffering(mediaPlayer: MediaPlayer, i: Int) {
         mPlaybackListeners.forEach { it(nowPlaying(), STATE_BUFFERING, i) }
         if (i < 100) return
-        Log.d(TAG, "Fully buffered!")
+        Log.d(TAG, "Fully buffered! $mediaPlayer")
         if (mWifiLock.isHeld) {
             mWifiLock.release()
         }
@@ -291,11 +291,10 @@ class HomefyPlayer(private var mContext: Context?) {
     private fun onAudioFocusChange(focusChange: Int) {
         Log.d(TAG, "Focus Change!! " + focusChange)
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            mController.transportControls.pause()
-            mHandler.postDelayed({ mController.transportControls.stop() },
-                    TimeUnit.SECONDS.toMillis(30))
+            pause()
+            mHandler.postDelayed(this::stop, TimeUnit.SECONDS.toMillis(30))
         } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT) {
-            mController.transportControls.pause()
+            pause()
         } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
             mPlayer?.setVolume(0.1f, 0.1f)
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {

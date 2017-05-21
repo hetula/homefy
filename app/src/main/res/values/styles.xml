@@ -28,10 +28,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:colorBackground">@color/colorPrimary</item>
-        <item name="android:textColorPrimary">@color/control</item>
+        <item name="android:colorBackground">@color/colorPrimaryLight</item>
+        <item name="android:textColorPrimary">@color/primaryText</item>
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
-        <item name="android:colorForeground">@color/control</item>
+        <item name="android:colorForeground">@color/secondaryText</item>
     </style>
 
     <style name="NavigationDivider">
@@ -59,7 +59,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
-        <item name="android:textColor">@color/control</item>
+        <item name="android:textColor">@color/icons</item>
         <item name="android:gravity">center</item>
         <item name="android:textSize">@dimen/nav_font_size</item>
         <item name="android:background">@android:color/transparent</item>

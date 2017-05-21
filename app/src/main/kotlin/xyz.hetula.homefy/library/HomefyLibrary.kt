@@ -122,12 +122,12 @@ class HomefyLibrary {
         return songs ?: emptyList<Song>()
     }
 
-    fun getSong(id: String): Song? {
-        return mSongDatabase!![id]
-    }
-
     fun getPlayPath(song: Song): String {
         return Homefy.protocol().server + "/play/" + song.id
+    }
+
+    fun isFavorite(song: Song): Boolean {
+        return false
     }
 
     @Synchronized fun search(search: String, type: SearchType,callback: (List<Song>) -> Unit) {

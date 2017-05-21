@@ -56,6 +56,7 @@ class PlayerFragment : Fragment() {
     private var mTxtLength: TextView? = null
     private var mTxtBuffering: TextView? = null
     private var mBtnPausePlay: ImageButton? = null
+    private var mBtnFavorite: ImageButton? = null
     private var mSeekBar: SeekBar? = null
     private val mPositionLoop = Handler()
     private val mUpdateRunnable = this::posQuery
@@ -72,6 +73,7 @@ class PlayerFragment : Fragment() {
         mTxtBuffering = main.txt_buffering!!
         mSeekBar = main.seek_song_length!!
         mBtnPausePlay = main.btn_play_pause!!
+        mBtnFavorite = main.btn_favorite!!
 
         mBtnPausePlay!!.setOnClickListener { _ -> Homefy.player().pauseResume() }
 
@@ -103,6 +105,8 @@ class PlayerFragment : Fragment() {
         }
         Homefy.player().registerPlaybackListener(mPlaybackListener)
         mPositionLoop.post(mUpdateRunnable)
+        // Enable title scrolling...
+        mTxtTitle!!.isSelected = true
     }
 
     override fun onPause() {
@@ -124,7 +128,7 @@ class PlayerFragment : Fragment() {
             HomefyPlayer.STATE_STOP -> clear()
             HomefyPlayer.STATE_RESUME -> onDurUpdate(false)
         }
-        if(song != null) {
+        if(song != null && state != HomefyPlayer.STATE_BUFFERING) {
             updateSongInfo(song)
         }
     }
@@ -161,6 +165,8 @@ class PlayerFragment : Fragment() {
         } else {
             mTxtTitle!!.text = now.title
         }
+        mTxtTitle!!.isSelected = true
+
         val position = Homefy.player().queryPosition().toLong()
 
         mTxtArtist!!.text = now.artist
@@ -171,6 +177,11 @@ class PlayerFragment : Fragment() {
             mBtnPausePlay!!.setImageResource(R.drawable.ic_play_circle)
         } else if (Homefy.player().isPlaying) {
             mBtnPausePlay!!.setImageResource(R.drawable.ic_pause_circle)
+        }
+        if(Homefy.library().isFavorite(now)) {
+            mBtnFavorite!!.setImageResource(R.drawable.ic_favorite_large)
+        } else {
+            mBtnFavorite!!.setImageResource(R.drawable.ic_not_favorite_large)
         }
     }
 

@@ -29,6 +29,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
@@ -59,7 +60,12 @@ class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongView
         }
         holder.txtArtistAlbum.text = String.format(Locale.getDefault(), "%s - %s", song.artist, song.album)
         holder.txtLength.text = Utils.parseSeconds(song.length)
-        holder.itemView.setOnClickListener { v -> Homefy.player().play(song, mSongs) }
+        holder.itemView.setOnClickListener { _ -> Homefy.player().play(song, mSongs) }
+        if(Homefy.library().isFavorite(song)) {
+            holder.btnSongFav.setImageResource(R.drawable.ic_favorite)
+        } else {
+            holder.btnSongFav.setImageResource(R.drawable.ic_not_favorite)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -70,5 +76,6 @@ class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongView
         val txtTrackTitle: TextView = itemView.findViewById(R.id.song_track_title) as TextView
         val txtArtistAlbum: TextView = itemView.findViewById(R.id.song_artist_album) as TextView
         val txtLength: TextView = itemView.findViewById(R.id.song_length) as TextView
+        val btnSongFav: ImageButton = itemView.findViewById(R.id.song_favorite) as ImageButton
     }
 }

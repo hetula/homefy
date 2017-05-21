@@ -123,8 +123,18 @@ class HomefyService : Service() {
                         PlaybackStateCompat.ACTION_STOP))
 
         if (song != null) {
+            val img: Int
+            val str: String
+            if (Homefy.player().isPaused) {
+                img = R.drawable.ic_play_notification
+                str = "Play"
+            } else {
+                img = R.drawable.ic_pause_notification
+                str = "Pause"
+            }
+
             builder.addAction(android.support.v4.app.NotificationCompat.Action(
-                    R.drawable.ic_pause_notification, "Pause",
+                    img, str,
                     MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                             PlaybackStateCompat.ACTION_PLAY)))
                     .addAction(android.support.v4.app.NotificationCompat.Action(
@@ -173,8 +183,9 @@ class HomefyService : Service() {
     }
 
     private fun onPlay(song: Song?, state: Int, param: Int) {
-        if (state != HomefyPlayer.STATE_PLAY) return
-        updateNotification()
+        if (state == HomefyPlayer.STATE_PLAY || state == HomefyPlayer.STATE_PAUSE) {
+            updateNotification()
+        }
     }
 
     companion object {

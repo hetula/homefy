@@ -34,7 +34,6 @@
         android:text="@string/loading"
         android:textSize="24sp"
         android:layout_gravity="center_horizontal"
-        android:textColor="@color/control"
         android:layout_marginTop="96dp"/>
 
     <TextView
@@ -43,7 +42,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="48dp"
-        android:textColor="@color/control"
         android:textSize="16sp"
         tools:text="0 / 69 Songs loaded"/>
 

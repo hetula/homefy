@@ -43,7 +43,6 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="1"
-            android:textColor="@color/control"
             android:textSize="14sp"
             android:textStyle="bold"
             tools:text="Artisti" />
@@ -54,7 +53,6 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="1"
-            android:textColor="@color/control"
             android:textSize="12sp"
             tools:text="Count 01234" />
     </LinearLayout>
