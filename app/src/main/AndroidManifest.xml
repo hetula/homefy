@@ -52,7 +52,7 @@
             android:noHistory="true"/>
 
         <service android:name=".service.HomefyService"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="xyz.hetula.homefy.service.CLOSE" />
                 <action android:name="android.intent.action.MEDIA_BUTTON" />

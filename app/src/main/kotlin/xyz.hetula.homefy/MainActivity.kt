@@ -27,8 +27,6 @@ package xyz.hetula.homefy
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
 
@@ -37,7 +35,7 @@ import xyz.hetula.homefy.setup.SetupFragment
  * @version 1.0
  * @since 1.0
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : HomefyActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

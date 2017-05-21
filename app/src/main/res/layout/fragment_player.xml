@@ -115,7 +115,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_add_to_playlist" />
+            android:src="@drawable/ic_add_to_playlist"
+            android:contentDescription="@string/add_to_playlist_desc"/>
 
         <Space
             android:layout_width="0dp"
@@ -141,7 +142,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_not_favorite_large" />
+            android:src="@drawable/ic_not_favorite_large"
+            android:contentDescription="@string/favorite_desc"/>
 
         <Space
             android:layout_width="0dp"

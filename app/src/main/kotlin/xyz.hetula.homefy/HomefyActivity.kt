@@ -22,29 +22,48 @@
  * SOFTWARE.
  */
 
-package xyz.hetula.homefy.player
+package xyz.hetula.homefy
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
-import xyz.hetula.homefy.HomefyActivity
-import xyz.hetula.homefy.R
+import android.support.v7.app.AppCompatActivity
+import android.util.Log
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-class PlayerActivity: HomefyActivity() {
+abstract class HomefyActivity : AppCompatActivity() {
+    private var mKillReceiver: BroadcastReceiver? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "Creating HomefyActivity")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val filter = IntentFilter(KILL_INTENT)
+        mKillReceiver = (object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                Log.d(TAG, "onReceive: " + intent?.action)
+                if(intent?.action == KILL_INTENT) {
+                    Log.d(TAG, "Finishing Activity!")
+                    finishAndRemoveTask()
+                }
+            }
+        })
+        applicationContext.registerReceiver(mKillReceiver, filter)
+    }
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.hide()
+    override fun onDestroy() {
+        Log.d(TAG, "Destroying HomefyActivity")
+        super.onDestroy()
+        applicationContext.unregisterReceiver(mKillReceiver)
+    }
 
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.container, PlayerFragment())
-                .commit()
+    companion object {
+        private val TAG = "HomefyActivity"
+        val KILL_INTENT = "xyz.hetula.homefy.KILL_INTENT"
     }
 }

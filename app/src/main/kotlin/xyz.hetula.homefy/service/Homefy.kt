@@ -42,9 +42,12 @@ object Homefy {
     private var mHomefy: HomefyProtocol? = null
     private var mLibrary: HomefyLibrary? = null
     private var mPlayer: HomefyPlayer? = null
-
+    var isAlive = false
+        private set
+        get
 
     internal fun initialize(appContext: Context) {
+        isAlive = true
         mHomefy = DefaultHomefyProtocol(appContext)
 
         mLibrary = HomefyLibrary()
@@ -52,6 +55,8 @@ object Homefy {
     }
 
     internal fun destroy() {
+        isAlive = false
+
         mHomefy!!.release()
         mHomefy = null
 

@@ -60,6 +60,7 @@ class PlayerFragment : Fragment() {
     private var mSeekBar: SeekBar? = null
     private val mPositionLoop = Handler()
     private val mUpdateRunnable = this::posQuery
+    private var mIsShowing = false
 
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -96,6 +97,7 @@ class PlayerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        mIsShowing = true
         val song = Homefy.player().nowPlaying()
         if(song != null) {
             updateSongInfo(song)
@@ -107,6 +109,8 @@ class PlayerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
+        mIsShowing = false
+        Log.d(TAG, "Paused!")
         Homefy.player().unregisterPlaybackListener(mPlaybackListener)
         mPositionLoop.removeCallbacks(mUpdateRunnable)
         mTxtBuffering!!.visibility = View.INVISIBLE
@@ -137,6 +141,7 @@ class PlayerFragment : Fragment() {
     }
 
     private fun onDurUpdate(paused: Boolean) {
+        if(!mIsShowing) return
         if(paused) {
             mPositionLoop.removeCallbacks(mUpdateRunnable)
         } else {
@@ -170,6 +175,7 @@ class PlayerFragment : Fragment() {
     }
 
     private fun posQuery() {
+        if(!Homefy.isAlive) return
         val song = Homefy.player().nowPlaying()
         var pos: Long
         val dur: Long
@@ -186,7 +192,7 @@ class PlayerFragment : Fragment() {
         mSeekBar!!.max = dur.toInt()
         mSeekBar!!.progress = pos.toInt()
         mTxtLength!!.text = Utils.parseTime(pos, dur)
-        if(song != null) {
+        if(song != null && mIsShowing) {
             mPositionLoop.postDelayed(mUpdateRunnable, 750)
         }
     }
