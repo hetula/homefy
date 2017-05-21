@@ -57,7 +57,8 @@ class LibraryFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as AppCompatActivity).supportActionBar?.hide()
+        (activity as AppCompatActivity).supportActionBar?.show()
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     private fun onLibraryClick(v: View) {

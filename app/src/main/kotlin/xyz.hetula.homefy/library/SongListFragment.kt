@@ -99,15 +99,16 @@ class SongListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         if(mParentTitle.isBlank()) {
-            (activity as AppCompatActivity).supportActionBar?.hide()
+            (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
+            (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         } else {
             (activity as AppCompatActivity).supportActionBar?.title = mParentTitle
-            (activity as AppCompatActivity).supportActionBar?.show()
         }
     }
 

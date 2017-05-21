@@ -32,8 +32,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.os.Handler
 import android.os.IBinder
+import android.os.Process
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -53,11 +53,11 @@ import xyz.hetula.homefy.player.Song
 class HomefyService : Service() {
     private val mPlaybackListener = this::onPlay
     private var mSession: MediaSessionCompat? = null
-    private val mHandler = Handler()
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if(intent.action == CLOSE_INTENT) {
             closeApp()
+            return Service.START_NOT_STICKY
         }
 
         if (mSession != null) {
@@ -89,6 +89,8 @@ class HomefyService : Service() {
         Homefy.destroy()
         stopForeground(true)
         stopSelf()
+        // Kill Process, just in case.
+        Process.killProcess(Process.myPid())
     }
 
     override fun onBind(intent: Intent): IBinder? {

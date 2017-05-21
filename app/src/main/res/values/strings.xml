@@ -55,6 +55,7 @@
     <string name="buffering">%03d%% Buffering</string>
     <string name="buffering_place_holder">100%% Buffering</string>
     <string name="add_to_playlist_desc">Add to Playlist</string>
+    <string name="menu_shutdown">Shutdown</string>
 
     <!-- Plurals -->
     <plurals name="song_count">

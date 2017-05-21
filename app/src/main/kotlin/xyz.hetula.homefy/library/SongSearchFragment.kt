@@ -75,11 +75,12 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
     override fun onResume() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     override fun onPause() {
         super.onPause()
-        (activity as AppCompatActivity).supportActionBar?.hide()
+        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
     }
 
     private fun doSearch(search: Editable?, type: SearchType) {

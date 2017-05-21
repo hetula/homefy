@@ -29,7 +29,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -102,7 +101,6 @@ class PlayerFragment : Fragment() {
         if(song != null) {
             updateSongInfo(song)
         }
-        (activity as AppCompatActivity).supportActionBar?.hide()
         Homefy.player().registerPlaybackListener(mPlaybackListener)
         mPositionLoop.post(mUpdateRunnable)
     }
@@ -111,7 +109,9 @@ class PlayerFragment : Fragment() {
         super.onPause()
         mIsShowing = false
         Log.d(TAG, "Paused!")
-        Homefy.player().unregisterPlaybackListener(mPlaybackListener)
+        if(Homefy.isAlive) {
+            Homefy.player().unregisterPlaybackListener(mPlaybackListener)
+        }
         mPositionLoop.removeCallbacks(mUpdateRunnable)
         mTxtBuffering!!.visibility = View.INVISIBLE
     }

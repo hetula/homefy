@@ -27,6 +27,9 @@ package xyz.hetula.homefy
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
 
@@ -41,9 +44,8 @@ class MainActivity : HomefyActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.hide()
 
         supportFragmentManager
                 .beginTransaction()
@@ -53,12 +55,36 @@ class MainActivity : HomefyActivity() {
                     SetupFragment())
                 .commit()
 
-        val startService = Intent(this, HomefyService::class.java)
+        val startService = Intent(applicationContext, HomefyService::class.java)
         startService(startService)
     }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.homefy, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId) {
+            R.id.menu_shutdown -> {
+                doShutdown()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun doShutdown() {
+        Log.d("MainActivity", "Shutting down!")
+        finishAndRemoveTask()
+        stopService(Intent(applicationContext, HomefyService::class.java))
+//        val closeMe = Intent(applicationContext, HomefyService::class.java)
+//        closeMe.action = HomefyService.CLOSE_INTENT
+//        startService(closeMe)
     }
 }

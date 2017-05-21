@@ -82,12 +82,12 @@ class HomefyLibrary {
     }
 
     fun release() {
-        mSongDatabase!!.clear()
+        mSongDatabase?.clear()
         mArtistCache.clear()
         mAlbumCache.clear()
-        mMusic!!.clear()
-        mAlbums!!.clear()
-        mArtists!!.clear()
+        mMusic?.clear()
+        mAlbums?.clear()
+        mArtists?.clear()
 
     }
 
