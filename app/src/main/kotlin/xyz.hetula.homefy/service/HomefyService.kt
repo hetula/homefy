@@ -32,10 +32,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.IBinder
-import android.support.v4.app.NotificationCompat
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.support.v7.app.NotificationCompat
 import android.util.Log
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.HomefyPlayer
@@ -103,15 +103,15 @@ class HomefyService : Service() {
                 .setContentIntent(mediaSession!!.controller.sessionActivity)
 
         if (song != null) {
-            builder.addAction(NotificationCompat.Action(
+            builder.addAction(android.support.v4.app.NotificationCompat.Action(
                     R.drawable.ic_pause_notification, "Pause",
                     MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                             PlaybackStateCompat.ACTION_PLAY)))
-                    .addAction(NotificationCompat.Action(
+                    .addAction(android.support.v4.app.NotificationCompat.Action(
                             R.drawable.ic_skip_next_notification, "Next",
                             MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT)))
-                    .addAction(NotificationCompat.Action(
+                    .addAction(android.support.v4.app.NotificationCompat.Action(
                             R.drawable.ic_stop_notification, "Stop",
                             MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                                     PlaybackStateCompat.ACTION_STOP)))
