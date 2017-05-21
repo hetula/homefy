@@ -53,6 +53,8 @@ class HomefyService : Service() {
     private var mSession: MediaSessionCompat? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        if(intent.action == CLOSE_INTENT) stopSelf()
+
         if (mSession != null) {
             MediaButtonReceiver.handleIntent(mSession, intent)
         }
@@ -118,9 +120,8 @@ class HomefyService : Service() {
                             MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT)))
                     .addAction(android.support.v4.app.NotificationCompat.Action(
-                            R.drawable.ic_stop_notification, "Stop",
-                            MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                                    PlaybackStateCompat.ACTION_STOP)))
+                            R.drawable.ic_close_notify, "Close",
+                            closeIntent()))
                     .setStyle(android.support.v7.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.sessionToken)
                             .setShowActionsInCompactView(0, 1, 2))
@@ -148,12 +149,25 @@ class HomefyService : Service() {
         )
     }
 
+    private fun closeIntent(): PendingIntent {
+        val close = Intent(this, HomefyService::class.java)
+        close.action = CLOSE_INTENT
+        return PendingIntent.getService(
+                this,
+                42,
+                close,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
     private fun onPlay(song: Song?, state: Int, param: Int) {
         if (state != HomefyPlayer.STATE_PLAY) return
         updateNotification()
     }
 
     companion object {
+        val CLOSE_INTENT = "xyz.hetula.homefy.service.CLOSE"
+
         private val TAG = "HomefyService"
         private val NOTIFICATION_ID = 444
 
