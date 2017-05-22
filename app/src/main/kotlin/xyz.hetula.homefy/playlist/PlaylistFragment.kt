@@ -20,47 +20,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-package xyz.hetula.homefy
+package xyz.hetula.homefy.playlist
 
-import java.security.MessageDigest
-import java.util.*
-
+import android.support.v4.app.Fragment
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-object Utils {
-    fun parseSeconds(seconds: Long): String {
-        val min = seconds / 60
-        return String.format(Locale.getDefault(), "%02d:%02d", min, seconds - min * 60)
-    }
-
-    fun parseTime(pos: Long, dur: Long): String {
-        return parseSeconds(pos) + "/" + parseSeconds(dur)
-    }
-
-    fun getHash(str: String): String {
-        val digest = MessageDigest.getInstance("SHA-1")
-        val bytes = str.toByteArray()
-        val hashed = digest.digest(bytes)
-
-        val sb = StringBuilder()
-        for (aHashed in hashed) {
-            if (0xff and aHashed.toInt() < 0x10) {
-                sb.append(0).append(Integer.toHexString(0xFF and aHashed.toInt()))
-            } else {
-                sb.append(Integer.toHexString(0xFF and aHashed.toInt()))
-            }
-        }
-        return sb.toString()
-    }
-
-    fun randomId():String {
-        return UUID.randomUUID().toString()
-    }
+class PlaylistFragment : Fragment() {
 }

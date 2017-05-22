@@ -82,7 +82,7 @@
 
                 <TextView
                     style="@style/NavigationView.Content"
-                    android:drawableStart="@drawable/ic_favorite"
+                    android:drawableStart="@drawable/ic_favorite_library"
                     android:text="@string/nav_favs" />
             </FrameLayout>
 

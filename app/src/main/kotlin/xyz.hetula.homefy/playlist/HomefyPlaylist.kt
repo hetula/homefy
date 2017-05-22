@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-package xyz.hetula.homefy.library.playlist
+package xyz.hetula.homefy.playlist
 
+import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
 
 /**
@@ -31,4 +32,21 @@ import xyz.hetula.homefy.player.Song
  * @version 1.0
  * @since 1.0
  */
-data class Playlist(val id: String, val songs: List<Song>)
+class HomefyPlaylist {
+    private val mPlaylists = HashMap<String, Playlist>()
+    val favorites = Playlist(Utils.randomId(), "Favorites")
+
+    fun isFavorite(song: Song): Boolean {
+        return favorites.contains(song)
+    }
+
+    fun createPlaylist(name: String): Playlist {
+        val pl = Playlist(Utils.randomId(), if(name.isBlank()) "Empty" else name)
+        mPlaylists[pl.id] = pl
+        return pl
+    }
+
+    operator fun get(key: String): Playlist? {
+        return mPlaylists[key]
+    }
+}

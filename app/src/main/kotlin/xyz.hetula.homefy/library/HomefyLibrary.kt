@@ -130,10 +130,6 @@ class HomefyLibrary {
         return Homefy.protocol().server + "/play/" + song.id
     }
 
-    fun isFavorite(song: Song): Boolean {
-        return false
-    }
-
     @Synchronized fun search(search: String, type: SearchType,callback: (List<Song>) -> Unit) {
         mSearchTask?.cancel(true)
         mSearchTask = SearchTask(mMusic!!, callback)

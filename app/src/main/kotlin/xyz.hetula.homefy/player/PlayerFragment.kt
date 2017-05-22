@@ -92,6 +92,13 @@ class PlayerFragment : Fragment() {
                 updateSongInfo(song)
             }
         })
+        main.btn_favorite.setOnClickListener {
+            val song = Homefy.player().nowPlaying()
+            if(song != null) {
+                Homefy.playlist().favorites.toggle(song)
+                updateFavIco(song)
+            }
+        }
         main.btn_playback!!.setOnClickListener(this::onPlaybackModeClick)
         return main
     }
@@ -178,7 +185,11 @@ class PlayerFragment : Fragment() {
         } else if (Homefy.player().isPlaying) {
             mBtnPausePlay!!.setImageResource(R.drawable.ic_pause_circle)
         }
-        if(Homefy.library().isFavorite(now)) {
+        updateFavIco(now)
+    }
+
+    private fun updateFavIco(song: Song) {
+        if(Homefy.playlist().isFavorite(song)) {
             mBtnFavorite!!.setImageResource(R.drawable.ic_favorite_large)
         } else {
             mBtnFavorite!!.setImageResource(R.drawable.ic_not_favorite_large)

@@ -72,10 +72,14 @@ class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongView
         holder.txtArtistAlbum.text = String.format(Locale.getDefault(), "%s - %s", song.artist, song.album)
         holder.txtLength.text = Utils.parseSeconds(song.length)
         holder.itemView.setOnClickListener { _ -> Homefy.player().play(song, mSongs) }
-        if(Homefy.library().isFavorite(song)) {
+        if(Homefy.playlist().isFavorite(song)) {
             holder.btnSongFav.setImageResource(R.drawable.ic_favorite)
         } else {
             holder.btnSongFav.setImageResource(R.drawable.ic_not_favorite)
+        }
+        holder.btnSongFav.setOnClickListener {
+            Homefy.playlist().favorites.toggle(song)
+            notifyItemChanged(position)
         }
     }
 
