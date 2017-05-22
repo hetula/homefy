@@ -28,7 +28,6 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -48,17 +47,18 @@ import xyz.hetula.homefy.service.Homefy
  * @since 1.0
  */
 class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
-    private var mRecycler: RecyclerView? = null
     private var mSearch: EditText? = null
+    private var mAdapter: SongAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater!!.inflate(R.layout.fragment_song_search, container, false)
 
-        mRecycler = root.recyclerView
+        val mRecycler = root.recyclerView
         mRecycler!!.setHasFixedSize(true)
-        mRecycler!!.layoutManager = LinearLayoutManager(context,
+        mRecycler.layoutManager = LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false)
-        mRecycler!!.adapter = SongAdapter(Homefy.library().songs)
+        mAdapter = SongAdapter(Homefy.library().songs)
+        mRecycler.adapter = mAdapter
 
         val adapter = ArrayAdapter<SearchType>(context,
                 android.R.layout.simple_spinner_item, SearchType.values())
@@ -85,15 +85,15 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun doSearch(search: Editable?, type: SearchType) {
         if(search == null ) {
-            mRecycler!!.adapter = SongAdapter(Homefy.library().songs)
+            mAdapter?.setSongs(Homefy.library().songs)
             return
         }
         val text = search.toString()
         if(text.isBlank()) {
-            mRecycler!!.adapter = SongAdapter(Homefy.library().songs)
+            mAdapter?.setSongs(Homefy.library().songs)
             return
         }
-        Homefy.library().search(text, type, { mRecycler!!.adapter = SongAdapter(it) })
+        Homefy.library().search(text, type, { mAdapter?.setSongs(it) })
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

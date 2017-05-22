@@ -46,7 +46,6 @@
             android:layout_weight="1"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:textColor="@color/icons"
             android:hint="@string/search_hint"/>
 
     </LinearLayout>

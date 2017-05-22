@@ -45,6 +45,12 @@ import java.util.*
 class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
     private val mSongs: ArrayList<Song> = ArrayList(songs)
 
+    fun setSongs(songs: List<Song>) {
+        mSongs.clear()
+        mSongs.addAll(songs)
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val songView = inflater.inflate(R.layout.list_item_song, parent, false)

@@ -147,27 +147,45 @@ class HomefyLibrary {
 
         override fun doInBackground(vararg params: SearchRequest?): List<Song> {
             val req = params[0]!!
-            return search(req.search, req.type)
+            val start = System.currentTimeMillis()
+            if(isCancelled) return Collections.emptyList()
+            val result = search(req.search, req.type)
+            Log.d(TAG, "Search done in: ${(System.currentTimeMillis() - start)} ms")
+            if(isCancelled) return Collections.emptyList()
+            return result
         }
 
         override fun onPostExecute(result: List<Song>?) {
-            if(result != null) {
+            if(result != null && !result.isEmpty()) {
                 callback(result)
             }
         }
 
         private fun search(search: String, type: SearchType): List<Song> {
-            return music.filter {
-                when(type)  {
-                    SearchType.TITLE  -> it.title.contains(search, true)
-                    SearchType.ALBUM  -> it.album.contains(search, true)
-                    SearchType.ARTIST -> it.artist.contains(search, true)
-                    SearchType.GENRE  -> it.genre.contains(search, true)
-                    else -> it.title.contains(search, true) ||
-                            it.album.contains(search, true) ||
-                            it.artist.contains(search, true)
+            val res = ArrayList<Song>()
+            for(song in music) {
+                if(isCancelled) return Collections.emptyList()
+                if(filter(song, search, type)) {
+                    res.add(song)
                 }
             }
+            return res
         }
+
+        private fun filter(song: Song, search: String, type: SearchType): Boolean {
+            return when (type) {
+                SearchType.TITLE -> song.title.contains(search, true)
+                SearchType.ALBUM -> song.album.contains(search, true)
+                SearchType.ARTIST -> song.artist.contains(search, true)
+                SearchType.GENRE -> song.genre.contains(search, true)
+                else -> song.title.contains(search, true) ||
+                        song.album.contains(search, true) ||
+                        song.artist.contains(search, true)
+            }
+        }
+
+    }
+    companion object {
+        val TAG = "HomefyLibrary"
     }
 }
