@@ -64,7 +64,7 @@ class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongView
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         val song = mSongs[position]
         holder.song = song
-        if (song.track < 0) {
+        if (song.track < 1) {
             holder.txtTrackTitle.text = song.title
         } else {
             holder.txtTrackTitle.text = String.format(Locale.getDefault(), "%d - %s", song.track, song.title)

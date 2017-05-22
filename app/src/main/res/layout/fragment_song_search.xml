@@ -53,14 +53,24 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/icons"/>
+        android:background="@color/colorPrimary"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="6dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"/>
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="6dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"/>
+
+        <xyz.danoz.recyclerviewfastscroller.vertical.VerticalRecyclerViewFastScroller
+            android:id="@+id/fast_scroller"
+            android:layout_width="8dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"/>
+    </FrameLayout>
 
 </LinearLayout>
