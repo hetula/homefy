@@ -27,9 +27,11 @@ package xyz.hetula.homefy.library
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
@@ -54,11 +56,14 @@ class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongView
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val songView = inflater.inflate(R.layout.list_item_song, parent, false)
-        return SongViewHolder(songView)
+        val svh = SongViewHolder(songView)
+        songView.setOnLongClickListener(svh::onLong)
+        return svh
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         val song = mSongs[position]
+        holder.song = song
         if (song.track < 0) {
             holder.txtTrackTitle.text = song.title
         } else {
@@ -83,5 +88,25 @@ class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongView
         val txtArtistAlbum: TextView = itemView.findViewById(R.id.song_artist_album) as TextView
         val txtLength: TextView = itemView.findViewById(R.id.song_length) as TextView
         val btnSongFav: ImageButton = itemView.findViewById(R.id.song_favorite) as ImageButton
+
+        var song: Song? = null
+            set
+            get
+
+        fun onLong(v: View?): Boolean {
+            val song = this.song ?: return false
+            val pops = PopupMenu(itemView.context, itemView)
+            pops.menu.add(Menu.NONE, 0 , 0, R.string.menu_song_queue)
+            pops.setOnMenuItemClickListener { click(it.itemId, song) }
+            pops.show()
+            return true
+        }
+
+        private fun click(id: Int, song: Song): Boolean {
+            when(id) {
+                0 -> Homefy.player().queue(song)
+            }
+            return true
+        }
     }
 }

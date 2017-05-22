@@ -145,6 +145,14 @@ class HomefyPlayer(private var mContext: Context?) {
         return mPlayback.getCurrent()
     }
 
+    fun queue(song: Song) {
+        mPlayback.queueSong(Collections.singletonList(song))
+    }
+
+    fun queue(song: List<Song>) {
+        mPlayback.queueSong(song)
+    }
+
     fun play(song: Song, playlist: ArrayList<Song>?) {
         if (setupPlay(song)) {
             if(playlist == null)

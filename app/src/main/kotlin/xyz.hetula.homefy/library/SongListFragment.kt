@@ -65,14 +65,14 @@ class SongListFragment : Fragment() {
             }
             ARTISTS -> {
                 adapter = SongListAdapter(Homefy.library().artists,
-                        { artist -> Homefy.library().getArtistSongs(artist).size },
+                        { artist -> Homefy.library().getArtistSongs(artist) },
                         this::onArtistClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_artists)
             }
             ALBUMS -> {
                 adapter = SongListAdapter(Homefy.library().albums,
-                        { album -> Homefy.library().getAlbumSongs(album).size },
+                        { album -> Homefy.library().getAlbumSongs(album) },
                         this::onAlbumClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_albums)
