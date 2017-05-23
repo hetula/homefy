@@ -44,6 +44,7 @@ import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
+import java.io.File
 
 /**
  * @author Tuomo Heino
@@ -84,6 +85,10 @@ class HomefyService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Destroying Homefy Service")
+        val folder = getAndCreateBase()
+        if(folder != null) {
+            Homefy.playlist().save(folder)
+        }
         isReady = false
         Homefy.player().unregisterPlaybackListener(mPlaybackListener)
         Homefy.destroy()
@@ -95,6 +100,13 @@ class HomefyService : Service() {
 
     override fun onBind(intent: Intent): IBinder? {
         return null
+    }
+
+    private fun getAndCreateBase(): File? {
+        val specific = Homefy.protocol().serverId
+        val base = File(applicationContext.filesDir, specific)
+        base.mkdir()
+        return base
     }
 
     private fun createNotification() {

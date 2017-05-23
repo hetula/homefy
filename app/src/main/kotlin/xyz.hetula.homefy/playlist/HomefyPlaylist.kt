@@ -24,8 +24,10 @@
 
 package xyz.hetula.homefy.playlist
 
+import com.google.gson.Gson
 import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
+import java.io.File
 
 /**
  * @author Tuomo Heino
@@ -44,6 +46,12 @@ class HomefyPlaylist {
         val pl = Playlist(Utils.randomId(), if(name.isBlank()) "Empty" else name)
         mPlaylists[pl.id] = pl
         return pl
+    }
+
+    fun save(baseFolder: File) {
+        val favFile = File(baseFolder, "favorites.json")
+        val gson = Gson()
+        
     }
 
     operator fun get(key: String): Playlist? {

@@ -27,6 +27,7 @@ package xyz.hetula.homefy.library
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
@@ -35,6 +36,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import kotlinx.android.synthetic.main.fragment_library.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.playlist.PlaylistFragment
 
 /**
  * @author Tuomo Heino
@@ -52,6 +54,8 @@ class LibraryFragment : Fragment() {
         main.library_artists.setOnClickListener(clicks)
         main.library_albums.setOnClickListener(clicks)
         main.library_search.setOnClickListener(clicks)
+        main.library_favorites.setOnClickListener(clicks)
+        main.library_playlists.setOnClickListener(clicks)
         return main
     }
 
@@ -67,39 +71,31 @@ class LibraryFragment : Fragment() {
             R.id.library_music -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALL_MUSIC)
             R.id.library_albums -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALBUMS)
             R.id.library_artists -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ARTISTS)
+            R.id.library_favorites -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.FAVORITES)
             else -> {
                 onSpecialLibClick(v)
                 return
             }
         }
-        createSongListFragment(args)
+        val fragment = SongListFragment()
+        fragment.arguments = args
+        openFragment(fragment)
     }
 
     private fun onSpecialLibClick(v: View) {
         when(v.id) {
-            R.id.library_search -> createSearchFragment()
+            R.id.library_search -> openFragment(SongSearchFragment())
+            R.id.library_playlists -> openFragment(PlaylistFragment())
             else -> {
                 Log.w("LibraryFragment", "Unhandled Click from " + v)
             }
         }
     }
 
-    private fun createSongListFragment(args: Bundle) {
-        val fragment = SongListFragment()
-        fragment.arguments = args
+    private fun openFragment(fragment: Fragment) {
         fragmentManager
                 .beginTransaction()
-                .hide(this)
-                .addToBackStack(null)
-                .add(R.id.container, fragment)
-                .show(fragment)
-                .commit()
-    }
-
-    private fun createSearchFragment() {
-        val fragment = SongSearchFragment()
-        fragmentManager
-                .beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .hide(this)
                 .addToBackStack(null)
                 .add(R.id.container, fragment)

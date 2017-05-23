@@ -31,7 +31,7 @@ import xyz.hetula.homefy.player.Song
  * @version 1.0
  * @since 1.0
  */
-data class Playlist(val id: String, val name: String, private val songs: MutableList<Song> = ArrayList()) {
+data class Playlist(val id: String, val name: String, val songs: MutableList<Song> = ArrayList()) {
 
     fun contains(song: Song): Boolean {
         return songs.contains(song)

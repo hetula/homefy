@@ -44,14 +44,9 @@ import java.util.*
  * @version 1.0
  * @since 1.0
  */
-class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
+class SongAdapter(songs: List<Song>, private val onFav: ((SongAdapter, Song) -> Unit)? = null) :
+        RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
     private val mSongs: ArrayList<Song> = ArrayList(songs)
-
-    fun setSongs(songs: List<Song>) {
-        mSongs.clear()
-        mSongs.addAll(songs)
-        notifyDataSetChanged()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -80,11 +75,32 @@ class SongAdapter(songs: List<Song>) : RecyclerView.Adapter<SongAdapter.SongView
         holder.btnSongFav.setOnClickListener {
             Homefy.playlist().favorites.toggle(song)
             notifyItemChanged(position)
+            onFav?.invoke(this, song)
         }
     }
 
     override fun getItemCount(): Int {
         return mSongs.size
+    }
+
+    fun setSongs(songs: List<Song>) {
+        mSongs.clear()
+        mSongs.addAll(songs)
+        notifyDataSetChanged()
+    }
+
+    fun remove(song: Song) {
+        val pos = mSongs.indexOf(song)
+        if(pos == -1) return
+        mSongs.removeAt(pos)
+        notifyItemRemoved(pos)
+    }
+
+    fun add(song: Song) {
+        if(mSongs.contains(song)) return
+        val pos = mSongs.size
+        mSongs.add(song)
+        notifyItemInserted(pos)
     }
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

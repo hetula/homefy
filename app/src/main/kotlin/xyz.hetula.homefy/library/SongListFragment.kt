@@ -27,6 +27,7 @@ package xyz.hetula.homefy.library
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -36,6 +37,7 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_song_list.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
 
 /**
@@ -90,6 +92,19 @@ class SongListFragment : Fragment() {
                 mParentTitle = context.getString(R.string.nav_albums)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
+            FAVORITES -> {
+                adapter = SongAdapter(Homefy.playlist().favorites.songs, this::onFavClick)
+                (activity as AppCompatActivity).supportActionBar?.title =
+                        context.getString(R.string.nav_favs)
+            }
+            PLAYLIST -> {
+                val playlist = Homefy.playlist()[name] ?:
+                        throw IllegalArgumentException("Calling SongListFragment with invalid playlist id: $name")
+
+                adapter = SongAdapter(playlist.songs)
+                (activity as AppCompatActivity).supportActionBar?.title = playlist.name
+                mParentTitle = context.getString(R.string.nav_playlists)
+            }
             else -> {
                 Log.e(TAG, "Invalid TYPE: " + type)
                 throw IllegalArgumentException("Calling SongListFragment with invalid type: $type")
@@ -115,6 +130,11 @@ class SongListFragment : Fragment() {
         }
     }
 
+    private fun onFavClick(adapter: SongAdapter, song: Song) {
+        if(Homefy.playlist().isFavorite(song)) adapter.add(song)
+        else adapter.remove(song)
+    }
+
     private fun onArtistClick(artist: String) {
         val args = Bundle()
         args.putInt(LIST_TYPE_KEY, ARTIST_MUSIC)
@@ -134,6 +154,7 @@ class SongListFragment : Fragment() {
         fragment.arguments = args
         fragmentManager
                 .beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .hide(this)
                 .addToBackStack(null)
                 .add(R.id.container, fragment)
@@ -151,5 +172,7 @@ class SongListFragment : Fragment() {
         val ALBUMS = 3
         val ARTIST_MUSIC = 4
         val ALBUM_MUSIC = 5
+        val FAVORITES = 6
+        val PLAYLIST = 7
     }
 }
