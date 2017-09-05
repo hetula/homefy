@@ -34,10 +34,10 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.IBinder
 import android.os.Process
+import android.support.v4.app.NotificationCompat
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.support.v7.app.NotificationCompat
 import android.util.Log
 import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.R
@@ -52,6 +52,7 @@ import java.io.File
  * @since 1.0
  */
 class HomefyService : Service() {
+    private val HOMEFY_NOTIFICATION_ID = "homefy_notification"
     private val mPlaybackListener = this::onPlay
     private var mSession: MediaSessionCompat? = null
 
@@ -86,7 +87,7 @@ class HomefyService : Service() {
         super.onDestroy()
         Log.d(TAG, "Destroying Homefy Service")
         val folder = getAndCreateBase()
-        if(folder != null) {
+        if (folder != null) {
             Homefy.playlist().save(folder)
         }
         isReady = false
@@ -122,7 +123,7 @@ class HomefyService : Service() {
         val song = Homefy.player().nowPlaying()
         val mediaSession = Homefy.player().mSession!!
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
-        val builder = NotificationCompat.Builder(applicationContext)
+        val builder = NotificationCompat.Builder(applicationContext, HOMEFY_NOTIFICATION_ID)
         builder.setLargeIcon(largeIcon)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setSmallIcon(R.drawable.ic_music_notification)
@@ -156,7 +157,7 @@ class HomefyService : Service() {
                     .addAction(android.support.v4.app.NotificationCompat.Action(
                             R.drawable.ic_close_notify, "Close",
                             closeIntent()))
-                    .setStyle(android.support.v7.app.NotificationCompat.MediaStyle()
+                    .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.sessionToken)
                             .setShowActionsInCompactView(0, 1, 2))
                     .setContentTitle(song.title)
