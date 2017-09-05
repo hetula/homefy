@@ -51,7 +51,7 @@ class LoadingFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_loading, container, false) as FrameLayout
-        mLoaded = main.findViewById(R.id.txt_songs_loaded) as TextView
+        mLoaded = main.findViewById(R.id.txt_songs_loaded)
         mSongsTotal = Homefy.protocol().info.databaseSize
         initialize()
         return main

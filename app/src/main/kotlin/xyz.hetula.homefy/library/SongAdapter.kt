@@ -104,10 +104,10 @@ class SongAdapter(songs: List<Song>, private val onFav: ((SongAdapter, Song) -> 
     }
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val txtTrackTitle: TextView = itemView.findViewById(R.id.song_track_title) as TextView
-        val txtArtistAlbum: TextView = itemView.findViewById(R.id.song_artist_album) as TextView
-        val txtLength: TextView = itemView.findViewById(R.id.song_length) as TextView
-        val btnSongFav: ImageButton = itemView.findViewById(R.id.song_favorite) as ImageButton
+        val txtTrackTitle: TextView = itemView.findViewById(R.id.song_track_title)
+        val txtArtistAlbum: TextView = itemView.findViewById(R.id.song_artist_album)
+        val txtLength: TextView = itemView.findViewById(R.id.song_length)
+        val btnSongFav: ImageButton = itemView.findViewById(R.id.song_favorite)
 
         var song: Song? = null
             set

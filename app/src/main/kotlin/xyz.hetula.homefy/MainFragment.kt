@@ -48,11 +48,11 @@ class MainFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_main, container, false) as FrameLayout
-        val viewPager = main.findViewById(R.id.viewPager) as ViewPager
+        val viewPager = main.findViewById<ViewPager>(R.id.viewPager)
         viewPager.adapter = HomefyPagerAdapter(fragmentManager)
         // Clear any backstack entries, just in case
         val stackCount = fragmentManager.backStackEntryCount
-        for (i in 0..stackCount - 1) {
+        for (i in 0 until stackCount) {
             fragmentManager.popBackStackImmediate()
         }
         return main

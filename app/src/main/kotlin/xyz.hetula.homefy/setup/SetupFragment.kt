@@ -57,11 +57,11 @@ class SetupFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_setup, container, false) as LinearLayout
-        mConnect = main.findViewById(R.id.btn_connect) as Button
+        mConnect = main.findViewById(R.id.btn_connect)
         mConnect!!.setOnClickListener(this::onConClick)
-        mAddress = main.findViewById(R.id.txt_address) as EditText
-        mUser = main.findViewById(R.id.txt_username) as EditText
-        mPass = main.findViewById(R.id.txt_password) as EditText
+        mAddress = main.findViewById(R.id.txt_address)
+        mUser = main.findViewById(R.id.txt_username)
+        mPass = main.findViewById(R.id.txt_password)
         mViewCredentials = main.findViewById(R.id.view_credentials)
         mAddress!!.setOnEditorActionListener { _, _, event ->
             if (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER) {

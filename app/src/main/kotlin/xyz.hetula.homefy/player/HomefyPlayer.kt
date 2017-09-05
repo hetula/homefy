@@ -36,6 +36,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.PowerManager
+import android.os.SystemClock
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -51,12 +52,15 @@ import kotlin.collections.ArrayList
  * @since 1.0
  */
 class HomefyPlayer(private var mContext: Context?) {
+    private val PLAY_NEXT_THRESHOLD_MS = 500L
+
     private val afChangeListener = this::onAudioFocusChange
     private val mPlaybackListeners = HashSet<(Song?, Int, Int) -> Unit>()
     private val mController: MediaControllerCompat
     private val mWifiLock: WifiManager.WifiLock
     private val mPlayback = Playback()
     private var mHasFocus = false
+    private var mLastPlayPress = 0L
 
     private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
     private var mPlayer: MediaPlayer? = null
@@ -98,15 +102,19 @@ class HomefyPlayer(private var mContext: Context?) {
             override fun onPlay() {
                 pauseResume()
             }
+
             override fun onPause() {
                 pauseResume()
             }
+
             override fun onSkipToNext() {
                 next()
             }
+
             override fun onSkipToPrevious() {
                 previous()
             }
+
             override fun onStop() {
                 stop()
             }
@@ -155,7 +163,7 @@ class HomefyPlayer(private var mContext: Context?) {
 
     fun play(song: Song, playlist: ArrayList<Song>?) {
         if (setupPlay(song)) {
-            if(playlist == null)
+            if (playlist == null)
                 mPlayback.playSong(song, ArrayList())
             else
                 mPlayback.playSong(song, playlist)
@@ -163,12 +171,28 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     fun pauseResume() {
-        if (mPlayback.isEmpty()) return
+        if (mPlayback.isEmpty()) {
+            return
+        }
+        if (shouldPlayNext()) {
+            next()
+            return
+        }
+        mLastPlayPress = SystemClock.elapsedRealtime()
+
         if (mPlayer!!.isPlaying) {
             pause()
         } else {
             play()
         }
+    }
+
+    private fun shouldPlayNext(): Boolean {
+        if (mLastPlayPress == 0L) {
+            return false
+        }
+        val diff = SystemClock.elapsedRealtime() - mLastPlayPress;
+        return diff < PLAY_NEXT_THRESHOLD_MS
     }
 
     private fun pause() {
@@ -218,25 +242,25 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     fun queryPosition(): Int {
-        if(mPlayback.isEmpty()) return 0
+        if (mPlayback.isEmpty()) return 0
         return mPlayer!!.currentPosition / 1000
     }
 
     private fun queryPosMs(): Long {
-        if(mPlayback.isEmpty()) return 0L
+        if (mPlayback.isEmpty()) return 0L
         return mPlayer!!.currentPosition.toLong()
     }
 
     private fun setupPlay(song: Song): Boolean {
-        if(!mHasFocus){
+        if (!mHasFocus) {
             tryGainAudioFocus()
-            if(!mHasFocus) {
+            if (!mHasFocus) {
                 return false
             }
         }
         Log.d(TAG, "Setuping new song to play!")
         try {
-            if(!mWifiLock.isHeld) {
+            if (!mWifiLock.isHeld) {
                 mWifiLock.acquire()
             }
             val uri = Uri.parse(Homefy.library().getPlayPath(song))

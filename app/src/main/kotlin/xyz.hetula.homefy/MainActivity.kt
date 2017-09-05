@@ -83,8 +83,5 @@ class MainActivity : HomefyActivity() {
         Log.d("MainActivity", "Shutting down!")
         finishAndRemoveTask()
         stopService(Intent(applicationContext, HomefyService::class.java))
-//        val closeMe = Intent(applicationContext, HomefyService::class.java)
-//        closeMe.action = HomefyService.CLOSE_INTENT
-//        startService(closeMe)
     }
 }

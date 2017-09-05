@@ -77,8 +77,8 @@ internal class SongListAdapter(names: List<String>,
     }
 
     class SongListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val txtMainInfo: TextView = itemView.findViewById(R.id.txt_main_info) as TextView
-        val txtMoreInfo: TextView = itemView.findViewById(R.id.txt_more_info) as TextView
+        val txtMainInfo: TextView = itemView.findViewById(R.id.txt_main_info)
+        val txtMoreInfo: TextView = itemView.findViewById(R.id.txt_more_info)
 
         var songs: List<Song> = ArrayList()
             get

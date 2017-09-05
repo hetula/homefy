@@ -63,11 +63,11 @@ class Playback {
     }
 
     private fun setupPlaybackStyle(mode: PlaybackMode) {
-        when(mode) {
-            PlaybackMode.NORMAL -> playback = NORMAL_PROVIDER
-            PlaybackMode.REPEAT -> playback = REPEAT_PROVIDER
-            PlaybackMode.REPEAT_SINGLE -> playback = REPEAT_SINGLE_PROVIDER
-            PlaybackMode.RANDOM -> playback = RANDOM_PROVIDER
+        playback = when(mode) {
+            PlaybackMode.NORMAL -> NORMAL_PROVIDER
+            PlaybackMode.REPEAT -> REPEAT_PROVIDER
+            PlaybackMode.REPEAT_SINGLE -> REPEAT_SINGLE_PROVIDER
+            PlaybackMode.RANDOM -> RANDOM_PROVIDER
         }
     }
 
