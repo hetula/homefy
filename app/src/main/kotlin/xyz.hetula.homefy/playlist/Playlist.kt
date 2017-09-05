@@ -53,12 +53,12 @@ data class Playlist(val id: String, val name: String, val songs: MutableList<Son
         save()
     }
 
-    internal fun addAll(songs: List<Song>) {
-        this.songs.addAll(songs)
-    }
-
     fun create() {
         save()
+    }
+
+    internal fun addAll(songs: List<Song>) {
+        this.songs.addAll(songs)
     }
 
     private fun save() {
@@ -68,9 +68,9 @@ data class Playlist(val id: String, val name: String, val songs: MutableList<Son
         try {
             io = BufferedWriter(FileWriter(fileName))
             GSON.toJson(this, io)
-            Log.d("Playlist", "Saved: $name")
+            Log.d("Playlist", "Saved: $fileName")
         } catch (ioEx: IOException) {
-            Log.e("Playlist", "Saving: $name", ioEx)
+            Log.e("Playlist", "Saving: $fileName", ioEx)
         } finally {
             io?.close()
         }

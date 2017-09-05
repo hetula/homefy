@@ -26,8 +26,10 @@ package xyz.hetula.homefy.playlist
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
@@ -35,6 +37,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import kotlinx.android.synthetic.main.fragment_playlist.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.library.SongListFragment
 import xyz.hetula.homefy.service.Homefy
 
 /**
@@ -43,10 +46,26 @@ import xyz.hetula.homefy.service.Homefy
  * @since 1.0
  */
 class PlaylistFragment : Fragment() {
+    private var mAdapter: PlaylistAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater!!.inflate(R.layout.fragment_playlist, container, false)
-        root.btn_create_playlist.setOnClickListener{ createPlaylist() }
+        root.btn_create_playlist.setOnClickListener { createPlaylist() }
+        root.recyclerView.layoutManager = LinearLayoutManager(context)
+
+        mAdapter = PlaylistAdapter {
+            val args = Bundle()
+            args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.PLAYLIST)
+            args.putString(SongListFragment.LIST_NAME_KEY, it.id)
+
+            val fragment = SongListFragment()
+            fragment.arguments = args
+            openFragment(fragment)
+        }
+
+        mAdapter?.setPlaylists(Homefy.playlist().getAllPlaylists())
+
+        root.recyclerView.adapter = mAdapter
 
         (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_playlists)
         return root
@@ -64,7 +83,18 @@ class PlaylistFragment : Fragment() {
     }
 
     private fun addPlaylist(playlist: Playlist) {
+        mAdapter?.addPlaylist(playlist)
+    }
 
+    private fun openFragment(fragment: Fragment) {
+        fragmentManager
+                .beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .hide(this)
+                .addToBackStack(null)
+                .add(R.id.container, fragment)
+                .show(fragment)
+                .commit()
     }
 
     private fun createPlaylist() {
@@ -75,7 +105,7 @@ class PlaylistFragment : Fragment() {
         ask.setView(txtName)
         ask.setPositiveButton("Create", { d, _ ->
             val name = txtName.text.toString()
-            if(name.isBlank()) {
+            if (name.isBlank()) {
                 d.cancel()
             } else {
                 addPlaylist(Homefy.playlist().createPlaylist(name))

@@ -30,7 +30,6 @@ import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
 import java.io.BufferedReader
 import java.io.File
-import java.io.FileFilter
 import java.io.FileReader
 
 /**
@@ -67,12 +66,13 @@ class HomefyPlaylist {
             favorites.addAll(favList.songs)
         }
         val playlistFolder = base.resolve(PLAYLIST_DIR)
-        val playlists = playlistFolder.listFiles(FileFilter { it.endsWith(".json") })
+        val playlists = playlistFolder.list({ _, name -> name.endsWith(".json") })
         if (playlists == null || playlists.isEmpty()) {
+            Log.e("HomefyPlaylist", "No playlists found! $playlistFolder")
             return
         }
         for (playlist in playlists) {
-            loadPlaylist(gson, playlist) {
+            loadPlaylist(gson, playlistFolder.resolve(playlist)) {
                 mPlaylists[it.id] = it
             }
         }
@@ -92,5 +92,9 @@ class HomefyPlaylist {
 
     operator fun get(key: String): Playlist? {
         return mPlaylists[key]
+    }
+
+    fun getAllPlaylists(): Set<Playlist> {
+        return HashSet(mPlaylists.values)
     }
 }
