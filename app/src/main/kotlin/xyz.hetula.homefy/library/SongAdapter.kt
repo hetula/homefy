@@ -25,6 +25,8 @@
 
 package xyz.hetula.homefy.library
 
+import android.content.Context
+import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.Menu
@@ -35,6 +37,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
+import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
 import java.util.*
@@ -66,8 +69,11 @@ class SongAdapter(songs: List<Song>, private val onFav: ((SongAdapter, Song) -> 
         }
         holder.txtArtistAlbum.text = String.format(Locale.getDefault(), "%s - %s", song.artist, song.album)
         holder.txtLength.text = Utils.parseSeconds(song.length)
-        holder.itemView.setOnClickListener { _ -> Homefy.player().play(song, mSongs) }
-        if(Homefy.playlist().isFavorite(song)) {
+        holder.itemView.setOnClickListener { v ->
+            Homefy.player().play(song, mSongs)
+            openPlayer(v.context)
+        }
+        if (Homefy.playlist().isFavorite(song)) {
             holder.btnSongFav.setImageResource(R.drawable.ic_favorite)
         } else {
             holder.btnSongFav.setImageResource(R.drawable.ic_not_favorite)
@@ -91,16 +97,21 @@ class SongAdapter(songs: List<Song>, private val onFav: ((SongAdapter, Song) -> 
 
     fun remove(song: Song) {
         val pos = mSongs.indexOf(song)
-        if(pos == -1) return
+        if (pos == -1) return
         mSongs.removeAt(pos)
         notifyItemRemoved(pos)
     }
 
     fun add(song: Song) {
-        if(mSongs.contains(song)) return
+        if (mSongs.contains(song)) return
         val pos = mSongs.size
         mSongs.add(song)
         notifyItemInserted(pos)
+    }
+
+    private fun openPlayer(context: Context) {
+        val intent = Intent(context, PlayerActivity::class.java)
+        context.startActivity(intent)
     }
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -116,14 +127,14 @@ class SongAdapter(songs: List<Song>, private val onFav: ((SongAdapter, Song) -> 
         fun onLong(v: View?): Boolean {
             val song = this.song ?: return false
             val pops = PopupMenu(itemView.context, itemView)
-            pops.menu.add(Menu.NONE, 0 , 0, R.string.menu_song_queue)
+            pops.menu.add(Menu.NONE, 0, 0, R.string.menu_song_queue)
             pops.setOnMenuItemClickListener { click(it.itemId, song) }
             pops.show()
             return true
         }
 
         private fun click(id: Int, song: Song): Boolean {
-            when(id) {
+            when (id) {
                 0 -> Homefy.player().queue(song)
             }
             return true

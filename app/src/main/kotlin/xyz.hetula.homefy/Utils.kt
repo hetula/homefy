@@ -60,7 +60,7 @@ object Utils {
         return sb.toString()
     }
 
-    fun randomId():String {
+    fun randomId(): String {
         return UUID.randomUUID().toString()
     }
 }

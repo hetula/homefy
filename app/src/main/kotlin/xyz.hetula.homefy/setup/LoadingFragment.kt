@@ -35,8 +35,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-import xyz.hetula.homefy.MainFragment
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.library.LibraryFragment
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
 import java.util.*
@@ -114,7 +114,7 @@ class LoadingFragment : Fragment() {
         Homefy.library().initialize(songs)
         fragmentManager
                 .beginTransaction()
-                .replace(R.id.container, MainFragment())
+                .replace(R.id.container, LibraryFragment())
                 .commit()
     }
 }

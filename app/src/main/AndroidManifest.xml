@@ -47,18 +47,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".player.PlayerActivity"
-            android:screenOrientation="portrait"
-            android:noHistory="true"/>
+        <activity
+            android:name=".player.PlayerActivity"
+            android:excludeFromRecents="true"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
 
-        <service android:name=".service.HomefyService"
+        <service
+            android:name=".service.HomefyService"
             android:exported="false">
             <intent-filter>
                 <action android:name="xyz.hetula.homefy.service.CLOSE" />
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </service>
-        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>

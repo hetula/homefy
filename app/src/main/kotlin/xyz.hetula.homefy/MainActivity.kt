@@ -30,6 +30,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import xyz.hetula.homefy.library.LibraryFragment
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
 
@@ -50,7 +51,7 @@ class MainActivity : HomefyActivity() {
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.container, if (HomefyService.isReady)
-                    MainFragment()
+                    LibraryFragment()
                 else
                     SetupFragment())
                 .commit()
@@ -70,7 +71,7 @@ class MainActivity : HomefyActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when(item?.itemId) {
+        when (item?.itemId) {
             R.id.menu_shutdown -> {
                 doShutdown()
                 return true

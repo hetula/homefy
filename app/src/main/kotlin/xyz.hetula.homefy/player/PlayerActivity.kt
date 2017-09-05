@@ -33,7 +33,7 @@ import xyz.hetula.homefy.R
  * @version 1.0
  * @since 1.0
  */
-class PlayerActivity: HomefyActivity() {
+class PlayerActivity : HomefyActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -46,5 +46,9 @@ class PlayerActivity: HomefyActivity() {
                 .beginTransaction()
                 .replace(R.id.container, PlayerFragment())
                 .commit()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
     }
 }

@@ -25,6 +25,7 @@
 
 package xyz.hetula.homefy.library
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
@@ -33,9 +34,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.fragment_library.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.playlist.PlaylistFragment
 
 /**
@@ -47,7 +49,7 @@ class LibraryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_library, container, false) as FrameLayout
+        val main = inflater!!.inflate(R.layout.fragment_library, container, false) as LinearLayout
 
         val clicks = View.OnClickListener { this.onLibraryClick(it) }
         main.library_music.setOnClickListener(clicks)
@@ -56,6 +58,7 @@ class LibraryFragment : Fragment() {
         main.library_search.setOnClickListener(clicks)
         main.library_favorites.setOnClickListener(clicks)
         main.library_playlists.setOnClickListener(clicks)
+        main.homefy_header.setOnClickListener(clicks)
         return main
     }
 
@@ -83,9 +86,10 @@ class LibraryFragment : Fragment() {
     }
 
     private fun onSpecialLibClick(v: View) {
-        when(v.id) {
+        when (v.id) {
             R.id.library_search -> openFragment(SongSearchFragment())
             R.id.library_playlists -> openFragment(PlaylistFragment())
+            R.id.homefy_header -> openPlayer()
             else -> {
                 Log.w("LibraryFragment", "Unhandled Click from " + v)
             }
@@ -101,5 +105,10 @@ class LibraryFragment : Fragment() {
                 .add(R.id.container, fragment)
                 .show(fragment)
                 .commit()
+    }
+
+    private fun openPlayer() {
+        val intent = Intent(context, PlayerActivity::class.java)
+        activity.startActivity(intent)
     }
 }

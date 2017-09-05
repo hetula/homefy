@@ -35,11 +35,13 @@ import android.graphics.BitmapFactory
 import android.os.IBinder
 import android.os.Process
 import android.support.v4.app.NotificationCompat
+import android.support.v4.app.TaskStackBuilder
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import xyz.hetula.homefy.HomefyActivity
+import xyz.hetula.homefy.MainActivity
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.PlayerActivity
@@ -176,12 +178,10 @@ class HomefyService : Service() {
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
 
-        return PendingIntent.getActivity(
-                this,
-                0,
-                launchMe,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        val taskStack = TaskStackBuilder.create(baseContext)
+        taskStack.addParentStack(MainActivity::class.java)
+        taskStack.addNextIntent(launchMe)
+        return taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     private fun closeIntent(): PendingIntent {

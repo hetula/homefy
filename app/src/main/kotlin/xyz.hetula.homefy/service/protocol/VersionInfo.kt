@@ -32,7 +32,9 @@ package xyz.hetula.homefy.service.protocol
  */
 data class VersionInfo(val name: String, val version: String, val authentication: AuthType) {
     var databaseSize = 0
-        set(value) {databaseSize = value}
+        set(value) {
+            field = value
+        }
 
     override fun toString(): String {
         return "VersionInfo{" +
