@@ -26,6 +26,7 @@
 package xyz.hetula.homefy.setup
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
@@ -59,12 +60,14 @@ class LoadingFragment : Fragment() {
 
     private fun initialize() {
         mSongs.clear()
-        mLoadStarted = System.currentTimeMillis()
+        mLoadStarted = SystemClock.elapsedRealtime()
         Homefy.protocol().requestPages(250,
                 this::fetchData,
-                { _ ->
+                { er ->
                     Toast.makeText(context,
                             "Error when Connecting!", Toast.LENGTH_LONG).show()
+                    Log.e("LoadingFragment", "Connection error! Can't recover!", er.cause)
+                    activity.finish()
                 })
 
     }
@@ -78,6 +81,7 @@ class LoadingFragment : Fragment() {
                     { _ ->
                         Toast.makeText(context,
                                 "Error when Connecting!", Toast.LENGTH_LONG).show()
+                        onDataRequestFinished()
                     },
                     Array<Song>::class.java)
         }
@@ -91,9 +95,12 @@ class LoadingFragment : Fragment() {
         mSongs.addAll(Arrays.asList(*songs))
         mLoaded!!.text = context.resources
                 .getQuantityString(R.plurals.songs_loaded, mSongs.size, mSongs.size, mSongsTotal)
+        onDataRequestFinished()
+    }
 
+    private fun onDataRequestFinished() {
         if (ready()) {
-            val time = System.currentTimeMillis() - mLoadStarted
+            val time = SystemClock.elapsedRealtime() - mLoadStarted
             Log.d("LoadingFragment", "Songs loaded in $time ms")
 
             initializeHomefy()
