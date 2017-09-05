@@ -102,7 +102,7 @@ class LoadingFragment : Fragment() {
 
     private fun initializeHomefy() {
         val songs = mSongs
-        mSongs = ArrayList<Song>() // Create new list so old one can't be used here
+        mSongs = ArrayList() // Create new list so old one can't be used here
         // initialize will use given list and does not create new one.
         Homefy.library().initialize(songs)
         fragmentManager

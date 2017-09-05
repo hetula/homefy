@@ -191,7 +191,7 @@ class HomefyPlayer(private var mContext: Context?) {
         if (mLastPlayPress == 0L) {
             return false
         }
-        val diff = SystemClock.elapsedRealtime() - mLastPlayPress;
+        val diff = SystemClock.elapsedRealtime() - mLastPlayPress
         return diff < PLAY_NEXT_THRESHOLD_MS
     }
 
@@ -330,14 +330,11 @@ class HomefyPlayer(private var mContext: Context?) {
 
     private fun onAudioFocusChange(focusChange: Int) {
         Log.d(TAG, "Focus Change!! " + focusChange)
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            pause()
-        } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT) {
-            pause()
-        } else if (focusChange == AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-            mPlayer?.setVolume(0.1f, 0.1f)
-        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            mPlayer?.setVolume(1f, 1f)
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_LOSS -> pause()
+            AUDIOFOCUS_LOSS_TRANSIENT -> pause()
+            AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> mPlayer?.setVolume(0.1f, 0.1f)
+            AudioManager.AUDIOFOCUS_GAIN -> mPlayer?.setVolume(1f, 1f)
         }
     }
 

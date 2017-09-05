@@ -63,7 +63,7 @@ class Playback {
     }
 
     private fun setupPlaybackStyle(mode: PlaybackMode) {
-        playback = when(mode) {
+        playback = when (mode) {
             PlaybackMode.NORMAL -> NORMAL_PROVIDER
             PlaybackMode.REPEAT -> REPEAT_PROVIDER
             PlaybackMode.REPEAT_SINGLE -> REPEAT_SINGLE_PROVIDER
@@ -98,19 +98,19 @@ class Playback {
         if (playing != null && playing != previous.peekLast()) {
             addToPrevious(playing!!)
         }
-        if (!queue.isEmpty()) {
-            playing = queue.removeAt(0)
+        playing = if (!queue.isEmpty()) {
+            queue.removeAt(0)
         } else {
-            playing = playback(playing, next, lastRequest)
+            playback(playing, next, lastRequest)
         }
     }
 
     fun cyclePlaybackMode() {
         val ord = playbackMode.ordinal + 1
-        if(ord >= PlaybackMode.values().size)
-            playbackMode = PlaybackMode.values()[0]
+        playbackMode = if (ord >= PlaybackMode.values().size)
+            PlaybackMode.values()[0]
         else
-            playbackMode = PlaybackMode.values()[ord]
+            PlaybackMode.values()[ord]
 
     }
 

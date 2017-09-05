@@ -62,7 +62,7 @@ class HomefyLibrary {
 
         // Take account load factor, probably too low but can be optimized later
         // TODO Check correct load factor
-        mSongDatabase = HashMap<String, Song>((mMusic!!.size * 1.1).toInt())
+        mSongDatabase = HashMap((mMusic!!.size * 1.1).toInt())
 
         for (song in mMusic!!) {
             mSongDatabase!!.put(song.id, song)
@@ -98,7 +98,7 @@ class HomefyLibrary {
     private fun createAndAdd(cache: MutableMap<String, ArrayList<Song>>, key: String, song: Song) {
         var list: ArrayList<Song>? = cache[key]
         if (list == null) {
-            list = ArrayList<Song>()
+            list = ArrayList()
             cache.put(key, list)
         }
         list.add(song)
@@ -123,7 +123,7 @@ class HomefyLibrary {
 
     private fun getFromCache(cache: Map<String, List<Song>>, key: String): List<Song> {
         val songs = cache[key]
-        return songs ?: emptyList<Song>()
+        return songs ?: emptyList()
     }
 
     fun getPlayPath(song: Song): String {

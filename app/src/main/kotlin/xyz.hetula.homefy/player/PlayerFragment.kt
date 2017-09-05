@@ -81,20 +81,20 @@ class PlayerFragment : Fragment() {
         main.btn_next!!.setOnClickListener { _ ->
             Homefy.player().next()
             val song = Homefy.player().nowPlaying()
-            if(song != null) {
+            if (song != null) {
                 updateSongInfo(song)
             }
         }
         main.btn_previous.setOnClickListener({ _ ->
             Homefy.player().previous()
             val song = Homefy.player().nowPlaying()
-            if(song != null) {
+            if (song != null) {
                 updateSongInfo(song)
             }
         })
         main.btn_favorite.setOnClickListener {
             val song = Homefy.player().nowPlaying()
-            if(song != null) {
+            if (song != null) {
                 Homefy.playlist().favorites.toggle(song)
                 updateFavIco(song)
             }
@@ -107,7 +107,7 @@ class PlayerFragment : Fragment() {
         super.onResume()
         mIsShowing = true
         val song = Homefy.player().nowPlaying()
-        if(song != null) {
+        if (song != null) {
             updateSongInfo(song)
         }
         Homefy.player().registerPlaybackListener(mPlaybackListener)
@@ -120,7 +120,7 @@ class PlayerFragment : Fragment() {
         super.onPause()
         mIsShowing = false
         Log.d(TAG, "Paused!")
-        if(Homefy.isAlive) {
+        if (Homefy.isAlive) {
             Homefy.player().unregisterPlaybackListener(mPlaybackListener)
         }
         mPositionLoop.removeCallbacks(mUpdateRunnable)
@@ -135,14 +135,14 @@ class PlayerFragment : Fragment() {
             HomefyPlayer.STATE_STOP -> clear()
             HomefyPlayer.STATE_RESUME -> onDurUpdate(false)
         }
-        if(song != null && state != HomefyPlayer.STATE_BUFFERING) {
+        if (song != null && state != HomefyPlayer.STATE_BUFFERING) {
             updateSongInfo(song)
         }
     }
 
     private fun onBuffer(buffered: Int) {
         Log.d(TAG, "Buffering $buffered")
-        if(buffered >= 100) {
+        if (buffered >= 100) {
             mTxtBuffering!!.visibility = View.INVISIBLE
             mTxtBuffering!!.text = context.getString(R.string.buffering, 0)
         } else {
@@ -152,8 +152,8 @@ class PlayerFragment : Fragment() {
     }
 
     private fun onDurUpdate(paused: Boolean) {
-        if(!mIsShowing) return
-        if(paused) {
+        if (!mIsShowing) return
+        if (paused) {
             mPositionLoop.removeCallbacks(mUpdateRunnable)
         } else {
             mPositionLoop.post(mUpdateRunnable)
@@ -189,7 +189,7 @@ class PlayerFragment : Fragment() {
     }
 
     private fun updateFavIco(song: Song) {
-        if(Homefy.playlist().isFavorite(song)) {
+        if (Homefy.playlist().isFavorite(song)) {
             mBtnFavorite!!.setImageResource(R.drawable.ic_favorite_large)
         } else {
             mBtnFavorite!!.setImageResource(R.drawable.ic_not_favorite_large)
@@ -197,24 +197,24 @@ class PlayerFragment : Fragment() {
     }
 
     private fun posQuery() {
-        if(!Homefy.isAlive) return
+        if (!Homefy.isAlive) return
         val song = Homefy.player().nowPlaying()
         var pos: Long
         val dur: Long
-        if(song != null) {
+        if (song != null) {
             pos = Homefy.player().queryPosition().toLong()
             dur = song.length
         } else {
             pos = 0
             dur = 0
         }
-        if(pos > dur) {
+        if (pos > dur) {
             pos = dur
         }
         mSeekBar!!.max = dur.toInt()
         mSeekBar!!.progress = pos.toInt()
         mTxtLength!!.text = Utils.parseTime(pos, dur)
-        if(song != null && mIsShowing) {
+        if (song != null && mIsShowing) {
             mPositionLoop.postDelayed(mUpdateRunnable, 750)
         }
     }
@@ -223,11 +223,11 @@ class PlayerFragment : Fragment() {
         val button = v as ImageButton
         val mode = Homefy.player().cyclePlaybackMode()
         val imgRes: Int
-        when (mode) {
-            PlaybackMode.NORMAL -> imgRes = R.drawable.ic_repeat_off
-            PlaybackMode.REPEAT -> imgRes = R.drawable.ic_repeat
-            PlaybackMode.REPEAT_SINGLE -> imgRes = R.drawable.ic_repeat_one
-            PlaybackMode.RANDOM -> imgRes = R.drawable.ic_shuffle
+        imgRes = when (mode) {
+            PlaybackMode.NORMAL -> R.drawable.ic_repeat_off
+            PlaybackMode.REPEAT -> R.drawable.ic_repeat
+            PlaybackMode.REPEAT_SINGLE -> R.drawable.ic_repeat_one
+            PlaybackMode.RANDOM -> R.drawable.ic_shuffle
         }
         button.setImageDrawable(ContextCompat.getDrawable(context, imgRes))
     }

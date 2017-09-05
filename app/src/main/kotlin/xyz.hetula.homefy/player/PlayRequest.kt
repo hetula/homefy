@@ -31,7 +31,8 @@ import java.util.*
  * @version 1.0
  * @since 1.0
  */
-class PlayRequest internal constructor(val play: Song, val playContext: ArrayList<Song>) {
+class PlayRequest internal constructor(private val play: Song,
+                                       private val playContext: ArrayList<Song>) {
 
     init {
         if (!this.playContext.isEmpty()) {
