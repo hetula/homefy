@@ -55,8 +55,7 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         val mRecycler = root.recyclerView
         mRecycler!!.setHasFixedSize(true)
-        mRecycler.layoutManager = LinearLayoutManager(context,
-                LinearLayoutManager.VERTICAL, false)
+        mRecycler.layoutManager = LinearLayoutManager(context)
 
         mAdapter = SongAdapter(Homefy.library().songs)
         mRecycler.adapter = mAdapter
@@ -85,16 +84,16 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun doSearch(search: Editable?, type: SearchType) {
-        if(search == null ) {
+        if (search == null) {
             mAdapter?.setSongs(Homefy.library().songs)
             return
         }
         val text = search.toString()
-        if(text.isBlank()) {
+        if (text.isBlank()) {
             mAdapter?.setSongs(Homefy.library().songs)
             return
         }
-        Homefy.library().search(text, type, { mAdapter?.setSongs(it) })
+        Homefy.library().search(text, type) { mAdapter?.setSongs(it) }
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -107,7 +106,7 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private class TypingListener(val typeSpinner: Spinner,
-                                 val cb: (Editable?, SearchType) -> Unit) :TextWatcher {
+                                 val cb: (Editable?, SearchType) -> Unit) : TextWatcher {
 
         override fun afterTextChanged(s: Editable?) {
             cb(s, typeSpinner.selectedItem!! as SearchType)

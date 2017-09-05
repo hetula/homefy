@@ -88,7 +88,6 @@ class Song : Comparable<Song> {
     }
 
 
-
     override fun compareTo(other: Song): Int {
         var c = album.compareTo(other.album)
         if (c != 0) return c
@@ -101,7 +100,7 @@ class Song : Comparable<Song> {
 
     fun toMediaMetadata(): MediaMetadataCompat {
         val metadata = MediaMetadataCompat.Builder()
-        if(track > 0) metadata.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, track.toLong())
+        if (track > 0) metadata.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, track.toLong())
         return metadata
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)

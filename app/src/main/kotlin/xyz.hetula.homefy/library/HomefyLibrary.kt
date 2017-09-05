@@ -26,6 +26,7 @@
 package xyz.hetula.homefy.library
 
 import android.os.AsyncTask
+import android.os.SystemClock
 import android.util.Log
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
@@ -130,7 +131,8 @@ class HomefyLibrary {
         return Homefy.protocol().server + "/play/" + song.id
     }
 
-    @Synchronized fun search(search: String, type: SearchType,callback: (List<Song>) -> Unit) {
+    @Synchronized
+    fun search(search: String, type: SearchType, callback: (List<Song>) -> Unit) {
         mSearchTask?.cancel(true)
         mSearchTask = SearchTask(mMusic!!, callback)
         mSearchTask?.execute(SearchRequest(search, type))
@@ -143,25 +145,25 @@ class HomefyLibrary {
 
         override fun doInBackground(vararg params: SearchRequest?): List<Song> {
             val req = params[0]!!
-            val start = System.currentTimeMillis()
-            if(isCancelled) return Collections.emptyList()
+            val start = SystemClock.elapsedRealtime()
+            if (isCancelled) return Collections.emptyList()
             val result = search(req.search, req.type)
-            Log.d(TAG, "Search done in: ${(System.currentTimeMillis() - start)} ms")
-            if(isCancelled) return Collections.emptyList()
+            Log.d(TAG, "Search done in: ${(SystemClock.elapsedRealtime() - start)} ms")
+            if (isCancelled) return Collections.emptyList()
             return result
         }
 
         override fun onPostExecute(result: List<Song>?) {
-            if(result != null && !result.isEmpty()) {
+            if (result != null && !result.isEmpty()) {
                 callback(result)
             }
         }
 
         private fun search(search: String, type: SearchType): List<Song> {
             val res = ArrayList<Song>()
-            for(song in music) {
-                if(isCancelled) return Collections.emptyList()
-                if(filter(song, search, type)) {
+            for (song in music) {
+                if (isCancelled) return Collections.emptyList()
+                if (filter(song, search, type)) {
                     res.add(song)
                 }
             }
@@ -181,6 +183,7 @@ class HomefyLibrary {
         }
 
     }
+
     companion object {
         val TAG = "HomefyLibrary"
     }

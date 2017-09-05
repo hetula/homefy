@@ -47,7 +47,7 @@ abstract class HomefyActivity : AppCompatActivity() {
         mKillReceiver = (object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 Log.d(TAG, "onReceive: " + intent?.action)
-                if(intent?.action == KILL_INTENT) {
+                if (intent?.action == KILL_INTENT) {
                     Log.d(TAG, "Finishing Activity!")
                     finishAndRemoveTask()
                 }

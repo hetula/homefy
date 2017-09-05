@@ -11,7 +11,7 @@ import java.util.*
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
-*/
+ */
 class GsonRequest<T>(url: String,
                      private val clazz: Class<T>,
                      private val listener: (T) -> Unit,

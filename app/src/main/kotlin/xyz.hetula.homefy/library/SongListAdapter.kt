@@ -68,7 +68,7 @@ internal class SongListAdapter(names: List<String>,
         val ctx = holder.itemView.context
         val str = ctx.resources.getQuantityString(R.plurals.song_count, count, count)
         holder.txtMoreInfo.text = str
-        holder.itemView.setOnClickListener { _ -> mClick(info) }
+        holder.itemView.setOnClickListener { mClick(info) }
         holder.songs = songs
     }
 
@@ -86,9 +86,9 @@ internal class SongListAdapter(names: List<String>,
 
         fun onLong(v: View?): Boolean {
             val songs = this.songs
-            if(songs.isEmpty()) return false
+            if (songs.isEmpty()) return false
             val pops = PopupMenu(itemView.context, itemView)
-            pops.menu.add(Menu.NONE, PLAY_ALL_ID,  0, R.string.menu_song_play_all)
+            pops.menu.add(Menu.NONE, PLAY_ALL_ID, 0, R.string.menu_song_play_all)
             pops.menu.add(Menu.NONE, QUEUE_ALL_ID, 1, R.string.menu_song_queue)
             pops.setOnMenuItemClickListener { click(it.itemId, songs) }
             pops.show()
@@ -96,7 +96,7 @@ internal class SongListAdapter(names: List<String>,
         }
 
         private fun click(id: Int, songs: List<Song>): Boolean {
-            when(id) {
+            when (id) {
                 PLAY_ALL_ID -> Homefy.player().play(songs.first(), ArrayList(songs))
                 QUEUE_ALL_ID -> Homefy.player().queue(songs)
             }

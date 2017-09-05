@@ -118,7 +118,7 @@ class SongListFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(mParentTitle.isBlank()) {
+        if (mParentTitle.isBlank()) {
             (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
             (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         } else {
@@ -127,7 +127,7 @@ class SongListFragment : Fragment() {
     }
 
     private fun onFavClick(adapter: SongAdapter, song: Song) {
-        if(Homefy.playlist().isFavorite(song)) adapter.add(song)
+        if (Homefy.playlist().isFavorite(song)) adapter.add(song)
         else adapter.remove(song)
     }
 
