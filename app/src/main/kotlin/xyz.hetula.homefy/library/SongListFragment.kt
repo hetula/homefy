@@ -41,7 +41,6 @@ import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
 
 /**
- * Uses FastScroller from {@link https://github.com/danoz73/RecyclerViewFastScroller}
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
@@ -54,9 +53,6 @@ class SongListFragment : Fragment() {
         root.recyclerView!!.setHasFixedSize(true)
         root.recyclerView.layoutManager = LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false)
-
-        root.fast_scroller.setRecyclerView(root.recyclerView)
-        root.recyclerView.addOnScrollListener(root.fast_scroller.onScrollListener)
 
         val type = arguments.getInt(LIST_TYPE_KEY)
         val name = arguments.getString(LIST_NAME_KEY, "Invalid Name")

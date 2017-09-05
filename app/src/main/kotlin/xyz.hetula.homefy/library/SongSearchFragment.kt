@@ -58,9 +58,6 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
         mRecycler.layoutManager = LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false)
 
-        root.fast_scroller.setRecyclerView(root.recyclerView)
-        root.recyclerView.addOnScrollListener(root.fast_scroller.onScrollListener)
-
         mAdapter = SongAdapter(Homefy.library().songs)
         mRecycler.adapter = mAdapter
 

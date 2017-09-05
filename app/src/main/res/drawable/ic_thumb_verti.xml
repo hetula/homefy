@@ -20,23 +20,9 @@
   ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
-  ~
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:fastScrollEnabled="true"
-        app:fastScrollHorizontalThumbDrawable="@drawable/bg_sel_empty"
-        app:fastScrollHorizontalTrackDrawable="@drawable/bg_sel_empty"
-        app:fastScrollVerticalThumbDrawable="@drawable/ic_thumb_verti"
-        app:fastScrollVerticalTrackDrawable="@drawable/bg_sel_empty" />
-
-</FrameLayout>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_fast_scroll_bar" android:state_pressed="true" />
+    <item android:drawable="@drawable/ic_fast_scroll_bar" />
+</selector>
