@@ -24,21 +24,68 @@
 
 package xyz.hetula.homefy.playlist
 
+import android.util.Log
+import com.google.gson.Gson
 import xyz.hetula.homefy.player.Song
+import xyz.hetula.homefy.service.Homefy
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-data class Playlist(val id: String, val name: String, val songs: MutableList<Song> = ArrayList()) {
+data class Playlist(val id: String, val name: String, val songs: MutableList<Song> = ArrayList(), internal val favs: Boolean = false) {
 
     fun contains(song: Song): Boolean {
         return songs.contains(song)
     }
 
     fun toggle(song: Song) {
-        if(songs.remove(song)) return
+        if (songs.remove(song)) {
+            save()
+            return
+        }
         songs.add(song)
+        save()
+    }
+
+    internal fun addAll(songs: List<Song>) {
+        this.songs.addAll(songs)
+    }
+
+    fun create() {
+        save()
+    }
+
+    private fun save() {
+        val base = Homefy.playlist().baseLocation ?: return
+        val fileName = resolveFile(base)
+        var io: BufferedWriter? = null
+        try {
+            io = BufferedWriter(FileWriter(fileName))
+            GSON.toJson(this, io)
+            Log.d("Playlist", "Saved: $name")
+        } catch (ioEx: IOException) {
+            Log.e("Playlist", "Saving: $name", ioEx)
+        } finally {
+            io?.close()
+        }
+    }
+
+    private fun resolveFile(base: File): File {
+        if (favs) {
+            return base.resolve("$id.json")
+        }
+        val pls = base.resolve("playlists/")
+        pls.mkdir()
+        return pls.resolve("$id.json")
+    }
+
+    companion object {
+        private val GSON = Gson()
     }
 }

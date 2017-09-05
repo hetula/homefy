@@ -24,10 +24,14 @@
 
 package xyz.hetula.homefy.playlist
 
+import android.util.Log
 import com.google.gson.Gson
 import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileFilter
+import java.io.FileReader
 
 /**
  * @author Tuomo Heino
@@ -35,23 +39,55 @@ import java.io.File
  * @since 1.0
  */
 class HomefyPlaylist {
+    private val PLAYLIST_DIR = "playlists/"
     private val mPlaylists = HashMap<String, Playlist>()
-    val favorites = Playlist(Utils.randomId(), "Favorites")
+    val favorites = Playlist("favorites", "Favorites", favs = true)
+    internal var baseLocation: File? = null
+
+    fun setBaseLocation(base: File) {
+        baseLocation = base
+    }
 
     fun isFavorite(song: Song): Boolean {
         return favorites.contains(song)
     }
 
     fun createPlaylist(name: String): Playlist {
-        val pl = Playlist(Utils.randomId(), if(name.isBlank()) "Empty" else name)
+        val pl = Playlist(Utils.randomId(), if (name.isBlank()) "Empty" else name)
         mPlaylists[pl.id] = pl
+        pl.create()
         return pl
     }
 
-    fun save(baseFolder: File) {
-        val favFile = File(baseFolder, "favorites.json")
+    fun loadPlaylists() {
+        val base = baseLocation ?: return
         val gson = Gson()
-        
+        val favs = base.resolve("favorites.json")
+        loadPlaylist(gson, favs) { favList ->
+            favorites.addAll(favList.songs)
+        }
+        val playlistFolder = base.resolve(PLAYLIST_DIR)
+        val playlists = playlistFolder.listFiles(FileFilter { it.endsWith(".json") })
+        if (playlists == null || playlists.isEmpty()) {
+            return
+        }
+        for (playlist in playlists) {
+            loadPlaylist(gson, playlist) {
+                mPlaylists[it.id] = it
+            }
+        }
+    }
+
+    private fun loadPlaylist(gson: Gson, plFile: File, loadCb: (Playlist) -> Unit) {
+        var read: BufferedReader? = null
+        try {
+            read = BufferedReader(FileReader(plFile))
+            loadCb(gson.fromJson<Playlist>(read, Playlist::class.java))
+        } catch (ex: Exception) {
+            Log.e("HomefyPlaylist", "Exception when loading $plFile", ex)
+        } finally {
+            read?.close()
+        }
     }
 
     operator fun get(key: String): Playlist? {
