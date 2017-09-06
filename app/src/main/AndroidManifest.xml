@@ -62,6 +62,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="xyz.hetula.homefy.service.CLOSE" />
+                <action android:name="xyz.hetula.homefy.service.FAVORITE" />
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </service>

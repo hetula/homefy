@@ -61,6 +61,10 @@ class HomefyService : Service() {
             closeApp()
             return Service.START_NOT_STICKY
         }
+        if (intent.action == FAV_INTENT) {
+            favoriteCurrentSong()
+            return Service.START_NOT_STICKY
+        }
 
         if (mSession != null) {
             MediaButtonReceiver.handleIntent(mSession, intent)
@@ -137,6 +141,12 @@ class HomefyService : Service() {
         nM.notify(NOTIFICATION_ID, setupNotification())
     }
 
+    private fun favoriteCurrentSong() {
+        val song = Homefy.player().nowPlaying() ?: return
+        Homefy.playlist().favorites.toggle(song)
+        updateNotification()
+    }
+
     private fun setupNotification(): Notification {
         val song = Homefy.player().nowPlaying()
         val mediaSession = Homefy.player().mSession!!
@@ -151,41 +161,53 @@ class HomefyService : Service() {
                 .setOngoing(true)
                 .setShowWhen(false)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                        PlaybackStateCompat.ACTION_STOP))
 
-        if (song != null) {
-            val img: Int
-            val str: String
-            if (Homefy.player().isPaused) {
-                img = R.drawable.ic_play_notification
-                str = "Play"
-            } else {
-                img = R.drawable.ic_pause_notification
-                str = "Pause"
-            }
-
-            builder.addAction(android.support.v4.app.NotificationCompat.Action(
-                    img, str,
-                    MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                            PlaybackStateCompat.ACTION_PLAY)))
-                    .addAction(android.support.v4.app.NotificationCompat.Action(
-                            R.drawable.ic_skip_next_notification, "Next",
-                            MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT)))
-                    .addAction(android.support.v4.app.NotificationCompat.Action(
-                            R.drawable.ic_close_notify, "Close",
-                            closeIntent()))
-                    .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
-                            .setMediaSession(mediaSession.sessionToken)
-                            .setShowActionsInCompactView(0, 1, 2))
-                    .setContentIntent(contentIntent())
-                    .setContentTitle(song.title)
-                    .setContentText("${song.artist} - ${song.album}")
-        } else {
-            builder.setContentTitle("Homefy")
-                    .setContentText("Nothing is playing")
+        if (song == null) {
+            builder.setContentTitle(getString(R.string.app_name))
+            return builder.build()
         }
+
+        val favDrawable: Int
+        favDrawable = if (Homefy.playlist().isFavorite(song)) {
+            R.drawable.ic_favorite
+        } else {
+            R.drawable.ic_not_favorite_notification
+        }
+
+        val playDrawable: Int
+        val playDesc: String
+        if (Homefy.player().isPaused) {
+            playDrawable = R.drawable.ic_play_notification
+            playDesc = "Play"
+        } else {
+            playDrawable = R.drawable.ic_pause_notification
+            playDesc = "Pause"
+        }
+
+        val playPauseIntent = MediaButtonReceiver
+                .buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY)
+        val previousIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+        val nextIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+
+        builder.setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                PlaybackStateCompat.ACTION_STOP))
+
+                .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
+                .addAction(R.drawable.ic_skip_previous_notification, "Previous", previousIntent)
+                .addAction(playDrawable, playDesc, playPauseIntent)
+                .addAction(R.drawable.ic_skip_next_notification, "Next", nextIntent)
+
+                .addAction(favDrawable, "Favorite", favIntent())
+
+                .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(mediaSession.sessionToken)
+                        .setShowActionsInCompactView(2, 3, 4))
+
+                .setContentIntent(contentIntent())
+                .setContentTitle(song.title)
+                .setContentText("${song.artist} - ${song.album}")
 
         return builder.build()
     }
@@ -213,6 +235,17 @@ class HomefyService : Service() {
         )
     }
 
+    private fun favIntent(): PendingIntent {
+        val fav = Intent(this, HomefyService::class.java)
+        fav.action = FAV_INTENT
+        return PendingIntent.getService(
+                this,
+                0x42,
+                fav,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
     private fun onPlay(song: Song?, state: Int, param: Int) {
         if (state == HomefyPlayer.STATE_PLAY ||
                 state == HomefyPlayer.STATE_PAUSE ||
@@ -223,6 +256,7 @@ class HomefyService : Service() {
 
     companion object {
         val CLOSE_INTENT = "xyz.hetula.homefy.service.CLOSE"
+        val FAV_INTENT = "xyz.hetula.homefy.service.FAVORITE"
 
         private val TAG = "HomefyService"
         private val NOTIFICATION_ID = 444
