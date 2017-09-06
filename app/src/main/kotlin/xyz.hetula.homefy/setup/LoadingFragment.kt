@@ -61,6 +61,10 @@ class LoadingFragment : Fragment() {
     private fun initialize() {
         mSongs.clear()
         mLoadStarted = SystemClock.elapsedRealtime()
+        val serverId = Homefy.protocol().info.server_id
+
+        Homefy.playlist().setBaseLocation(context.filesDir.resolve(serverId))
+        Homefy.playlist().loadPlaylists()
         Homefy.protocol().requestPages(250,
                 this::fetchData,
                 { er ->

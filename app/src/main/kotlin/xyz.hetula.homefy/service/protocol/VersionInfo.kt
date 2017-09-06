@@ -30,7 +30,10 @@ package xyz.hetula.homefy.service.protocol
  * @version 1.0
  * @since 1.0
  */
-data class VersionInfo(val name: String, val version: String, val authentication: AuthType) {
+data class VersionInfo(val server_id: String,
+                       val name: String,
+                       val version: String,
+                       val authentication: AuthType) {
     var databaseSize = 0
         set(value) {
             field = value

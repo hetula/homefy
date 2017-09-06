@@ -52,16 +52,12 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
             mServerId = Utils.getHash(value)
         }
 
-    override var info = VersionInfo("Homefy", "0.0", VersionInfo.AuthType.NONE)
+    override var info = VersionInfo("", "Homefy", "0.0", VersionInfo.AuthType.NONE)
         set
 
     init {
         mQueryQueue = Volley.newRequestQueue(context.applicationContext)
     }
-
-    override var serverId: String
-        get() = mServerId
-        set(value) {}
 
     override fun setAuth(user: String, pass: String) {
         mUserPass = String(Base64.encode((user + ":" + pass)

@@ -25,17 +25,17 @@
 
 package xyz.hetula.homefy.service
 
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.os.Build
 import android.os.IBinder
 import android.os.Process
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
+import android.support.v4.content.ContextCompat
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -67,17 +67,43 @@ class HomefyService : Service() {
         }
         if (isReady) return Service.START_STICKY
         isReady = true
+        createChannel()
 
         Log.d(TAG, "Starting HomefyService")
         Homefy.initialize(applicationContext)
-        Homefy.playlist().setBaseLocation(applicationContext.filesDir)
-        Homefy.playlist().loadPlaylists()
+
 
         createNotification()
         Homefy.player().registerPlaybackListener(mPlaybackListener)
         mSession = Homefy.player().mSession
 
         return Service.START_STICKY
+    }
+
+    private fun createChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+        val homefyChannel = NotificationChannel(HOMEFY_NOTIFICATION_ID,
+                getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH)
+        homefyChannel.description = "Music player"
+        homefyChannel.enableLights(true)
+        homefyChannel.enableVibration(false)
+        homefyChannel.setShowBadge(false)
+        homefyChannel.setSound(null, null)
+        homefyChannel.lightColor = Color.BLUE
+        homefyChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+
+        val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationMngr.createNotificationChannel(homefyChannel)
+    }
+
+    private fun destroyChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+        val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationMngr.deleteNotificationChannel(HOMEFY_NOTIFICATION_ID)
     }
 
     private fun closeApp() {
@@ -88,6 +114,7 @@ class HomefyService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Destroying Homefy Service")
+        destroyChannel()
         isReady = false
         Homefy.player().unregisterPlaybackListener(mPlaybackListener)
         Homefy.destroy()
@@ -116,13 +143,14 @@ class HomefyService : Service() {
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         val builder = NotificationCompat.Builder(applicationContext, HOMEFY_NOTIFICATION_ID)
         builder.setLargeIcon(largeIcon)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_music_notification)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+                .setColorized(true)
+                .setColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .setOngoing(true)
                 .setShowWhen(false)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(contentIntent())
                 .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                         PlaybackStateCompat.ACTION_STOP))
 
@@ -151,6 +179,7 @@ class HomefyService : Service() {
                     .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.sessionToken)
                             .setShowActionsInCompactView(0, 1, 2))
+                    .setContentIntent(contentIntent())
                     .setContentTitle(song.title)
                     .setContentText("${song.artist} - ${song.album}")
         } else {
@@ -167,7 +196,7 @@ class HomefyService : Service() {
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
 
-        val taskStack = TaskStackBuilder.create(baseContext)
+        val taskStack = TaskStackBuilder.create(this)
         taskStack.addParentStack(PlayerActivity::class.java)
         taskStack.addNextIntent(launchMe)
         return taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)

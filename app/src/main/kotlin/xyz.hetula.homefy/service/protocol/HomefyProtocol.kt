@@ -39,8 +39,6 @@ interface HomefyProtocol {
 
     var server: String
 
-    var serverId: String
-
     fun setAuth(user: String, pass: String)
 
     fun addAuthHeader(headers: HashMap<String, String>)

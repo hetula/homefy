@@ -45,6 +45,7 @@ class HomefyPlaylist {
 
     fun setBaseLocation(base: File) {
         baseLocation = base
+        baseLocation?.mkdir()
     }
 
     fun isFavorite(song: Song): Boolean {
