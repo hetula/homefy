@@ -47,8 +47,4 @@ class PlayerActivity : HomefyActivity() {
                 .replace(R.id.container, PlayerFragment())
                 .commit()
     }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-    }
 }

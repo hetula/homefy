@@ -52,7 +52,7 @@ import xyz.hetula.homefy.player.Song
  * @since 1.0
  */
 class HomefyService : Service() {
-    private val HOMEFY_NOTIFICATION_ID = "homefy_notification"
+    private val homefyNotificationId = "homefy_notification"
     private val mPlaybackListener = this::onPlay
     private var mSession: MediaSessionCompat? = null
 
@@ -79,7 +79,7 @@ class HomefyService : Service() {
 
         createNotification()
         Homefy.player().registerPlaybackListener(mPlaybackListener)
-        mSession = Homefy.player().mSession
+        mSession = Homefy.player().mediaSession
 
         return Service.START_STICKY
     }
@@ -88,7 +88,7 @@ class HomefyService : Service() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return
         }
-        val homefyChannel = NotificationChannel(HOMEFY_NOTIFICATION_ID,
+        val homefyChannel = NotificationChannel(homefyNotificationId,
                 getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH)
         homefyChannel.description = "Music player"
         homefyChannel.enableLights(true)
@@ -107,7 +107,7 @@ class HomefyService : Service() {
             return
         }
         val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationMngr.deleteNotificationChannel(HOMEFY_NOTIFICATION_ID)
+        notificationMngr.deleteNotificationChannel(homefyNotificationId)
     }
 
     private fun closeApp() {
@@ -149,9 +149,9 @@ class HomefyService : Service() {
 
     private fun setupNotification(): Notification {
         val song = Homefy.player().nowPlaying()
-        val mediaSession = Homefy.player().mSession!!
+        val mediaSession = Homefy.player().mediaSession
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
-        val builder = NotificationCompat.Builder(applicationContext, HOMEFY_NOTIFICATION_ID)
+        val builder = NotificationCompat.Builder(applicationContext, homefyNotificationId)
         builder.setLargeIcon(largeIcon)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_music_notification)

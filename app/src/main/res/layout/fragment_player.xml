@@ -42,15 +42,15 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:freezesText="true"
         android:marqueeRepeatLimit="marquee_forever"
         android:paddingBottom="4dp"
+        android:scrollHorizontally="true"
         android:singleLine="true"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:scrollHorizontally="true"
-        android:freezesText="true"
         tools:text="SONG TITLE" />
 
     <TextView
@@ -116,8 +116,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_add_to_playlist"
-            android:contentDescription="@string/add_to_playlist_desc"/>
+            android:contentDescription="@string/add_to_playlist_desc"
+            android:src="@drawable/ic_add_to_playlist" />
 
         <Space
             android:layout_width="0dp"
@@ -129,10 +129,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:text="@string/buffering_place_holder"
             android:textColor="@color/buffer_font"
             android:visibility="invisible"
-            android:text="@string/buffering_place_holder"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
         <Space
             android:layout_width="0dp"
@@ -144,8 +144,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_not_favorite_large"
-            android:contentDescription="@string/favorite_desc"/>
+            android:contentDescription="@string/favorite_desc"
+            android:src="@drawable/ic_not_favorite_large" />
 
         <Space
             android:layout_width="0dp"

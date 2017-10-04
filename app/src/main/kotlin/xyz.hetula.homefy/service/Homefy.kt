@@ -46,7 +46,6 @@ object Homefy {
     private var mPlaylists: HomefyPlaylist? = null
     var isAlive = false
         private set
-        get
 
     internal fun initialize(appContext: Context) {
         isAlive = true

@@ -38,7 +38,7 @@ import java.io.FileReader
  * @since 1.0
  */
 class HomefyPlaylist {
-    private val PLAYLIST_DIR = "playlists/"
+    private val playlistDirectory = "playlists/"
     private val mPlaylists = HashMap<String, Playlist>()
     val favorites = Playlist("favorites", "Favorites", favs = true)
     internal var baseLocation: File? = null
@@ -66,7 +66,7 @@ class HomefyPlaylist {
         loadPlaylist(gson, favs) { favList ->
             favorites.addAll(favList.songs)
         }
-        val playlistFolder = base.resolve(PLAYLIST_DIR)
+        val playlistFolder = base.resolve(playlistDirectory)
         val playlists = playlistFolder.list({ _, name -> name.endsWith(".json") })
         if (playlists == null || playlists.isEmpty()) {
             Log.e("HomefyPlaylist", "No playlists found! $playlistFolder")

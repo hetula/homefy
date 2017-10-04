@@ -51,54 +51,47 @@ import kotlin.collections.ArrayList
  * @version 1.0
  * @since 1.0
  */
-class HomefyPlayer(private var mContext: Context?) {
-    private val PLAY_NEXT_THRESHOLD_MS = 500L
+class HomefyPlayer(private val mContext: Context) {
+    private val playNextThresholdMs = 500L
 
+    val mediaSession = MediaSessionCompat(mContext, "Homefy Player")
     private val afChangeListener = this::onAudioFocusChange
     private val mPlaybackListeners = HashSet<(Song?, Int, Int) -> Unit>()
     private val mController: MediaControllerCompat
     private val mWifiLock: WifiManager.WifiLock
+    private val myNoisyAudioStreamReceiver = BecomingNoisyReceiver()
+    private val mPlayer = MediaPlayer()
     private val mPlayback = Playback()
+
     private var mHasFocus = false
     private var mLastPlayPress = 0L
 
-    private var myNoisyAudioStreamReceiver: BecomingNoisyReceiver? = BecomingNoisyReceiver()
-    private var mPlayer: MediaPlayer? = null
-
-    var mSession: MediaSessionCompat? = null
-        private set
-
     init {
         val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-        mContext!!.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
+        mContext.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
 
-        mSession = MediaSessionCompat(mContext, "Homefy Player")
-
-        mSession!!.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
 
         updatePlaybackState(PlaybackStateCompat.STATE_NONE)
+        mediaSession.isActive = true
+        mController = mediaSession.controller
 
-        mSession!!.isActive = true
-
-        mController = mSession!!.controller
-
-        mPlayer = MediaPlayer()
-        mPlayer!!.setAudioAttributes(AudioAttributes.Builder()
+        mPlayer.setAudioAttributes(AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .build())
 
-        mPlayer!!.setOnCompletionListener(this::onPlayComplete)
-        mPlayer!!.setOnPreparedListener(this::onPrepareComplete)
-        mPlayer!!.setOnErrorListener(this::onError)
-        mPlayer!!.setOnBufferingUpdateListener(this::onBuffering)
-        mPlayer!!.setWakeMode(mContext!!.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
+        mPlayer.setOnCompletionListener(this::onPlayComplete)
+        mPlayer.setOnPreparedListener(this::onPrepareComplete)
+        mPlayer.setOnErrorListener(this::onError)
+        mPlayer.setOnBufferingUpdateListener(this::onBuffering)
+        mPlayer.setWakeMode(mContext.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
 
-        mWifiLock = (mContext!!.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
+        mWifiLock = (mContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "HomefyPlayerWifiLock")
 
-        mSession!!.setCallback(object : MediaSessionCompat.Callback() {
+        mediaSession.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {
                 pauseResume()
             }
@@ -127,11 +120,9 @@ class HomefyPlayer(private var mContext: Context?) {
         loseAudioFocus()
         mPlaybackListeners.clear()
 
-        mSession!!.release()
-        mSession = null
+        mediaSession.release()
 
-        mPlayer!!.release()
-        mPlayer = null
+        mPlayer.release()
 
         if (mWifiLock.isHeld) {
             mWifiLock.release()
@@ -140,13 +131,10 @@ class HomefyPlayer(private var mContext: Context?) {
         // Just in case as Android does not behave nicely when unregistering non-registered
         // receivers. Should never happen, but it is better to catch it than crash whole app.
         try {
-            mContext!!.unregisterReceiver(myNoisyAudioStreamReceiver)
+            mContext.unregisterReceiver(myNoisyAudioStreamReceiver)
         } catch (ex: IllegalStateException) {
             Log.w(TAG, "Releasing unregistered Noisy Receiver!", ex)
         }
-
-        myNoisyAudioStreamReceiver = null
-        mContext = null
     }
 
     fun nowPlaying(): Song? {
@@ -180,7 +168,7 @@ class HomefyPlayer(private var mContext: Context?) {
         }
         mLastPlayPress = SystemClock.elapsedRealtime()
 
-        if (mPlayer!!.isPlaying) {
+        if (mPlayer.isPlaying) {
             pause()
         } else {
             play()
@@ -192,33 +180,33 @@ class HomefyPlayer(private var mContext: Context?) {
             return false
         }
         val diff = SystemClock.elapsedRealtime() - mLastPlayPress
-        return diff < PLAY_NEXT_THRESHOLD_MS
+        return diff < playNextThresholdMs
     }
 
     private fun pause() {
-        if (mPlayback.isEmpty() || !mPlayer!!.isPlaying) return
-        mPlayer!!.pause()
+        if (mPlayback.isEmpty() || !mPlayer.isPlaying) return
+        mPlayer.pause()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PAUSE, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
     }
 
     private fun play() {
         if (mPlayback.isEmpty()) return
-        mPlayer!!.start()
+        mPlayer.start()
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
     }
 
     val isPlaying: Boolean
-        get() = !mPlayback.isEmpty() && mPlayer!!.isPlaying
+        get() = !mPlayback.isEmpty() && mPlayer.isPlaying
 
     val isPaused: Boolean
-        get() = !mPlayback.isEmpty() && !mPlayer!!.isPlaying
+        get() = !mPlayback.isEmpty() && !mPlayer.isPlaying
 
     fun stop() {
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
         mPlayback.stop()
-        mPlayer!!.stop()
+        mPlayer.stop()
         updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
     }
 
@@ -243,12 +231,16 @@ class HomefyPlayer(private var mContext: Context?) {
 
     fun queryPosition(): Int {
         if (mPlayback.isEmpty()) return 0
-        return mPlayer!!.currentPosition / 1000
+        return mPlayer.currentPosition / 1000
+    }
+
+    fun seekTo(position: Int) {
+        mPlayer.seekTo(position * 1000)
     }
 
     private fun queryPosMs(): Long {
         if (mPlayback.isEmpty()) return 0L
-        return mPlayer!!.currentPosition.toLong()
+        return mPlayer.currentPosition.toLong()
     }
 
     private fun setupPlay(song: Song): Boolean {
@@ -264,13 +256,13 @@ class HomefyPlayer(private var mContext: Context?) {
                 mWifiLock.acquire()
             }
             val uri = Uri.parse(Homefy.library().getPlayPath(song))
-            mPlayer!!.reset()
+            mPlayer.reset()
             val headers = HashMap<String, String>()
             Homefy.protocol().addAuthHeader(headers)
-            mPlayer!!.setDataSource(mContext!!, uri, headers)
-            mSession!!.setMetadata(song.toMediaMetadata())
+            mPlayer.setDataSource(mContext, uri, headers)
+            mediaSession.setMetadata(song.toMediaMetadata())
             updatePlaybackState(PlaybackStateCompat.STATE_CONNECTING)
-            mPlayer!!.prepareAsync()
+            mPlayer.prepareAsync()
             return true
         } catch (e: IOException) {
             Log.e(TAG, "Error when playing", e)
@@ -308,20 +300,22 @@ class HomefyPlayer(private var mContext: Context?) {
     }
 
     private fun tryGainAudioFocus() {
-        val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         // Request audio focus for playback
         val result = am.requestAudioFocus(afChangeListener,
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN)
-        if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.w(TAG, "No AudioFocus Granted!")
-            mHasFocus = false
-        }
-        mHasFocus = true
+        mHasFocus =
+                if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    Log.w(TAG, "No AudioFocus Granted!")
+                    false
+                } else {
+                    true
+                }
     }
 
     private fun loseAudioFocus() {
-        val am = mContext!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         am.abandonAudioFocus(afChangeListener)
         if (mWifiLock.isHeld) {
             mWifiLock.release()
@@ -333,8 +327,8 @@ class HomefyPlayer(private var mContext: Context?) {
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS -> pause()
             AUDIOFOCUS_LOSS_TRANSIENT -> pause()
-            AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> mPlayer?.setVolume(0.1f, 0.1f)
-            AudioManager.AUDIOFOCUS_GAIN -> mPlayer?.setVolume(1f, 1f)
+            AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> mPlayer.setVolume(0.1f, 0.1f)
+            AudioManager.AUDIOFOCUS_GAIN -> mPlayer.setVolume(1f, 1f)
         }
     }
 
@@ -357,7 +351,7 @@ class HomefyPlayer(private var mContext: Context?) {
 
         stateBuilder.setState(state, queryPosMs(), 1f)
 
-        mSession!!.setPlaybackState(stateBuilder.build())
+        mediaSession.setPlaybackState(stateBuilder.build())
     }
 
     private inner class BecomingNoisyReceiver : BroadcastReceiver() {

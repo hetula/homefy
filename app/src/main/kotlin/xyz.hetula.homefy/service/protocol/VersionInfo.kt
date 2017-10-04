@@ -35,9 +35,6 @@ data class VersionInfo(val server_id: String,
                        val version: String,
                        val authentication: AuthType) {
     var databaseSize = 0
-        set(value) {
-            field = value
-        }
 
     override fun toString(): String {
         return "VersionInfo{" +

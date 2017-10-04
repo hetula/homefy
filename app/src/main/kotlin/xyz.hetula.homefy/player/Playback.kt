@@ -43,7 +43,6 @@ class Playback {
     private var playing: Song? = null
 
     var playbackMode: PlaybackMode = PlaybackMode.RANDOM
-        get
         private set(value) {
             field = value
             setupPlaybackStyle(value)

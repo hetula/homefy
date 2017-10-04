@@ -53,7 +53,6 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
         }
 
     override var info = VersionInfo("", "Homefy", "0.0", VersionInfo.AuthType.NONE)
-        set
 
     init {
         mQueryQueue = Volley.newRequestQueue(context.applicationContext)

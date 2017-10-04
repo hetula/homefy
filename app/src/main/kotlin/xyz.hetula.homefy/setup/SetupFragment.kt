@@ -44,8 +44,6 @@ import xyz.hetula.homefy.service.protocol.VersionInfo
 
 
 class SetupFragment : Fragment() {
-    private val TAG = "SetupFragment"
-
     private var mViewCredentials: View? = null
     private var mConnect: Button? = null
     private var mAddress: EditText? = null
@@ -157,6 +155,7 @@ class SetupFragment : Fragment() {
     }
 
     companion object {
+        private val TAG = "SetupFragment"
         private val ADDRESS_KEY = "SetupFragement.ADDRESS_KEY"
         private val USERNAME_KEY = "SetupFragement.USERNAME_KEY"
         private val PASSWORD_KEY = "SetupFragement.PASSWORD_KEY"

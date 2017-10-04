@@ -99,6 +99,7 @@ class PlayerFragment : Fragment() {
                 updateFavIco(song)
             }
         }
+        main.seek_song_length.setOnSeekBarChangeListener(SeekListener(this))
         main.btn_playback!!.setOnClickListener(this::onPlaybackModeClick)
         return main
     }
@@ -230,6 +231,23 @@ class PlayerFragment : Fragment() {
             PlaybackMode.RANDOM -> R.drawable.ic_shuffle
         }
         button.setImageDrawable(ContextCompat.getDrawable(context, imgRes))
+    }
+
+    private class SeekListener(val player: PlayerFragment) : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            if (!fromUser || !Homefy.isAlive) {
+                return
+            }
+            Homefy.player().seekTo(progress)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            player.mPositionLoop.removeCallbacks(player.mUpdateRunnable)
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            player.mPositionLoop.post(player.mUpdateRunnable)
+        }
     }
 
     companion object {

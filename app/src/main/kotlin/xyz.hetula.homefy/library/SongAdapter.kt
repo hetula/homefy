@@ -121,8 +121,6 @@ class SongAdapter(songs: List<Song>, private val onFav: ((SongAdapter, Song) -> 
         val btnSongFav: ImageButton = itemView.findViewById(R.id.song_favorite)
 
         var song: Song? = null
-            set
-            get
 
         fun onLong(v: View?): Boolean {
             val song = this.song ?: return false
