@@ -122,22 +122,12 @@ class LoadingFragment : Fragment() {
             val time = SystemClock.elapsedRealtime() - mLoadStarted
             Log.d("LoadingFragment", "Songs loaded in $time ms")
             if (saveLoaded) {
-                val cacheDir = context.filesDir
-                        .resolve("cache/")
-                if (!cacheDir.exists()) {
-                    cacheDir.mkdir()
-                } else {
-                    cacheDir.deleteRecursively()
-                    cacheDir.mkdir()
+                SaveCacheFile(context.filesDir, mSongs) {
+                    initializeHomefy()
                 }
-                val cacheFile = cacheDir.resolve(Homefy.protocol().info.databaseId)
-                Log.d(mTag, "Saving to cache! $cacheFile")
-                if (cacheFile.exists()) {
-                    Log.d(mTag, "Old cache found! Deleting: ${cacheFile.delete()}")
-                }
-                cacheFile.writeText(Gson().toJson(mSongs))
+            } else {
+                initializeHomefy()
             }
-            initializeHomefy()
         }
     }
 
@@ -152,7 +142,8 @@ class LoadingFragment : Fragment() {
                 .commit()
     }
 
-    private class LoadCacheFile(databaseCache: File, private val resultCb: (Array<Song>?) -> Unit) :
+    private class LoadCacheFile(databaseCache: File,
+                                private val resultCb: (Array<Song>?) -> Unit) :
             AsyncTask<File, Void, Array<Song>?>() {
 
         init {
@@ -176,6 +167,37 @@ class LoadingFragment : Fragment() {
 
         override fun onPostExecute(result: Array<Song>?) {
             resultCb(result)
+        }
+    }
+
+    private class SaveCacheFile(databaseCache: File,
+                                private val mSongs: List<Song>,
+                                private val resultCb: (Unit) -> Unit) :
+            AsyncTask<File, Void, Void?>() {
+
+        init {
+            execute(databaseCache)
+        }
+
+        override fun doInBackground(vararg params: File?): Void? {
+            val cacheDir = params[0]!!.resolve("cache/")
+            if (!cacheDir.exists()) {
+                cacheDir.mkdir()
+            } else {
+                cacheDir.deleteRecursively()
+                cacheDir.mkdir()
+            }
+            val cacheFile = cacheDir.resolve(Homefy.protocol().info.databaseId)
+            Log.d("SAveCacheFile", "Saving to cache! $cacheFile")
+            if (cacheFile.exists()) {
+                Log.d("SAveCacheFile", "Old cache found! Deleting: ${cacheFile.delete()}")
+            }
+            cacheFile.writeText(Gson().toJson(mSongs))
+            return null
+        }
+
+        override fun onPostExecute(result: Void?) {
+            resultCb(Unit)
         }
     }
 }
