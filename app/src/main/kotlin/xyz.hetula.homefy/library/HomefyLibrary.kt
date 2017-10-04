@@ -54,23 +54,24 @@ class HomefyLibrary {
     private var mSongDatabase: MutableMap<String, Song>? = null
     private val mArtistCache = HashMap<String, ArrayList<Song>>()
     private val mAlbumCache = HashMap<String, ArrayList<Song>>()
-    private var mMusic: List<Song>? = null
-    private var mAlbums: MutableList<String>? = null
-    private var mArtists: MutableList<String>? = null
+    private var mMusic: MutableList<Song> = Collections.emptyList()
+    private var mAlbums: MutableList<String> = Collections.emptyList()
+    private var mArtists: MutableList<String> = Collections.emptyList()
 
     private var mSearchTask: AsyncTask<SearchRequest, Void, List<Song>>? = null
 
-    fun initialize(music: MutableList<Song>) {
-        Log.d("HomefyLibrary", "Initializing with " + music.size + " songs!")
-        val start = System.currentTimeMillis()
-        mMusic = sanitizeMusic(music)
-        Collections.sort(mMusic!!)
+    fun initialize(music: List<Song>) {
+        Log.d(TAG, "Initializing with ${music.size} songs!")
+        val start = SystemClock.elapsedRealtime()
+        val size = music.size
+        mMusic = ArrayList(sanitizeMusic(music))
+        Log.d(TAG, "Sanitized from $size to ${mMusic.size}")
 
-        // Take account load factor, probably too low but can be optimized later
-        // TODO Check correct load factor
-        mSongDatabase = HashMap((mMusic!!.size * 1.1).toInt())
+        Collections.sort(mMusic)
 
-        for (song in mMusic!!) {
+        mSongDatabase = HashMap((mMusic.size * 1.25).toInt())
+
+        for (song in mMusic) {
             mSongDatabase!!.put(song.id, song)
             createAndAdd(mArtistCache, song.artist, song)
             createAndAdd(mAlbumCache, song.album, song)
@@ -81,9 +82,9 @@ class HomefyLibrary {
         mArtists = ArrayList(mArtistCache.keys)
 
         // Sort
-        Collections.sort(mAlbums!!)
-        Collections.sort(mArtists!!)
-        val time = System.currentTimeMillis() - start
+        Collections.sort(mAlbums)
+        Collections.sort(mArtists)
+        val time = SystemClock.elapsedRealtime() - start
         Log.d("HomefyLibrary", "Library initialized in $time ms")
     }
 
@@ -99,14 +100,15 @@ class HomefyLibrary {
         mSongDatabase?.clear()
         mArtistCache.clear()
         mAlbumCache.clear()
-        mAlbums?.clear()
-        mArtists?.clear()
-        mMusic = null
+        mAlbums.clear()
+        mArtists.clear()
     }
 
-    private fun sanitizeMusic(music: MutableList<Song>): List<Song> {
-        // WMA filter
-        return music.filter { !it.type.startsWith("ASF") }
+    private fun sanitizeMusic(music: List<Song>): List<Song> {
+        // WMA filter, low bitrate filter(0 can be unknown)
+        return music
+                .filter { !it.type.startsWith("ASF") }
+                .filter { it.bitrate <= 0 || it.bitrate >= 128 }
     }
 
     private fun createAndAdd(cache: MutableMap<String, ArrayList<Song>>, key: String, song: Song) {
@@ -119,13 +121,13 @@ class HomefyLibrary {
     }
 
     val songs: List<Song>
-        get() = mMusic!!
+        get() = mMusic
 
     val artists: List<String>
-        get() = mArtists!!
+        get() = mArtists
 
     val albums: List<String>
-        get() = mAlbums!!
+        get() = mAlbums
 
     fun getArtistSongs(artist: String): List<Song> {
         return getFromCache(mArtistCache, artist)
@@ -147,7 +149,7 @@ class HomefyLibrary {
     @Synchronized
     fun search(search: String, type: SearchType, callback: (List<Song>) -> Unit) {
         mSearchTask?.cancel(true)
-        mSearchTask = SearchTask(mMusic!!, mSearchExecutor, callback)
+        mSearchTask = SearchTask(mMusic, mSearchExecutor, callback)
         mSearchTask?.execute(SearchRequest(search, type))
     }
 

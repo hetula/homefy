@@ -33,6 +33,7 @@ package xyz.hetula.homefy.service.protocol
 data class VersionInfo(val server_id: String,
                        val name: String,
                        val version: String,
+                       val databaseId: String,
                        val authentication: AuthType) {
     var databaseSize = 0
 

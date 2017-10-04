@@ -43,7 +43,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class LoadingFragment : Fragment() {
-    private var mCount: AtomicInteger? = null
+    private var mCount: AtomicInteger = AtomicInteger()
     private var mSongs: MutableList<Song> = ArrayList()
     private var mLoaded: TextView? = null
     private var mSongsTotal: Int = 0
@@ -92,12 +92,12 @@ class LoadingFragment : Fragment() {
     }
 
     @Synchronized private fun ready(): Boolean {
-        return mCount!!.decrementAndGet() == 0
+        return mCount.decrementAndGet() == 0
     }
 
     private fun onSongs(songs: Array<Song>) {
         mSongs.addAll(Arrays.asList(*songs))
-        mLoaded!!.text = context.resources
+        mLoaded?.text = context.resources
                 .getQuantityString(R.plurals.songs_loaded, mSongs.size, mSongs.size, mSongsTotal)
         onDataRequestFinished()
     }
