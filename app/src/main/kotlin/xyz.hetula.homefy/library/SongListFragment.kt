@@ -97,7 +97,7 @@ class SongListFragment : Fragment() {
                 val playlist = Homefy.playlist()[name] ?:
                         throw IllegalArgumentException("Calling SongListFragment with invalid playlist id: $name")
 
-                adapter = SongAdapter(playlist.songs)
+                adapter = SongAdapter(playlist.songs, playlist = playlist)
                 (activity as AppCompatActivity).supportActionBar?.title = playlist.name
                 mParentTitle = context.getString(R.string.nav_playlists)
             }
@@ -151,10 +151,8 @@ class SongListFragment : Fragment() {
         fragmentManager
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .hide(this)
                 .addToBackStack(null)
-                .add(R.id.container, fragment)
-                .show(fragment)
+                .replace(R.id.container, fragment)
                 .commit()
     }
 

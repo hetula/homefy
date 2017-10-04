@@ -164,6 +164,7 @@ class HomefyService : Service() {
 
         if (song == null) {
             builder.setContentTitle(getString(R.string.app_name))
+                    .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
             return builder.build()
         }
 

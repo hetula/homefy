@@ -68,7 +68,6 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
         root.txt_search.addTextChangedListener(TypingListener(root.sp_search, this::doSearch))
         mSearch = root.txt_search
 
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_search)
         return root
     }
 
@@ -76,6 +75,7 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_search)
     }
 
     override fun onPause() {

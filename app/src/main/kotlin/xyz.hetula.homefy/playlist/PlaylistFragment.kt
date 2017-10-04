@@ -64,10 +64,8 @@ class PlaylistFragment : Fragment() {
         }
 
         mAdapter?.setPlaylists(Homefy.playlist().getAllPlaylists())
-
         root.recyclerView.adapter = mAdapter
 
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_playlists)
         return root
     }
 
@@ -75,6 +73,8 @@ class PlaylistFragment : Fragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_playlists)
+        mAdapter?.notifyDataSetChanged()
     }
 
     override fun onPause() {
@@ -90,10 +90,8 @@ class PlaylistFragment : Fragment() {
         fragmentManager
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .hide(this)
                 .addToBackStack(null)
-                .add(R.id.container, fragment)
-                .show(fragment)
+                .replace(R.id.container, fragment)
                 .commit()
     }
 

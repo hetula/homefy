@@ -66,6 +66,7 @@ class LibraryFragment : Fragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
     }
 
     private fun onLibraryClick(v: View) {
@@ -100,10 +101,8 @@ class LibraryFragment : Fragment() {
         fragmentManager
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .hide(this)
                 .addToBackStack(null)
-                .add(R.id.container, fragment)
-                .show(fragment)
+                .replace(R.id.container, fragment)
                 .commit()
     }
 

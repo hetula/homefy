@@ -45,12 +45,23 @@ data class Playlist(val id: String, val name: String, val songs: MutableList<Son
     }
 
     fun toggle(song: Song) {
+        if (!songs.remove(song)) {
+            songs.add(song)
+        }
+        save()
+    }
+
+    fun add(song: Song) {
+        if (!contains(song)) {
+            songs.add(song)
+            save()
+        }
+    }
+
+    fun remove(song: Song) {
         if (songs.remove(song)) {
             save()
-            return
         }
-        songs.add(song)
-        save()
     }
 
     fun create() {
@@ -83,6 +94,10 @@ data class Playlist(val id: String, val name: String, val songs: MutableList<Son
         val pls = base.resolve("playlists/")
         pls.mkdir()
         return pls.resolve("$id.json")
+    }
+
+    override fun toString(): String {
+        return name
     }
 
     companion object {

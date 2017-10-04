@@ -25,8 +25,10 @@
 
 package xyz.hetula.homefy.player
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -40,7 +42,9 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_player.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
+import xyz.hetula.homefy.playlist.PlaylistDialog
 import xyz.hetula.homefy.service.Homefy
+import xyz.hetula.homefy.service.HomefyService
 import java.util.*
 
 /**
@@ -50,6 +54,7 @@ import java.util.*
  */
 class PlayerFragment : Fragment() {
     private val mPlaybackListener = this::onSongUpdate
+    private val mHandler = Handler()
     private var mTxtTitle: TextView? = null
     private var mTxtArtist: TextView? = null
     private var mTxtAlbum: TextView? = null
@@ -93,11 +98,19 @@ class PlayerFragment : Fragment() {
             }
         })
         main.btn_favorite.setOnClickListener {
-            val song = Homefy.player().nowPlaying()
-            if (song != null) {
-                Homefy.playlist().favorites.toggle(song)
-                updateFavIco(song)
+            val song = Homefy.player().nowPlaying() ?: return@setOnClickListener
+            Homefy.playlist().favorites.toggle(song)
+            updateFavIco(song)
+        }
+        main.btn_add_to_playlist.setOnClickListener {
+            val song = Homefy.player().nowPlaying() ?: return@setOnClickListener
+            PlaylistDialog.addToPlaylist(context, song) {
+                Snackbar.make(main, R.string.playlist_dialog_added,
+                        Snackbar.LENGTH_SHORT).show()
             }
+        }
+        main.btn_shutdown.setOnClickListener {
+            doShutdown()
         }
         main.seek_song_length.setOnSeekBarChangeListener(SeekListener(this))
         main.btn_playback!!.setOnClickListener(this::onPlaybackModeClick)
@@ -231,6 +244,13 @@ class PlayerFragment : Fragment() {
             PlaybackMode.RANDOM -> R.drawable.ic_shuffle
         }
         button.setImageDrawable(ContextCompat.getDrawable(context, imgRes))
+    }
+
+    private fun doShutdown() {
+        Log.d(TAG, "Shutting down!")
+        activity.finishAndRemoveTask()
+        val context = activity.applicationContext
+        mHandler.postDelayed({ context.stopService(Intent(context, HomefyService::class.java)) }, 500)
     }
 
     private class SeekListener(val player: PlayerFragment) : SeekBar.OnSeekBarChangeListener {
