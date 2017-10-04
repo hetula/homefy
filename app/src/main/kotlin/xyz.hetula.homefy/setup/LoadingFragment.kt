@@ -25,6 +25,7 @@
 
 package xyz.hetula.homefy.setup
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.SystemClock
 import android.support.v4.app.Fragment
@@ -35,14 +36,17 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.google.gson.Gson
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.LibraryFragment
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
+import java.io.File
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class LoadingFragment : Fragment() {
+    private val mTag = "LoadingFragment"
     private var mCount: AtomicInteger = AtomicInteger()
     private var mSongs: MutableList<Song> = ArrayList()
     private var mLoaded: TextView? = null
@@ -53,18 +57,29 @@ class LoadingFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_loading, container, false) as FrameLayout
         mLoaded = main.findViewById(R.id.txt_songs_loaded)
-        mSongsTotal = Homefy.protocol().info.databaseSize
-        initialize()
+        val info = Homefy.protocol().info
+        mSongsTotal = info.databaseSize
+        initialize(info.databaseId)
         return main
     }
 
-    private fun initialize() {
+    private fun initialize(databaseId: String) {
         mSongs.clear()
         mLoadStarted = SystemClock.elapsedRealtime()
         val serverId = Homefy.protocol().info.server_id
 
         Homefy.playlist().setBaseLocation(context.filesDir.resolve(serverId))
         Homefy.playlist().loadPlaylists()
+        LoadCacheFile(context.filesDir.resolve("cache/").resolve(databaseId)) {
+            if (it == null) {
+                loadFromNet()
+            } else {
+                onSongs(it)
+            }
+        }
+    }
+
+    private fun loadFromNet() {
         Homefy.protocol().requestPages(250,
                 this::fetchData,
                 { er ->
@@ -73,7 +88,6 @@ class LoadingFragment : Fragment() {
                     Log.e("LoadingFragment", "Connection error! Can't recover!", er.cause)
                     activity.finish()
                 })
-
     }
 
     private fun fetchData(urls: Array<String>) {
@@ -81,32 +95,48 @@ class LoadingFragment : Fragment() {
         for (url in urls) {
             Homefy.protocol().request(
                     url,
-                    this::onSongs,
+                    { onSongs(it) },
                     { _ ->
                         Toast.makeText(context,
                                 "Error when Connecting!", Toast.LENGTH_LONG).show()
-                        onDataRequestFinished()
+                        onDataRequestFinished(false)
                     },
                     Array<Song>::class.java)
         }
     }
 
     @Synchronized private fun ready(): Boolean {
-        return mCount.decrementAndGet() == 0
+        return mCount.decrementAndGet() <= 0
     }
 
-    private fun onSongs(songs: Array<Song>) {
+    private fun onSongs(songs: Array<Song>, saveLoaded: Boolean = true) {
         mSongs.addAll(Arrays.asList(*songs))
         mLoaded?.text = context.resources
                 .getQuantityString(R.plurals.songs_loaded, mSongs.size, mSongs.size, mSongsTotal)
-        onDataRequestFinished()
+
+        onDataRequestFinished(saveLoaded)
     }
 
-    private fun onDataRequestFinished() {
+    private fun onDataRequestFinished(saveLoaded: Boolean) {
         if (ready()) {
             val time = SystemClock.elapsedRealtime() - mLoadStarted
             Log.d("LoadingFragment", "Songs loaded in $time ms")
-
+            if (saveLoaded) {
+                val cacheDir = context.filesDir
+                        .resolve("cache/")
+                if (!cacheDir.exists()) {
+                    cacheDir.mkdir()
+                } else {
+                    cacheDir.deleteRecursively()
+                    cacheDir.mkdir()
+                }
+                val cacheFile = cacheDir.resolve(Homefy.protocol().info.databaseId)
+                Log.d(mTag, "Saving to cache! $cacheFile")
+                if (cacheFile.exists()) {
+                    Log.d(mTag, "Old cache found! Deleting: ${cacheFile.delete()}")
+                }
+                cacheFile.writeText(Gson().toJson(mSongs))
+            }
             initializeHomefy()
         }
     }
@@ -120,5 +150,32 @@ class LoadingFragment : Fragment() {
                 .beginTransaction()
                 .replace(R.id.container, LibraryFragment())
                 .commit()
+    }
+
+    private class LoadCacheFile(databaseCache: File, private val resultCb: (Array<Song>?) -> Unit) :
+            AsyncTask<File, Void, Array<Song>?>() {
+
+        init {
+            execute(databaseCache)
+        }
+
+        override fun doInBackground(vararg params: File?): Array<Song>? {
+            val databaseCache = params[0]!!
+            if (databaseCache.exists()) {
+                Log.d("LoadCacheFile", "Loading from cache! $databaseCache")
+                return try {
+                    val songData = databaseCache.readText()
+                    Gson().fromJson<Array<Song>>(songData, Array<Song>::class.java)
+                } catch (ex: Exception) {
+                    Log.e("LoadCacheFile", "Can't load cache file, reverting to Network!", ex)
+                    null
+                }
+            }
+            return null
+        }
+
+        override fun onPostExecute(result: Array<Song>?) {
+            resultCb(result)
+        }
     }
 }
