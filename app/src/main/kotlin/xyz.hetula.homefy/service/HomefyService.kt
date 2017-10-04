@@ -25,19 +25,20 @@
 
 package xyz.hetula.homefy.service
 
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.os.Build
 import android.os.IBinder
 import android.os.Process
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.TaskStackBuilder
+import android.support.v4.content.ContextCompat
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.support.v7.app.NotificationCompat
 import android.util.Log
 import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.R
@@ -51,12 +52,17 @@ import xyz.hetula.homefy.player.Song
  * @since 1.0
  */
 class HomefyService : Service() {
+    private val homefyNotificationId = "homefy_notification"
     private val mPlaybackListener = this::onPlay
     private var mSession: MediaSessionCompat? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if(intent.action == CLOSE_INTENT) {
+        if (intent.action == CLOSE_INTENT) {
             closeApp()
+            return Service.START_NOT_STICKY
+        }
+        if (intent.action == FAV_INTENT) {
+            favoriteCurrentSong()
             return Service.START_NOT_STICKY
         }
 
@@ -65,15 +71,43 @@ class HomefyService : Service() {
         }
         if (isReady) return Service.START_STICKY
         isReady = true
+        createChannel()
 
         Log.d(TAG, "Starting HomefyService")
         Homefy.initialize(applicationContext)
 
+
         createNotification()
         Homefy.player().registerPlaybackListener(mPlaybackListener)
-        mSession = Homefy.player().mSession
+        mSession = Homefy.player().mediaSession
 
         return Service.START_STICKY
+    }
+
+    private fun createChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+        val homefyChannel = NotificationChannel(homefyNotificationId,
+                getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH)
+        homefyChannel.description = "Music player"
+        homefyChannel.enableLights(true)
+        homefyChannel.enableVibration(false)
+        homefyChannel.setShowBadge(false)
+        homefyChannel.setSound(null, null)
+        homefyChannel.lightColor = Color.BLUE
+        homefyChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+
+        val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationMngr.createNotificationChannel(homefyChannel)
+    }
+
+    private fun destroyChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+        val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationMngr.deleteNotificationChannel(homefyNotificationId)
     }
 
     private fun closeApp() {
@@ -84,6 +118,7 @@ class HomefyService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Destroying Homefy Service")
+        destroyChannel()
         isReady = false
         Homefy.player().unregisterPlaybackListener(mPlaybackListener)
         Homefy.destroy()
@@ -106,53 +141,74 @@ class HomefyService : Service() {
         nM.notify(NOTIFICATION_ID, setupNotification())
     }
 
+    private fun favoriteCurrentSong() {
+        val song = Homefy.player().nowPlaying() ?: return
+        Homefy.playlist().favorites.toggle(song)
+        updateNotification()
+    }
+
     private fun setupNotification(): Notification {
         val song = Homefy.player().nowPlaying()
-        val mediaSession = Homefy.player().mSession!!
+        val mediaSession = Homefy.player().mediaSession
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
-        val builder = NotificationCompat.Builder(applicationContext)
+        val builder = NotificationCompat.Builder(applicationContext, homefyNotificationId)
         builder.setLargeIcon(largeIcon)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_music_notification)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+                .setColorized(true)
+                .setColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .setOngoing(true)
                 .setShowWhen(false)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setContentIntent(contentIntent())
-                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                        PlaybackStateCompat.ACTION_STOP))
 
-        if (song != null) {
-            val img: Int
-            val str: String
-            if (Homefy.player().isPaused) {
-                img = R.drawable.ic_play_notification
-                str = "Play"
-            } else {
-                img = R.drawable.ic_pause_notification
-                str = "Pause"
-            }
-
-            builder.addAction(android.support.v4.app.NotificationCompat.Action(
-                    img, str,
-                    MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                            PlaybackStateCompat.ACTION_PLAY)))
-                    .addAction(android.support.v4.app.NotificationCompat.Action(
-                            R.drawable.ic_skip_next_notification, "Next",
-                            MediaButtonReceiver.buildMediaButtonPendingIntent(this,
-                                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT)))
-                    .addAction(android.support.v4.app.NotificationCompat.Action(
-                            R.drawable.ic_close_notify, "Close",
-                            closeIntent()))
-                    .setStyle(android.support.v7.app.NotificationCompat.MediaStyle()
-                            .setMediaSession(mediaSession.sessionToken)
-                            .setShowActionsInCompactView(0, 1, 2))
-                    .setContentTitle(song.title)
-                    .setContentText("${song.artist} - ${song.album}")
-        } else {
-            builder.setContentTitle("Homefy")
-                    .setContentText("Nothing is playing")
+        if (song == null) {
+            builder.setContentTitle(getString(R.string.app_name))
+                    .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
+            return builder.build()
         }
+
+        val favDrawable: Int
+        favDrawable = if (Homefy.playlist().isFavorite(song)) {
+            R.drawable.ic_favorite
+        } else {
+            R.drawable.ic_not_favorite_notification
+        }
+
+        val playDrawable: Int
+        val playDesc: String
+        if (Homefy.player().isPaused) {
+            playDrawable = R.drawable.ic_play_notification
+            playDesc = "Play"
+        } else {
+            playDrawable = R.drawable.ic_pause_notification
+            playDesc = "Pause"
+        }
+
+        val playPauseIntent = MediaButtonReceiver
+                .buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY)
+        val previousIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+        val nextIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+
+        builder.setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
+                PlaybackStateCompat.ACTION_STOP))
+
+                .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
+                .addAction(R.drawable.ic_skip_previous_notification, "Previous", previousIntent)
+                .addAction(playDrawable, playDesc, playPauseIntent)
+                .addAction(R.drawable.ic_skip_next_notification, "Next", nextIntent)
+
+                .addAction(favDrawable, "Favorite", favIntent())
+
+                .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(mediaSession.sessionToken)
+                        .setShowActionsInCompactView(2, 3, 4))
+
+                .setContentIntent(contentIntent())
+                .setContentTitle(song.title)
+                .setContentText("${song.artist} - ${song.album}")
 
         return builder.build()
     }
@@ -163,12 +219,10 @@ class HomefyService : Service() {
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
 
-        return PendingIntent.getActivity(
-                this,
-                0,
-                launchMe,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        val taskStack = TaskStackBuilder.create(this)
+        taskStack.addParentStack(PlayerActivity::class.java)
+        taskStack.addNextIntent(launchMe)
+        return taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     private fun closeIntent(): PendingIntent {
@@ -182,14 +236,28 @@ class HomefyService : Service() {
         )
     }
 
+    private fun favIntent(): PendingIntent {
+        val fav = Intent(this, HomefyService::class.java)
+        fav.action = FAV_INTENT
+        return PendingIntent.getService(
+                this,
+                0x42,
+                fav,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
     private fun onPlay(song: Song?, state: Int, param: Int) {
-        if (state == HomefyPlayer.STATE_PLAY || state == HomefyPlayer.STATE_PAUSE) {
+        if (state == HomefyPlayer.STATE_PLAY ||
+                state == HomefyPlayer.STATE_PAUSE ||
+                state == HomefyPlayer.STATE_RESUME) {
             updateNotification()
         }
     }
 
     companion object {
         val CLOSE_INTENT = "xyz.hetula.homefy.service.CLOSE"
+        val FAV_INTENT = "xyz.hetula.homefy.service.FAVORITE"
 
         private val TAG = "HomefyService"
         private val NOTIFICATION_ID = 444

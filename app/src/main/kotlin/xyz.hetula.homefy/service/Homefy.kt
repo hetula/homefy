@@ -29,6 +29,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import xyz.hetula.homefy.library.HomefyLibrary
 import xyz.hetula.homefy.player.HomefyPlayer
+import xyz.hetula.homefy.playlist.HomefyPlaylist
 import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 
@@ -42,9 +43,9 @@ object Homefy {
     private var mHomefy: HomefyProtocol? = null
     private var mLibrary: HomefyLibrary? = null
     private var mPlayer: HomefyPlayer? = null
+    private var mPlaylists: HomefyPlaylist? = null
     var isAlive = false
         private set
-        get
 
     internal fun initialize(appContext: Context) {
         isAlive = true
@@ -52,6 +53,8 @@ object Homefy {
 
         mLibrary = HomefyLibrary()
         mPlayer = HomefyPlayer(appContext)
+
+        mPlaylists = HomefyPlaylist()
     }
 
     internal fun destroy() {
@@ -65,6 +68,8 @@ object Homefy {
 
         mPlayer!!.release()
         mPlayer = null
+
+        mPlaylists = null
     }
 
     fun protocol(): HomefyProtocol {
@@ -77,5 +82,9 @@ object Homefy {
 
     fun player(): HomefyPlayer {
         return mPlayer!!
+    }
+
+    fun playlist(): HomefyPlaylist {
+        return mPlaylists!!
     }
 }

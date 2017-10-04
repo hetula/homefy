@@ -28,10 +28,10 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
-import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley
+import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
 import java.nio.charset.StandardCharsets
 
@@ -41,16 +41,17 @@ import java.nio.charset.StandardCharsets
  * @since 1.0
  */
 class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
-    private var mQueryQueue: RequestQueue? = null
-    private var mUserPass: String = ""
+    private var mQueryQueue = Volley.newRequestQueue(context.applicationContext)
+    private var mUserPass = ""
+    private var mServerId = ""
 
     override var server: String = ""
-    override var info = VersionInfo("Homefy", "0.0", VersionInfo.AuthType.NONE)
-        set
+        set(value) {
+            field = value
+            mServerId = Utils.getHash(value)
+        }
 
-    init {
-        mQueryQueue = Volley.newRequestQueue(context.applicationContext)
-    }
+    override var info = VersionInfo("", "Homefy", "0.0", "", VersionInfo.AuthType.NONE)
 
     override fun setAuth(user: String, pass: String) {
         mUserPass = String(Base64.encode((user + ":" + pass)

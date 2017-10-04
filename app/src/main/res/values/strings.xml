@@ -56,6 +56,15 @@
     <string name="buffering_place_holder">100%% Buffering</string>
     <string name="add_to_playlist_desc">Add to Playlist</string>
     <string name="menu_shutdown">Shutdown</string>
+    <string name="menu_song_play_all">Play All</string>
+    <string name="menu_song_queue">Queue</string>
+    <string name="menu_song_add_to_playlist">Add to Playlist</string>
+    <string name="menu_song_remove_from_playlist">Remove from Playlist</string>
+    <string name="playlist_songs_format">Songs: %d</string>
+    <string name="playlist_dialog_title">Add to Playlist</string>
+    <string name="playlist_dialog_added">Song added!</string>
+    <string name="playlist_dialog_removed">Song removed!</string>
+    <string name="playlist_dialog_no_playlists">No suitable Playlists!</string>
 
     <!-- Plurals -->
     <plurals name="song_count">

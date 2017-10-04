@@ -25,16 +25,20 @@
 
 package xyz.hetula.homefy.library
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.fragment_library.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.PlayerActivity
+import xyz.hetula.homefy.playlist.PlaylistFragment
 
 /**
  * @author Tuomo Heino
@@ -45,13 +49,16 @@ class LibraryFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_library, container, false) as FrameLayout
+        val main = inflater!!.inflate(R.layout.fragment_library, container, false) as LinearLayout
 
         val clicks = View.OnClickListener { this.onLibraryClick(it) }
         main.library_music.setOnClickListener(clicks)
         main.library_artists.setOnClickListener(clicks)
         main.library_albums.setOnClickListener(clicks)
         main.library_search.setOnClickListener(clicks)
+        main.library_favorites.setOnClickListener(clicks)
+        main.library_playlists.setOnClickListener(clicks)
+        main.homefy_header.setOnClickListener(clicks)
         return main
     }
 
@@ -59,6 +66,7 @@ class LibraryFragment : Fragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
     }
 
     private fun onLibraryClick(v: View) {
@@ -67,43 +75,39 @@ class LibraryFragment : Fragment() {
             R.id.library_music -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALL_MUSIC)
             R.id.library_albums -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ALBUMS)
             R.id.library_artists -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.ARTISTS)
+            R.id.library_favorites -> args.putInt(SongListFragment.LIST_TYPE_KEY, SongListFragment.FAVORITES)
             else -> {
                 onSpecialLibClick(v)
                 return
             }
         }
-        createSongListFragment(args)
+        val fragment = SongListFragment()
+        fragment.arguments = args
+        openFragment(fragment)
     }
 
     private fun onSpecialLibClick(v: View) {
-        when(v.id) {
-            R.id.library_search -> createSearchFragment()
+        when (v.id) {
+            R.id.library_search -> openFragment(SongSearchFragment())
+            R.id.library_playlists -> openFragment(PlaylistFragment())
+            R.id.homefy_header -> openPlayer()
             else -> {
                 Log.w("LibraryFragment", "Unhandled Click from " + v)
             }
         }
     }
 
-    private fun createSongListFragment(args: Bundle) {
-        val fragment = SongListFragment()
-        fragment.arguments = args
+    private fun openFragment(fragment: Fragment) {
         fragmentManager
                 .beginTransaction()
-                .hide(this)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
-                .add(R.id.container, fragment)
-                .show(fragment)
+                .replace(R.id.container, fragment)
                 .commit()
     }
 
-    private fun createSearchFragment() {
-        val fragment = SongSearchFragment()
-        fragmentManager
-                .beginTransaction()
-                .hide(this)
-                .addToBackStack(null)
-                .add(R.id.container, fragment)
-                .show(fragment)
-                .commit()
+    private fun openPlayer() {
+        val intent = Intent(context, PlayerActivity::class.java)
+        activity.startActivity(intent)
     }
 }

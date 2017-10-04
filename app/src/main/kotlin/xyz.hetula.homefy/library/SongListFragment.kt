@@ -27,6 +27,7 @@ package xyz.hetula.homefy.library
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -35,8 +36,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_song_list.view.*
-
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.Homefy
 
 /**
@@ -65,14 +66,14 @@ class SongListFragment : Fragment() {
             }
             ARTISTS -> {
                 adapter = SongListAdapter(Homefy.library().artists,
-                        { artist -> Homefy.library().getArtistSongs(artist).size },
+                        { artist -> Homefy.library().getArtistSongs(artist) },
                         this::onArtistClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_artists)
             }
             ALBUMS -> {
                 adapter = SongListAdapter(Homefy.library().albums,
-                        { album -> Homefy.library().getAlbumSongs(album).size },
+                        { album -> Homefy.library().getAlbumSongs(album) },
                         this::onAlbumClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_albums)
@@ -86,6 +87,19 @@ class SongListFragment : Fragment() {
                 adapter = SongAdapter(Homefy.library().getAlbumSongs(name))
                 mParentTitle = context.getString(R.string.nav_albums)
                 (activity as AppCompatActivity).supportActionBar?.title = name
+            }
+            FAVORITES -> {
+                adapter = SongAdapter(Homefy.playlist().favorites.songs, this::onFavClick)
+                (activity as AppCompatActivity).supportActionBar?.title =
+                        context.getString(R.string.nav_favs)
+            }
+            PLAYLIST -> {
+                val playlist = Homefy.playlist()[name] ?:
+                        throw IllegalArgumentException("Calling SongListFragment with invalid playlist id: $name")
+
+                adapter = SongAdapter(playlist.songs, playlist = playlist)
+                (activity as AppCompatActivity).supportActionBar?.title = playlist.name
+                mParentTitle = context.getString(R.string.nav_playlists)
             }
             else -> {
                 Log.e(TAG, "Invalid TYPE: " + type)
@@ -104,12 +118,17 @@ class SongListFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(mParentTitle.isBlank()) {
+        if (mParentTitle.isBlank()) {
             (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
             (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         } else {
             (activity as AppCompatActivity).supportActionBar?.title = mParentTitle
         }
+    }
+
+    private fun onFavClick(adapter: SongAdapter, song: Song) {
+        if (Homefy.playlist().isFavorite(song)) adapter.add(song)
+        else adapter.remove(song)
     }
 
     private fun onArtistClick(artist: String) {
@@ -131,10 +150,9 @@ class SongListFragment : Fragment() {
         fragment.arguments = args
         fragmentManager
                 .beginTransaction()
-                .hide(this)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
-                .add(R.id.container, fragment)
-                .show(fragment)
+                .replace(R.id.container, fragment)
                 .commit()
     }
 
@@ -148,5 +166,7 @@ class SongListFragment : Fragment() {
         val ALBUMS = 3
         val ARTIST_MUSIC = 4
         val ALBUM_MUSIC = 5
+        val FAVORITES = 6
+        val PLAYLIST = 7
     }
 }

@@ -28,7 +28,6 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -48,17 +47,18 @@ import xyz.hetula.homefy.service.Homefy
  * @since 1.0
  */
 class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
-    private var mRecycler: RecyclerView? = null
     private var mSearch: EditText? = null
+    private var mAdapter: SongAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater!!.inflate(R.layout.fragment_song_search, container, false)
 
-        mRecycler = root.recyclerView
+        val mRecycler = root.recyclerView
         mRecycler!!.setHasFixedSize(true)
-        mRecycler!!.layoutManager = LinearLayoutManager(context,
-                LinearLayoutManager.VERTICAL, false)
-        mRecycler!!.adapter = SongAdapter(Homefy.library().songs)
+        mRecycler.layoutManager = LinearLayoutManager(context)
+
+        mAdapter = SongAdapter(Homefy.library().songs)
+        mRecycler.adapter = mAdapter
 
         val adapter = ArrayAdapter<SearchType>(context,
                 android.R.layout.simple_spinner_item, SearchType.values())
@@ -68,7 +68,6 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
         root.txt_search.addTextChangedListener(TypingListener(root.sp_search, this::doSearch))
         mSearch = root.txt_search
 
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_search)
         return root
     }
 
@@ -76,6 +75,7 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_search)
     }
 
     override fun onPause() {
@@ -84,16 +84,16 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun doSearch(search: Editable?, type: SearchType) {
-        if(search == null ) {
-            mRecycler!!.adapter = SongAdapter(Homefy.library().songs)
+        if (search == null) {
+            mAdapter?.setSongs(Homefy.library().songs)
             return
         }
         val text = search.toString()
-        if(text.isBlank()) {
-            mRecycler!!.adapter = SongAdapter(Homefy.library().songs)
+        if (text.isBlank()) {
+            mAdapter?.setSongs(Homefy.library().songs)
             return
         }
-        Homefy.library().search(text, type, { mRecycler!!.adapter = SongAdapter(it) })
+        Homefy.library().search(text, type) { mAdapter?.setSongs(it) }
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -106,7 +106,7 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private class TypingListener(val typeSpinner: Spinner,
-                                 val cb: (Editable?, SearchType) -> Unit) :TextWatcher {
+                                 val cb: (Editable?, SearchType) -> Unit) : TextWatcher {
 
         override fun afterTextChanged(s: Editable?) {
             cb(s, typeSpinner.selectedItem!! as SearchType)

@@ -25,6 +25,7 @@
 
 package xyz.hetula.homefy
 
+import java.security.MessageDigest
 import java.util.*
 
 
@@ -41,5 +42,25 @@ object Utils {
 
     fun parseTime(pos: Long, dur: Long): String {
         return parseSeconds(pos) + "/" + parseSeconds(dur)
+    }
+
+    fun getHash(str: String): String {
+        val digest = MessageDigest.getInstance("SHA-1")
+        val bytes = str.toByteArray()
+        val hashed = digest.digest(bytes)
+
+        val sb = StringBuilder()
+        for (aHashed in hashed) {
+            if (0xff and aHashed.toInt() < 0x10) {
+                sb.append(0).append(Integer.toHexString(0xFF and aHashed.toInt()))
+            } else {
+                sb.append(Integer.toHexString(0xFF and aHashed.toInt()))
+            }
+        }
+        return sb.toString()
+    }
+
+    fun randomId(): String {
+        return UUID.randomUUID().toString()
     }
 }

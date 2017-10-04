@@ -87,6 +87,7 @@ class Song : Comparable<Song> {
         this.type = "MockPEG3 Layer 1"
     }
 
+
     override fun compareTo(other: Song): Int {
         var c = album.compareTo(other.album)
         if (c != 0) return c
@@ -99,7 +100,7 @@ class Song : Comparable<Song> {
 
     fun toMediaMetadata(): MediaMetadataCompat {
         val metadata = MediaMetadataCompat.Builder()
-        if(track > 0) metadata.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, track.toLong())
+        if (track > 0) metadata.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, track.toLong())
         return metadata
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
@@ -108,6 +109,21 @@ class Song : Comparable<Song> {
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, id)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, length * 1000)
                 .build()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as Song
+
+        if (id != other.id) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 
 }

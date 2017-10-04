@@ -43,7 +43,6 @@ class Playback {
     private var playing: Song? = null
 
     var playbackMode: PlaybackMode = PlaybackMode.RANDOM
-        get
         private set(value) {
             field = value
             setupPlaybackStyle(value)
@@ -63,11 +62,11 @@ class Playback {
     }
 
     private fun setupPlaybackStyle(mode: PlaybackMode) {
-        when(mode) {
-            PlaybackMode.NORMAL -> playback = NORMAL_PROVIDER
-            PlaybackMode.REPEAT -> playback = REPEAT_PROVIDER
-            PlaybackMode.REPEAT_SINGLE -> playback = REPEAT_SINGLE_PROVIDER
-            PlaybackMode.RANDOM -> playback = RANDOM_PROVIDER
+        playback = when (mode) {
+            PlaybackMode.NORMAL -> NORMAL_PROVIDER
+            PlaybackMode.REPEAT -> REPEAT_PROVIDER
+            PlaybackMode.REPEAT_SINGLE -> REPEAT_SINGLE_PROVIDER
+            PlaybackMode.RANDOM -> RANDOM_PROVIDER
         }
     }
 
@@ -98,19 +97,19 @@ class Playback {
         if (playing != null && playing != previous.peekLast()) {
             addToPrevious(playing!!)
         }
-        if (!queue.isEmpty()) {
-            playing = queue.removeAt(0)
+        playing = if (!queue.isEmpty()) {
+            queue.removeAt(0)
         } else {
-            playing = playback(playing, next, lastRequest)
+            playback(playing, next, lastRequest)
         }
     }
 
     fun cyclePlaybackMode() {
         val ord = playbackMode.ordinal + 1
-        if(ord >= PlaybackMode.values().size)
-            playbackMode = PlaybackMode.values()[0]
+        playbackMode = if (ord >= PlaybackMode.values().size)
+            PlaybackMode.values()[0]
         else
-            playbackMode = PlaybackMode.values()[ord]
+            PlaybackMode.values()[ord]
 
     }
 
