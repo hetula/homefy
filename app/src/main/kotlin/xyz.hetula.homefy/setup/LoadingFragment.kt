@@ -74,7 +74,7 @@ class LoadingFragment : Fragment() {
             if (it == null) {
                 loadFromNet()
             } else {
-                onSongs(it)
+                onSongs(it, false)
             }
         }
     }
