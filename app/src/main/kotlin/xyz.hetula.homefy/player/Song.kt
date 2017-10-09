@@ -126,4 +126,32 @@ class Song : Comparable<Song> {
         return id.hashCode()
     }
 
+    inline fun getMimeType(consumer: (String) -> Unit) {
+        if (type.startsWith("MPEG-")) consumer("audio/mpeg")
+        // mp4
+        if (type.startsWith("AAC")) consumer("audio/mp4")
+        // FLAC
+        if (type.startsWith("FLAC")) consumer("audio/flac")
+        // wma
+        if (type.startsWith("ASF")) consumer("audio/x-ms-wma")
+        // wav
+        if (type.startsWith("WAV")) consumer("audio/wav")
+        // ogg
+        if (type.startsWith("Ogg")) consumer("audio/ogg")
+    }
+
+    inline fun getFileType(consumer: (String) -> Unit) {
+        if (type.startsWith("MPEG-")) consumer("mp3")
+        // mp4
+        if (type.startsWith("AAC")) consumer("m4u")
+        // FLAC
+        if (type.startsWith("FLAC")) consumer("flac")
+        // wma
+        if (type.startsWith("ASF")) consumer("wma")
+        // wav
+        if (type.startsWith("WAV")) consumer("wav")
+        // ogg
+        if (type.startsWith("Ogg")) consumer("ogg")
+    }
+
 }

@@ -112,6 +112,9 @@ class PlayerFragment : Fragment() {
         main.btn_shutdown.setOnClickListener {
             doShutdown()
         }
+        main.btn_download.setOnClickListener {
+            (activity as PlayerActivity).download(Homefy.player().nowPlaying())
+        }
         main.seek_song_length.setOnSeekBarChangeListener(SeekListener(this))
         main.btn_playback!!.setOnClickListener(this::onPlaybackModeClick)
         return main
