@@ -26,7 +26,6 @@
 package xyz.hetula.homefy.library
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -36,16 +35,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_song_list.view.*
+import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-class SongListFragment : Fragment() {
+class SongListFragment : HomefyFragment() {
     private var mParentTitle: String = ""
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -60,44 +59,51 @@ class SongListFragment : Fragment() {
         val adapter: RecyclerView.Adapter<*>
         when (type) {
             ALL_MUSIC -> {
-                adapter = SongAdapter(Homefy.library().songs)
+                adapter = SongAdapter(homefy().getLibrary().songs,
+                        homefy().getPlayer(), homefy().getPlaylists())
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_music)
             }
             ARTISTS -> {
-                adapter = SongListAdapter(Homefy.library().artists,
-                        { artist -> Homefy.library().getArtistSongs(artist) },
+                adapter = SongListAdapter(homefy().getLibrary().artists,
+                        homefy().getPlayer(),
+                        { artist -> homefy().getLibrary().getArtistSongs(artist) },
                         this::onArtistClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_artists)
             }
             ALBUMS -> {
-                adapter = SongListAdapter(Homefy.library().albums,
-                        { album -> Homefy.library().getAlbumSongs(album) },
+                adapter = SongListAdapter(homefy().getLibrary().albums,
+                        homefy().getPlayer(),
+                        { album -> homefy().getLibrary().getAlbumSongs(album) },
                         this::onAlbumClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_albums)
             }
             ARTIST_MUSIC -> {
-                adapter = SongAdapter(Homefy.library().getArtistSongs(name))
+                adapter = SongAdapter(homefy().getLibrary().getArtistSongs(name),
+                        homefy().getPlayer(), homefy().getPlaylists())
                 mParentTitle = context.getString(R.string.nav_artists)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             ALBUM_MUSIC -> {
-                adapter = SongAdapter(Homefy.library().getAlbumSongs(name))
+                adapter = SongAdapter(homefy().getLibrary().getAlbumSongs(name),
+                        homefy().getPlayer(), homefy().getPlaylists())
                 mParentTitle = context.getString(R.string.nav_albums)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             FAVORITES -> {
-                adapter = SongAdapter(Homefy.playlist().favorites.songs, this::onFavClick)
+                adapter = SongAdapter(homefy().getPlaylists().favorites.songs,
+                        homefy().getPlayer(), homefy().getPlaylists(), this::onFavClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
                         context.getString(R.string.nav_favs)
             }
             PLAYLIST -> {
-                val playlist = Homefy.playlist()[name] ?:
+                val playlist = homefy().getPlaylists()[name] ?:
                         throw IllegalArgumentException("Calling SongListFragment with invalid playlist id: $name")
 
-                adapter = SongAdapter(playlist.songs, playlist = playlist)
+                adapter = SongAdapter(playlist.songs, homefy().getPlayer(),
+                        homefy().getPlaylists(), playlist = playlist)
                 (activity as AppCompatActivity).supportActionBar?.title = playlist.name
                 mParentTitle = context.getString(R.string.nav_playlists)
             }
@@ -127,8 +133,11 @@ class SongListFragment : Fragment() {
     }
 
     private fun onFavClick(adapter: SongAdapter, song: Song) {
-        if (Homefy.playlist().isFavorite(song)) adapter.add(song)
-        else adapter.remove(song)
+        if (homefy().getPlaylists().isFavorite(song)) {
+            adapter.add(song)
+        } else {
+            adapter.remove(song)
+        }
     }
 
     private fun onArtistClick(artist: String) {

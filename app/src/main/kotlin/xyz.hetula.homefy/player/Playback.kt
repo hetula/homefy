@@ -86,6 +86,11 @@ class Playback {
         return playing
     }
 
+    inline fun getCurrent(songCallback: (Song) -> Unit) {
+        val song = getCurrent() ?: return
+        songCallback(song)
+    }
+
     fun previous() {
         if (!isEmpty()) {
             queueSong(playing!!)

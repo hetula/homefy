@@ -35,7 +35,7 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.R
-import xyz.hetula.homefy.service.Homefy
+import xyz.hetula.homefy.service.HomefyService
 import java.util.HashMap
 import kotlin.collections.ArrayList
 
@@ -56,7 +56,10 @@ class PlayerActivity : HomefyActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.hide()
+    }
 
+    override fun serviceConnected(service: HomefyService) {
+        super.serviceConnected(service)
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.container, PlayerFragment())
@@ -107,9 +110,9 @@ class PlayerActivity : HomefyActivity() {
         }
         song.getFileType {
             val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val request = DownloadManager.Request(Uri.parse(Homefy.library().getPlayPath(song)))
+            val request = DownloadManager.Request(Uri.parse(homefy.getLibrary().getPlayPath(song)))
             val headers = HashMap<String, String>()
-            Homefy.protocol().addAuthHeader(headers)
+            homefy.getProtocol().addAuthHeader(headers)
             request.addRequestHeader("Authorization", headers["Authorization"])
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             request.setVisibleInDownloadsUi(false)

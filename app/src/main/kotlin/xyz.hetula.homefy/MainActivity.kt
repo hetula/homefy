@@ -48,16 +48,21 @@ class MainActivity : HomefyActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.container, if (HomefyService.isReady)
-                    LibraryFragment()
-                else
-                    SetupFragment())
-                .commit()
-
         val startService = Intent(applicationContext, HomefyService::class.java)
         startService(startService)
+    }
+
+    override fun serviceConnected(service: HomefyService) {
+        super.serviceConnected(service)
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container,
+                        if (service.getLibrary().isLibraryReady()) {
+                            LibraryFragment()
+                        } else {
+                            SetupFragment()
+                        })
+                .commit()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -66,7 +71,7 @@ class MainActivity : HomefyActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.homefy, menu)
+        menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
@@ -82,7 +87,7 @@ class MainActivity : HomefyActivity() {
 
     private fun doShutdown() {
         Log.d("MainActivity", "Shutting down!")
-        finishAndRemoveTask()
         stopService(Intent(applicationContext, HomefyService::class.java))
+        finishAffinity()
     }
 }

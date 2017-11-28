@@ -33,8 +33,8 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
 
 /**
  * @author Tuomo Heino
@@ -42,6 +42,7 @@ import xyz.hetula.homefy.service.Homefy
  * @since 1.0
  */
 internal class SongListAdapter(names: List<String>,
+                               private val mPlayer: HomefyPlayer,
                                private val mSongFetch: (String) -> List<Song>,
                                private val mClick: (String) -> Unit) :
         RecyclerView.Adapter<SongListAdapter.SongListViewHolder>() {
@@ -55,8 +56,8 @@ internal class SongListAdapter(names: List<String>,
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongListViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val songView = inflater.inflate(R.layout.list_item_songlist, parent, false)
-        val slvh = SongListViewHolder(songView)
-        songView.setOnLongClickListener(slvh::onLong)
+        val slvh = SongListViewHolder(this, songView)
+        songView.setOnLongClickListener { _ -> slvh.onLongClick() }
         return slvh
     }
 
@@ -76,13 +77,14 @@ internal class SongListAdapter(names: List<String>,
         return mNameList.size
     }
 
-    class SongListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class SongListViewHolder(val songListAdapter: SongListAdapter, itemView: View) :
+            RecyclerView.ViewHolder(itemView) {
         val txtMainInfo: TextView = itemView.findViewById(R.id.txt_main_info)
         val txtMoreInfo: TextView = itemView.findViewById(R.id.txt_more_info)
 
         var songs: List<Song> = ArrayList()
 
-        fun onLong(v: View?): Boolean {
+        fun onLongClick(): Boolean {
             val songs = this.songs
             if (songs.isEmpty()) return false
             val pops = PopupMenu(itemView.context, itemView)
@@ -95,8 +97,8 @@ internal class SongListAdapter(names: List<String>,
 
         private fun click(id: Int, songs: List<Song>): Boolean {
             when (id) {
-                PLAY_ALL_ID -> Homefy.player().play(songs.first(), ArrayList(songs))
-                QUEUE_ALL_ID -> Homefy.player().queue(songs)
+                PLAY_ALL_ID -> songListAdapter.mPlayer.play(songs.first(), ArrayList(songs))
+                QUEUE_ALL_ID -> songListAdapter.mPlayer.queue(songs)
             }
             return true
         }

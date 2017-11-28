@@ -23,38 +23,10 @@
  *
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package xyz.hetula.homefy
 
-buildscript {
-    ext.min_sdk = 25
-    ext.target_sdk = 26
-    ext.build_tools_version = '26.0.2'
-    ext.gradle_version = '3.0.1'
+import android.support.v4.app.Fragment
 
-    ext.kotlin_version = '1.1.51'
-    ext.support_version = '26.1.0'
-    ext.gson_version = '2.8.1'
-    ext.volley_version = '1.0.0'
-
-
-
-    repositories {
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradle_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        google()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+abstract class HomefyFragment : Fragment() {
+    protected fun homefy() = (activity as HomefyActivity).homefy
 }

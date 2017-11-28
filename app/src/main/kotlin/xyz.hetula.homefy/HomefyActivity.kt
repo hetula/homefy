@@ -24,13 +24,13 @@
 
 package xyz.hetula.homefy
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.Bundle
+import android.os.IBinder
+import android.support.annotation.CallSuper
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import xyz.hetula.homefy.service.HomefyService
 
 /**
  * @author Tuomo Heino
@@ -38,6 +38,9 @@ import android.util.Log
  * @since 1.0
  */
 abstract class HomefyActivity : AppCompatActivity() {
+    lateinit var homefy: HomefyService
+    private val mHomefyConnection = HomefyConnection { serviceConnected(it) }
+
     private var mKillReceiver: BroadcastReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,11 +59,49 @@ abstract class HomefyActivity : AppCompatActivity() {
         applicationContext.registerReceiver(mKillReceiver, filter)
     }
 
+    override fun onStart() {
+        Log.v("HomefyActivity", "onStart(): " + javaClass.simpleName)
+        super.onStart()
+        val intent = Intent(this, HomefyService::class.java)
+        if (!bindService(intent, mHomefyConnection,
+                Context.BIND_AUTO_CREATE or Context.BIND_ABOVE_CLIENT)) {
+            unbindService(mHomefyConnection)
+        }
+    }
+
+    override fun onStop() {
+        Log.v("HomefyActivity", "onStop(): " + javaClass.simpleName)
+        super.onStop()
+        unbindService(mHomefyConnection)
+    }
+
+
     override fun onDestroy() {
         Log.d(TAG, "Destroying HomefyActivity")
         super.onDestroy()
         applicationContext.unregisterReceiver(mKillReceiver)
     }
+
+    @CallSuper
+    protected open fun serviceConnected(service: HomefyService) {
+        homefy = service
+    }
+
+    internal class HomefyConnection(private val serviceCallback: (HomefyService) -> Unit) :
+            ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.d("HomefyConnection", "HomefyService Disconnected!")
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Log.d("HomefyConnection", "HomefyService Connected!")
+            if (service != null) {
+                serviceCallback((service as HomefyService.HomefyBinder).getService())
+            }
+        }
+
+    }
+
 
     companion object {
         private val TAG = "HomefyActivity"

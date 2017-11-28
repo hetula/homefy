@@ -39,11 +39,12 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
+import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
+import xyz.hetula.homefy.playlist.HomefyPlaylist
 import xyz.hetula.homefy.playlist.Playlist
 import xyz.hetula.homefy.playlist.PlaylistDialog
-import xyz.hetula.homefy.service.Homefy
 import java.util.*
 
 /**
@@ -52,6 +53,8 @@ import java.util.*
  * @since 1.0
  */
 class SongAdapter(songs: List<Song>,
+                  private val mPlayer: HomefyPlayer,
+                  private val mPlaylists: HomefyPlaylist,
                   private val onFav: ((SongAdapter, Song) -> Unit)? = null,
                   private val playlist: Playlist? = null) :
         RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
@@ -61,7 +64,7 @@ class SongAdapter(songs: List<Song>,
         val inflater = LayoutInflater.from(parent.context)
         val songView = inflater.inflate(R.layout.list_item_song, parent, false)
         val svh = SongViewHolder(this, songView)
-        songView.setOnLongClickListener(svh::onLong)
+        songView.setOnLongClickListener { _ -> svh.onLongClick() }
         return svh
     }
 
@@ -77,16 +80,16 @@ class SongAdapter(songs: List<Song>,
         holder.txtArtistAlbum.text = String.format(Locale.getDefault(), "%s - %s", song.artist, song.album)
         holder.txtLength.text = Utils.parseSeconds(song.length)
         holder.itemView.setOnClickListener { v ->
-            Homefy.player().play(song, mSongs)
+            mPlayer.play(song, mSongs)
             openPlayer(v.context)
         }
-        if (Homefy.playlist().isFavorite(song)) {
+        if (mPlaylists.isFavorite(song)) {
             holder.btnSongFav.setImageResource(R.drawable.ic_favorite)
         } else {
             holder.btnSongFav.setImageResource(R.drawable.ic_not_favorite)
         }
         holder.btnSongFav.setOnClickListener {
-            Homefy.playlist().favorites.toggle(song)
+            mPlaylists.favorites.toggle(mPlaylists, song)
             notifyItemChanged(position)
             onFav?.invoke(this, song)
         }
@@ -131,7 +134,7 @@ class SongAdapter(songs: List<Song>,
         var playlist: Playlist? = null
         var song: Song? = null
 
-        fun onLong(v: View?): Boolean {
+        fun onLongClick(): Boolean {
             val song = this.song ?: return false
             val pops = PopupMenu(itemView.context, itemView)
             pops.menu.add(Menu.NONE, 0, 0, R.string.menu_song_queue)
@@ -149,7 +152,7 @@ class SongAdapter(songs: List<Song>,
 
         private fun click(id: Int, song: Song): Boolean {
             when (id) {
-                0 -> Homefy.player().queue(song)
+                0 -> songAdapter.mPlayer.queue(song)
                 1 -> addToPlaylist()
             }
             return true
@@ -159,12 +162,12 @@ class SongAdapter(songs: List<Song>,
             val song = this.song ?: return
             val playlist = this.playlist
             if (playlist == null) {
-                PlaylistDialog.addToPlaylist(itemView.context, song) {
+                PlaylistDialog.addToPlaylist(itemView.context, song, songAdapter.mPlaylists) {
                     Snackbar.make(itemView, R.string.playlist_dialog_added,
                             Snackbar.LENGTH_SHORT).show()
                 }
             } else {
-                playlist.remove(song)
+                playlist.remove(songAdapter.mPlaylists, song)
                 songAdapter.mSongs.removeAt(adapterPosition)
                 songAdapter.notifyItemRemoved(adapterPosition)
                 Snackbar.make(itemView, R.string.playlist_dialog_removed,

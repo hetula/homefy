@@ -41,11 +41,11 @@ class HomefyPlaylist {
     private val playlistDirectory = "playlists/"
     private val mPlaylists = HashMap<String, Playlist>()
     val favorites = Playlist("favorites", "Favorites", favs = true)
-    internal var baseLocation: File? = null
+    internal lateinit var baseLocation: File
 
     fun setBaseLocation(base: File) {
         baseLocation = base
-        baseLocation?.mkdir()
+        baseLocation.mkdir()
     }
 
     fun isFavorite(song: Song): Boolean {
@@ -55,12 +55,12 @@ class HomefyPlaylist {
     fun createPlaylist(name: String): Playlist {
         val pl = Playlist(Utils.randomId(), if (name.isBlank()) "Empty" else name)
         mPlaylists[pl.id] = pl
-        pl.create()
+        pl.create(this)
         return pl
     }
 
     fun loadPlaylists() {
-        val base = baseLocation ?: return
+        val base = baseLocation
         val gson = Gson()
         val favs = base.resolve("favorites.json")
         loadPlaylist(gson, favs) { favList ->
@@ -81,6 +81,10 @@ class HomefyPlaylist {
 
     private fun loadPlaylist(gson: Gson, plFile: File, loadCb: (Playlist) -> Unit) {
         var read: BufferedReader? = null
+        if (!plFile.exists()) {
+            Log.w("HomefyPlaylist", "No Playlist file found! ${plFile.absolutePath}")
+            return
+        }
         try {
             read = BufferedReader(FileReader(plFile))
             loadCb(gson.fromJson<Playlist>(read, Playlist::class.java))

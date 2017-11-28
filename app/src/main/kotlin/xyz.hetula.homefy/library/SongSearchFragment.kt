@@ -25,7 +25,6 @@
 package xyz.hetula.homefy.library
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
@@ -38,15 +37,15 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import kotlinx.android.synthetic.main.fragment_song_search.view.*
+import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
-import xyz.hetula.homefy.service.Homefy
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
+class SongSearchFragment : HomefyFragment(), AdapterView.OnItemSelectedListener {
     private var mSearch: EditText? = null
     private var mAdapter: SongAdapter? = null
 
@@ -57,7 +56,8 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
         mRecycler!!.setHasFixedSize(true)
         mRecycler.layoutManager = LinearLayoutManager(context)
 
-        mAdapter = SongAdapter(Homefy.library().songs)
+        mAdapter = SongAdapter(homefy().getLibrary().songs, homefy().getPlayer(),
+                homefy().getPlaylists())
         mRecycler.adapter = mAdapter
 
         val adapter = ArrayAdapter<SearchType>(context,
@@ -85,15 +85,15 @@ class SongSearchFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun doSearch(search: Editable?, type: SearchType) {
         if (search == null) {
-            mAdapter?.setSongs(Homefy.library().songs)
+            mAdapter?.setSongs(homefy().getLibrary().songs)
             return
         }
         val text = search.toString()
         if (text.isBlank()) {
-            mAdapter?.setSongs(Homefy.library().songs)
+            mAdapter?.setSongs(homefy().getLibrary().songs)
             return
         }
-        Homefy.library().search(text, type) { mAdapter?.setSongs(it) }
+        homefy().getLibrary().search(text, type) { mAdapter?.setSongs(it) }
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

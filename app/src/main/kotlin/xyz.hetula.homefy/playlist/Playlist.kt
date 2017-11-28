@@ -27,7 +27,6 @@ package xyz.hetula.homefy.playlist
 import android.util.Log
 import com.google.gson.Gson
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -44,36 +43,35 @@ data class Playlist(val id: String, val name: String, val songs: MutableList<Son
         return songs.contains(song)
     }
 
-    fun toggle(song: Song) {
+    fun toggle(homefyPlaylist: HomefyPlaylist, song: Song) {
         if (!songs.remove(song)) {
             songs.add(song)
         }
-        save()
+        save(homefyPlaylist.baseLocation)
     }
 
-    fun add(song: Song) {
+    fun add(homefyPlaylist: HomefyPlaylist, song: Song) {
         if (!contains(song)) {
             songs.add(song)
-            save()
+            save(homefyPlaylist.baseLocation)
         }
     }
 
-    fun remove(song: Song) {
+    fun remove(homefyPlaylist: HomefyPlaylist, song: Song) {
         if (songs.remove(song)) {
-            save()
+            save(homefyPlaylist.baseLocation)
         }
     }
 
-    fun create() {
-        save()
+    fun create(homefyPlaylist: HomefyPlaylist) {
+        save(homefyPlaylist.baseLocation)
     }
 
     internal fun addAll(songs: List<Song>) {
         this.songs.addAll(songs)
     }
 
-    private fun save() {
-        val base = Homefy.playlist().baseLocation ?: return
+    private fun save(base: File) {
         val fileName = resolveFile(base)
         var io: BufferedWriter? = null
         try {

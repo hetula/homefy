@@ -29,16 +29,16 @@ import android.content.Context
 import android.widget.ArrayAdapter
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
 
 object PlaylistDialog {
 
-    fun addToPlaylist(context: Context, song: Song, onSuccess: (Unit) -> Unit) {
+    fun addToPlaylist(context: Context, song: Song, homefyPlaylists: HomefyPlaylist,
+                      onSuccess: (Unit) -> Unit) {
         val dialog = AlertDialog.Builder(context)
         dialog.setTitle(R.string.playlist_dialog_title)
 
 
-        val playlists = getPlaylists(song)
+        val playlists = getPlaylists(song, homefyPlaylists)
         val text: Int
         text = if (playlists.isEmpty()) {
             dialog.setMessage(R.string.playlist_dialog_no_playlists)
@@ -47,7 +47,7 @@ object PlaylistDialog {
             dialog.setAdapter(ArrayAdapter<Playlist>(context, android.R.layout.simple_list_item_1,
                     playlists)) { dlg, index ->
                 val selected = playlists[index]
-                selected.add(song)
+                selected.add(homefyPlaylists, song)
                 dlg.dismiss()
                 onSuccess(Unit)
             }
@@ -57,8 +57,8 @@ object PlaylistDialog {
         dialog.show()
     }
 
-    private fun getPlaylists(song: Song): List<Playlist> {
-        val pls = Homefy.playlist().getAllPlaylists()
+    private fun getPlaylists(song: Song, homefyPlaylists: HomefyPlaylist): List<Playlist> {
+        val pls = homefyPlaylists.getAllPlaylists()
         val playlists = ArrayList<Playlist>()
         pls.filterNotTo(playlists) { it.contains(song) }
         return playlists

@@ -28,6 +28,7 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
+import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley
@@ -40,8 +41,8 @@ import java.nio.charset.StandardCharsets
  * @version 1.0
  * @since 1.0
  */
-class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
-    private var mQueryQueue = Volley.newRequestQueue(context.applicationContext)
+class DefaultHomefyProtocol : HomefyProtocol {
+    private var mQueryQueue: RequestQueue? = null
     private var mUserPass = ""
     private var mServerId = ""
 
@@ -52,6 +53,15 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
         }
 
     override var info = VersionInfo("", "Homefy", "0.0", "", VersionInfo.AuthType.NONE)
+
+    override fun initialize(context: Context) {
+        mQueryQueue = Volley.newRequestQueue(context.applicationContext)
+    }
+
+    override fun release() {
+        mQueryQueue?.stop()
+        mQueryQueue = null
+    }
 
     override fun setAuth(user: String, pass: String) {
         mUserPass = String(Base64.encode((user + ":" + pass)
@@ -71,7 +81,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     Log.e(TAG, error.toString())
                     errorConsumer(error)
                 }))
-        mQueryQueue!!.add(versionReq)
+        mQueryQueue?.add(versionReq)
     }
 
     override fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit,
@@ -88,7 +98,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(versionReq)
-        mQueryQueue!!.add(versionReq)
+        mQueryQueue?.add(versionReq)
     }
 
     override fun requestPages(pageLength: Int,
@@ -103,7 +113,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(pagesRequest)
-        mQueryQueue!!.add(pagesRequest)
+        mQueryQueue?.add(pagesRequest)
     }
 
     override fun requestSongs(songsConsumer: (Array<Song>) -> Unit,
@@ -134,7 +144,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(songsReq)
-        mQueryQueue!!.add(songsReq)
+        mQueryQueue?.add(songsReq)
     }
 
     override fun requestSong(id: String,
@@ -149,7 +159,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(songReq)
-        mQueryQueue!!.add(songReq)
+        mQueryQueue?.add(songReq)
     }
 
     override fun <T> request(url: String,
@@ -165,12 +175,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(request)
-        mQueryQueue!!.add(request)
-    }
-
-    override fun release() {
-        mQueryQueue!!.stop()
-        mQueryQueue = null
+        mQueryQueue?.add(request)
     }
 
     override fun addAuthHeader(headers: HashMap<String, String>) {

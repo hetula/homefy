@@ -25,11 +25,14 @@
 
 package xyz.hetula.homefy.library
 
+import android.content.Context
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.SystemClock
 import android.util.Log
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
+import xyz.hetula.homefy.service.HomefyService
+import xyz.hetula.homefy.service.protocol.HomefyProtocol
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
@@ -49,7 +52,7 @@ import kotlin.collections.ArrayList
  * @version 1.0
  * @since 1.0
  */
-class HomefyLibrary {
+class HomefyLibrary(private val protocol: HomefyProtocol) {
     private val mSearchExecutor = Executors.newCachedThreadPool()
     private var mSongDatabase: MutableMap<String, Song>? = null
     private val mArtistCache = HashMap<String, ArrayList<Song>>()
@@ -60,7 +63,9 @@ class HomefyLibrary {
 
     private var mSearchTask: AsyncTask<SearchRequest, Void, List<Song>>? = null
 
-    fun initialize(music: List<Song>) {
+    private var mReady = false
+
+    fun initialize(context: Context, music: List<Song>) {
         Log.d(TAG, "Initializing with ${music.size} songs!")
         val start = SystemClock.elapsedRealtime()
         val size = music.size
@@ -85,6 +90,10 @@ class HomefyLibrary {
         Collections.sort(mAlbums)
         Collections.sort(mArtists)
         val time = SystemClock.elapsedRealtime() - start
+        mReady = true
+        val completeIntent = Intent(context, HomefyService::class.java)
+        completeIntent.action = HomefyService.INIT_COMPLETE
+        context.startService(completeIntent)
         Log.d("HomefyLibrary", "Library initialized in $time ms")
     }
 
@@ -102,7 +111,10 @@ class HomefyLibrary {
         mAlbumCache.clear()
         mAlbums.clear()
         mArtists.clear()
+        mReady = false
     }
+
+    fun isLibraryReady() = mReady
 
     private fun sanitizeMusic(music: List<Song>): List<Song> {
         // WMA filter, low bitrate filter(0 can be unknown)
@@ -143,7 +155,7 @@ class HomefyLibrary {
     }
 
     fun getPlayPath(song: Song): String {
-        return Homefy.protocol().server + "/play/" + song.id
+        return protocol.server + "/play/" + song.id
     }
 
     @Synchronized

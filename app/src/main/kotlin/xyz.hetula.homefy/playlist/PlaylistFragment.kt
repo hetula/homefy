@@ -36,17 +36,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import kotlinx.android.synthetic.main.fragment_playlist.view.*
+import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.SongListFragment
-import xyz.hetula.homefy.service.Homefy
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-class PlaylistFragment : Fragment() {
-    private var mAdapter: PlaylistAdapter? = null
+class PlaylistFragment : HomefyFragment() {
+    private lateinit var mAdapter: PlaylistAdapter
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater!!.inflate(R.layout.fragment_playlist, container, false)
@@ -63,7 +63,7 @@ class PlaylistFragment : Fragment() {
             openFragment(fragment)
         }
 
-        mAdapter?.setPlaylists(Homefy.playlist().getAllPlaylists())
+        mAdapter.setPlaylists(homefy().getPlaylists().getAllPlaylists())
         root.recyclerView.adapter = mAdapter
 
         return root
@@ -74,7 +74,7 @@ class PlaylistFragment : Fragment() {
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
         (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_playlists)
-        mAdapter?.notifyDataSetChanged()
+        mAdapter.notifyDataSetChanged()
     }
 
     override fun onPause() {
@@ -83,7 +83,7 @@ class PlaylistFragment : Fragment() {
     }
 
     private fun addPlaylist(playlist: Playlist) {
-        mAdapter?.addPlaylist(playlist)
+        mAdapter.addPlaylist(playlist)
     }
 
     private fun openFragment(fragment: Fragment) {
@@ -106,7 +106,7 @@ class PlaylistFragment : Fragment() {
             if (name.isBlank()) {
                 d.cancel()
             } else {
-                addPlaylist(Homefy.playlist().createPlaylist(name))
+                addPlaylist(homefy().getPlaylists().createPlaylist(name))
             }
         })
         ask.setNegativeButton(android.R.string.cancel, { d, _ ->

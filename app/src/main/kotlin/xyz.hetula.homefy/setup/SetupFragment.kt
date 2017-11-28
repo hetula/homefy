@@ -27,7 +27,6 @@ package xyz.hetula.homefy.setup
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -37,18 +36,17 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
-
+import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
-import xyz.hetula.homefy.service.Homefy
 import xyz.hetula.homefy.service.protocol.VersionInfo
 
 
-class SetupFragment : Fragment() {
-    private var mViewCredentials: View? = null
-    private var mConnect: Button? = null
-    private var mAddress: EditText? = null
-    private var mUser: EditText? = null
-    private var mPass: EditText? = null
+class SetupFragment : HomefyFragment() {
+    private lateinit var mViewCredentials: View
+    private lateinit var mConnect: Button
+    private lateinit var mAddress: EditText
+    private lateinit var mUser: EditText
+    private lateinit var mPass: EditText
     private var mConnecting: Boolean = false
     private var mNeedsAuth = false
 
@@ -56,30 +54,31 @@ class SetupFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_setup, container, false) as LinearLayout
         mConnect = main.findViewById(R.id.btn_connect)
-        mConnect!!.setOnClickListener(this::onConClick)
         mAddress = main.findViewById(R.id.txt_address)
         mUser = main.findViewById(R.id.txt_username)
         mPass = main.findViewById(R.id.txt_password)
         mViewCredentials = main.findViewById(R.id.view_credentials)
-        mAddress!!.setOnEditorActionListener { _, _, event ->
+
+        mConnect.setOnClickListener { _ -> onConnectClick() }
+        mAddress.setOnEditorActionListener { _, _, event ->
             if (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER) {
                 onConnect()
             }
             false
         }
         val pref = activity.getPreferences(Context.MODE_PRIVATE)
-        mAddress!!.setText(pref.getString(ADDRESS_KEY, ""))
-        mUser!!.setText(pref.getString(USERNAME_KEY, ""))
-        mPass!!.setText(pref.getString(PASSWORD_KEY, ""))
+        mAddress.setText(pref.getString(ADDRESS_KEY, ""))
+        mUser.setText(pref.getString(USERNAME_KEY, ""))
+        mPass.setText(pref.getString(PASSWORD_KEY, ""))
 
         mConnecting = false
         return main
     }
 
-    private fun onConClick(v: View) {
+    private fun onConnectClick() {
         if (mConnecting) return
-        val address = mAddress!!.text.toString()
-        Homefy.protocol().server = address
+        val address = mAddress.text.toString()
+        homefy().getProtocol().server = address
         // Save it for later
         val pref = activity.getPreferences(Context.MODE_PRIVATE)
         pref.edit().putString(ADDRESS_KEY, address).apply()
@@ -91,8 +90,8 @@ class SetupFragment : Fragment() {
         if (!mNeedsAuth) {
             onConnect()
         } else {
-            val user = mUser!!.text.toString()
-            val pass = mPass!!.text.toString()
+            val user = mUser.text.toString()
+            val pass = mPass.text.toString()
             if (user.isEmpty() || pass.isEmpty()) {
                 Toast.makeText(context, "Check Credentials!", Toast.LENGTH_LONG).show()
                 return
@@ -107,7 +106,7 @@ class SetupFragment : Fragment() {
 
     private fun onConnect() {
         mConnecting = true
-        Homefy.protocol().requestVersionInfo(this::onVersionInfo,
+        homefy().getProtocol().requestVersionInfo(this::onVersionInfo,
                 { _ ->
                     Toast.makeText(context,
                             "Error when Connecting!", Toast.LENGTH_LONG).show()
@@ -117,8 +116,8 @@ class SetupFragment : Fragment() {
 
     private fun onAuth(user: String, pass: String) {
         mConnecting = true
-        Homefy.protocol().setAuth(user, pass)
-        Homefy.protocol().requestVersionInfoAuth(this::onVersionInfoAuth,
+        homefy().getProtocol().setAuth(user, pass)
+        homefy().getProtocol().requestVersionInfoAuth(this::onVersionInfoAuth,
                 { _ ->
                     Toast.makeText(context,
                             "Error when Connecting!", Toast.LENGTH_LONG).show()
@@ -133,8 +132,8 @@ class SetupFragment : Fragment() {
             VersionInfo.AuthType.NONE -> startLoading()
             VersionInfo.AuthType.BASIC -> {
                 mNeedsAuth = true
-                mConnect!!.setText(R.string.authenticate)
-                mViewCredentials!!.visibility = View.VISIBLE
+                mConnect.setText(R.string.authenticate)
+                mViewCredentials.visibility = View.VISIBLE
             }
             else -> {
                 Log.w(TAG, "Unsupported auth method")

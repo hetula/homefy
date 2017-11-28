@@ -24,6 +24,7 @@
 
 package xyz.hetula.homefy.service.protocol
 
+import android.content.Context
 import com.android.volley.VolleyError
 
 import xyz.hetula.homefy.player.Song
@@ -38,6 +39,10 @@ interface HomefyProtocol {
     var info: VersionInfo
 
     var server: String
+
+    fun initialize(context: Context)
+
+    fun release()
 
     fun setAuth(user: String, pass: String)
 
@@ -57,5 +62,4 @@ interface HomefyProtocol {
 
     fun <T> request(url: String, consumer: (T) -> Unit, errorConsumer: (VolleyError) -> Unit, clasz: Class<T>)
 
-    fun release()
 }
