@@ -134,8 +134,8 @@ class HomefyService : Service() {
             return
         }
         val homefyChannel = NotificationChannel(homefyNotificationId,
-                getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT)
-        homefyChannel.description = "Homefy Music Player"
+                getString(R.string.channel_name), NotificationManager.IMPORTANCE_DEFAULT)
+        homefyChannel.description = getString(R.string.channel_desc)
         homefyChannel.enableLights(true)
         homefyChannel.enableVibration(false)
         homefyChannel.setShowBadge(false)
@@ -187,7 +187,7 @@ class HomefyService : Service() {
                 .setColorized(true)
                 .setColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .setOngoing(true)
-                .setShowWhen(false)
+                .setOnlyAlertOnce(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
         if (song == null) {
@@ -235,7 +235,8 @@ class HomefyService : Service() {
 
                 .setContentIntent(contentIntent())
                 .setContentTitle(song.title)
-                .setContentText("${song.artist} - ${song.album}")
+                .setContentText(song.album)
+                .setSubText(song.artist)
 
         return builder.build()
     }

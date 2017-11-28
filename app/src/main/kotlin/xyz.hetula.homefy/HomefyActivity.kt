@@ -40,19 +40,18 @@ import xyz.hetula.homefy.service.HomefyService
 abstract class HomefyActivity : AppCompatActivity() {
     lateinit var homefy: HomefyService
     private val mHomefyConnection = HomefyConnection { serviceConnected(it) }
-
     private var mKillReceiver: BroadcastReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "Creating HomefyActivity")
+        Log.v(TAG, "Creating HomefyActivity")
         super.onCreate(savedInstanceState)
         val filter = IntentFilter(KILL_INTENT)
         mKillReceiver = (object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                Log.d(TAG, "onReceive: " + intent?.action)
+                Log.v(TAG, "onReceive: " + intent?.action)
                 if (intent?.action == KILL_INTENT) {
-                    Log.d(TAG, "Finishing Activity!")
-                    finishAndRemoveTask()
+                    Log.v(TAG, "Finishing Activity!")
+                    finishAffinity()
                 }
             }
         })
@@ -77,9 +76,10 @@ abstract class HomefyActivity : AppCompatActivity() {
 
 
     override fun onDestroy() {
-        Log.d(TAG, "Destroying HomefyActivity")
+        Log.v(TAG, "Destroying HomefyActivity")
         super.onDestroy()
         applicationContext.unregisterReceiver(mKillReceiver)
+        mKillReceiver = null
     }
 
     @CallSuper
@@ -90,18 +90,17 @@ abstract class HomefyActivity : AppCompatActivity() {
     internal class HomefyConnection(private val serviceCallback: (HomefyService) -> Unit) :
             ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d("HomefyConnection", "HomefyService Disconnected!")
+            Log.v("HomefyConnection", "HomefyService Disconnected!")
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Log.d("HomefyConnection", "HomefyService Connected!")
+            Log.v("HomefyConnection", "HomefyService Connected!")
             if (service != null) {
                 serviceCallback((service as HomefyService.HomefyBinder).getService())
             }
         }
 
     }
-
 
     companion object {
         private val TAG = "HomefyActivity"

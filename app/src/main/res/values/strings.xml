@@ -34,7 +34,10 @@
     <string name="next_desc">Next</string>
     <!-- Content Desc END -->
 
+
     <string name="app_name">Homefy</string>
+    <string name="channel_name">Media playback</string>
+    <string name="channel_desc">Media playback controls</string>
     <string name="nav_music">Music</string>
     <string name="nav_albums">Albums</string>
     <string name="nav_artists">Artists</string>

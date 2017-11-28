@@ -29,12 +29,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
+import android.media.AudioManager.*
 import android.media.MediaPlayer
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.PowerManager
 import android.os.SystemClock
 import android.support.v4.media.session.MediaControllerCompat
@@ -68,6 +69,7 @@ class HomefyPlayer(private val mProtocol: HomefyProtocol,
     private var afChangeListener = this::onAudioFocusChange
     private var mLastPlayPress = 0L
     private var mHasFocus = false
+    private var mAudioFocusRequest: AudioFocusRequest? = null
 
     fun initalize(context: Context): MediaSessionCompat {
         Log.d(TAG, "initialize: Initializing!")
@@ -331,10 +333,24 @@ class HomefyPlayer(private val mProtocol: HomefyProtocol,
         }
         context {
             val am = it.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            // Request audio focus for playback
-            val result = am.requestAudioFocus(afChangeListener,
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN)
+
+            val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val req = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
+                        .setOnAudioFocusChangeListener(afChangeListener)
+                        .setAcceptsDelayedFocusGain(false)
+                        .setAudioAttributes(AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .build())
+                        .build()
+                am.requestAudioFocus(req)
+            } else {
+                // Request audio focus for playback
+                am.requestAudioFocus(afChangeListener,
+                        AudioManager.STREAM_MUSIC,
+                        AudioManager.AUDIOFOCUS_GAIN)
+            }
+
             mHasFocus =
                     if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                         Log.w(TAG, "No AudioFocus Granted!")
@@ -348,7 +364,12 @@ class HomefyPlayer(private val mProtocol: HomefyProtocol,
     private fun loseAudioFocus() {
         context {
             val am = it.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            am.abandonAudioFocus(afChangeListener)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val req = mAudioFocusRequest ?: return
+                am.abandonAudioFocusRequest(req)
+            } else {
+                am.abandonAudioFocus(afChangeListener)
+            }
         }
     }
 

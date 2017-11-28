@@ -53,7 +53,6 @@ import java.util.*
  */
 class PlayerFragment : HomefyFragment() {
     private val mPlaybackListener = this::onSongUpdate
-    private val mHandler = Handler()
 
     private lateinit var mTxtTitle: TextView
     private lateinit var mTxtArtist: TextView
