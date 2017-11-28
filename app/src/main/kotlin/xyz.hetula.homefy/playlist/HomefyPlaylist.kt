@@ -26,6 +26,7 @@ package xyz.hetula.homefy.playlist
 
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
 import java.io.BufferedReader
@@ -61,7 +62,7 @@ class HomefyPlaylist {
 
     fun loadPlaylists() {
         val base = baseLocation
-        val gson = Gson()
+        val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
         val favs = base.resolve("favorites.json")
         loadPlaylist(gson, favs) { favList ->
             favorites.addAll(favList.songs)

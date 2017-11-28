@@ -26,6 +26,7 @@ package xyz.hetula.homefy.playlist
 
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.annotations.Expose
 import xyz.hetula.homefy.player.Song
 import java.io.BufferedWriter
 import java.io.File
@@ -37,7 +38,10 @@ import java.io.IOException
  * @version 1.0
  * @since 1.0
  */
-data class Playlist(val id: String, val name: String, val songs: MutableList<Song> = ArrayList(), internal val favs: Boolean = false) {
+data class Playlist(@Expose val id: String,
+                    @Expose val name: String,
+                    @Expose val songs: MutableList<Song> = ArrayList(),
+                    @Expose internal val favs: Boolean = false) {
 
     fun contains(song: Song): Boolean {
         return songs.contains(song)

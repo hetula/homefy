@@ -2,7 +2,7 @@ package xyz.hetula.homefy.service.protocol
 
 import com.android.volley.*
 import com.android.volley.toolbox.HttpHeaderParser
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import java.io.UnsupportedEncodingException
 import java.util.*
@@ -18,7 +18,7 @@ class GsonRequest<T>(url: String,
                      errorListener: Response.ErrorListener) :
         Request<T>(Request.Method.GET, url, errorListener) {
 
-    private val gson = Gson()
+    private val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
     private val headers = HashMap<String, String>()
 
     @Throws(AuthFailureError::class)

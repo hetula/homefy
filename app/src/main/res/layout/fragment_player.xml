@@ -41,6 +41,7 @@
             android:layout_gravity="center"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
+            android:contentDescription="@string/download_desc"
             android:src="@drawable/ic_file_download_32dp" />
 
         <Space
@@ -55,6 +56,7 @@
             android:layout_gravity="center"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
+            android:contentDescription="@string/shutdown_desc"
             android:src="@drawable/ic_power_down_32dp" />
     </LinearLayout>
 

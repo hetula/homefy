@@ -35,7 +35,6 @@ import android.os.Build
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
-import android.support.v4.content.ContextCompat
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -178,20 +177,17 @@ class HomefyService : Service() {
 
     private fun setupNotification(mediaSession: MediaSessionCompat): Notification {
         val song = mPlayer.nowPlaying()
-        val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         val builder = NotificationCompat.Builder(applicationContext, homefyNotificationId)
-        builder.setLargeIcon(largeIcon)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setSmallIcon(R.drawable.ic_music_notification)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
-                .setColorized(true)
-                .setColor(ContextCompat.getColor(this, R.color.colorAccent))
                 .setOngoing(true)
+                .setShowWhen(false)
                 .setOnlyAlertOnce(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
         if (song == null) {
-            builder.setContentTitle(getString(R.string.app_name))
+            builder.setContentTitle(getString(R.string.app_desc))
                     .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
             return builder.build()
         }
@@ -219,20 +215,19 @@ class HomefyService : Service() {
         val nextIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
 
+        val largeIcon = song.albumArt ?: BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         builder.setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                 PlaybackStateCompat.ACTION_STOP))
-
                 .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
                 .addAction(R.drawable.ic_skip_previous_notification, "Previous", previousIntent)
                 .addAction(playDrawable, playDesc, playPauseIntent)
                 .addAction(R.drawable.ic_skip_next_notification, "Next", nextIntent)
-
                 .addAction(favDrawable, "Favorite", favIntent())
-
                 .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(mediaSession.sessionToken)
                         .setShowActionsInCompactView(2, 3, 4))
-
+                .setColorized(true)
+                .setLargeIcon(largeIcon)
                 .setContentIntent(contentIntent())
                 .setContentTitle(song.title)
                 .setContentText(song.album)

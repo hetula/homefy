@@ -32,10 +32,13 @@
     <string name="play_pause_desc">Play/Pause</string>
     <string name="stop_desc">Stop</string>
     <string name="next_desc">Next</string>
+    <string name="download_desc">Download song</string>
+    <string name="shutdown_desc">Shutdown Player</string>
     <!-- Content Desc END -->
 
 
     <string name="app_name">Homefy</string>
+    <string name="app_desc">Play some music!</string>
     <string name="channel_name">Media playback</string>
     <string name="channel_desc">Media playback controls</string>
     <string name="nav_music">Music</string>
@@ -46,13 +49,11 @@
     <string name="nav_playlists">Playlists</string>
 
     <string name="loading">Homefy is loading…</string>
-    <string name="homefy_server_setup">Homefy Server Setup</string>
     <string name="server_address">Server address</string>
-    <string name="user_credentials">User credentials</string>
     <string name="username_if_needed">Username</string>
     <string name="password_if_needed">Password</string>
     <string name="connect">Connect</string>
-    <string name="authenticate">Authenticate</string>
+    <string name="authenticate">Login</string>
     <string name="http">http://</string>
     <string name="search_hint">Search…</string>
     <string name="buffering">%03d%% Buffering</string>

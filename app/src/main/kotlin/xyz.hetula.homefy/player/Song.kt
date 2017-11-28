@@ -25,7 +25,10 @@
 
 package xyz.hetula.homefy.player
 
+import android.graphics.Bitmap
 import android.support.v4.media.MediaMetadataCompat
+import android.util.Log
+import com.google.gson.annotations.Expose
 
 /**
  * @author Tuomo Heino
@@ -33,17 +36,40 @@ import android.support.v4.media.MediaMetadataCompat
  * @since 1.0
  */
 class Song : Comparable<Song> {
+    @Expose
     val id: String
+
+    @Expose
     val track: Int
+
+    @Expose
     val title: String
+
+    @Expose
     val artist: String
+
+    @Expose
     val album: String
+
+    @Expose
     val genre: String
+
+    @Expose
     val length: Long
+
+    @Expose
     val bitrate: Int
+
+    @Expose
     val samplerate: Int
+
+    @Expose
     val channels: String
+
+    @Expose
     val type: String
+
+    var albumArt: Bitmap? = null
 
     constructor() {
         // Default for reflection
@@ -87,7 +113,6 @@ class Song : Comparable<Song> {
         this.type = "MockPEG3 Layer 1"
     }
 
-
     override fun compareTo(other: Song): Int {
         var c = album.compareTo(other.album)
         if (c != 0) return c
@@ -98,9 +123,19 @@ class Song : Comparable<Song> {
         return title.compareTo(other.title)
     }
 
-    fun toMediaMetadata(): MediaMetadataCompat {
+    fun clearAlbumArt() {
+        val albumArtTmp = albumArt ?: return
+        Log.d("Song", "clearAlbumArt(): Cleaning AlbumArt!")
+        albumArtTmp.recycle()
+        albumArt = null
+    }
+
+    fun toMediaMetadata(addAlbumArt: Boolean = false): MediaMetadataCompat {
         val metadata = MediaMetadataCompat.Builder()
         if (track > 0) metadata.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, track.toLong())
+        if (addAlbumArt && albumArt != null) {
+            metadata.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
+        }
         return metadata
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)

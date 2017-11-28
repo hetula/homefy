@@ -25,17 +25,19 @@
 
 package xyz.hetula.homefy.service.protocol
 
+import com.google.gson.annotations.Expose
+
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-data class VersionInfo(val server_id: String,
-                       val name: String,
-                       val version: String,
-                       val databaseId: String,
-                       val authentication: AuthType) {
-    var databaseSize = 0
+data class VersionInfo(@Expose val server_id: String,
+                       @Expose val name: String,
+                       @Expose val version: String,
+                       @Expose val databaseId: String,
+                       @Expose val authentication: AuthType) {
+    @Expose var databaseSize = 0
 
     override fun toString(): String {
         return "VersionInfo{" +

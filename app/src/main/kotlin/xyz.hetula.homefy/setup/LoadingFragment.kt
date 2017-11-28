@@ -36,6 +36,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.LibraryFragment
@@ -157,7 +158,8 @@ class LoadingFragment : HomefyFragment() {
                 Log.d("LoadCacheFile", "Loading from cache! $databaseCache")
                 return try {
                     val songData = databaseCache.readText()
-                    Gson().fromJson<Array<Song>>(songData, Array<Song>::class.java)
+                    GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+                            .create().fromJson<Array<Song>>(songData, Array<Song>::class.java)
                 } catch (ex: Exception) {
                     Log.e("LoadCacheFile", "Can't load cache file, reverting to Network!", ex)
                     null

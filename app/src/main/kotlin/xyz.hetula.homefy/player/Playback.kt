@@ -49,10 +49,12 @@ class Playback {
         }
 
     fun stop() {
+        playing?.clearAlbumArt()
         playing = null
     }
 
     fun playSong(play: Song, playlist: ArrayList<Song>) {
+        playing?.clearAlbumArt()
         playing = play
         lastRequest = PlayRequest(play, playlist)
 
@@ -95,6 +97,7 @@ class Playback {
         if (!isEmpty()) {
             queueSong(playing!!)
         }
+        playing?.clearAlbumArt()
         playing = if (previous.isEmpty()) null else previous.removeLast()
     }
 
@@ -102,6 +105,7 @@ class Playback {
         if (playing != null && playing != previous.peekLast()) {
             addToPrevious(playing!!)
         }
+        playing?.clearAlbumArt()
         playing = if (!queue.isEmpty()) {
             queue.removeAt(0)
         } else {

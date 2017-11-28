@@ -28,13 +28,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
-import android.media.AudioManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.*
 import android.media.AudioManager.*
-import android.media.MediaPlayer
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.AsyncTask
 import android.os.Build
 import android.os.PowerManager
 import android.os.SystemClock
@@ -44,9 +44,11 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import xyz.hetula.homefy.library.HomefyLibrary
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
+import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 /**
  * @author Tuomo Heino
@@ -70,6 +72,7 @@ class HomefyPlayer(private val mProtocol: HomefyProtocol,
     private var mLastPlayPress = 0L
     private var mHasFocus = false
     private var mAudioFocusRequest: AudioFocusRequest? = null
+    var showAlbumArtInLockScreen = false
 
     fun initalize(context: Context): MediaSessionCompat {
         Log.d(TAG, "initialize: Initializing!")
@@ -289,7 +292,21 @@ class HomefyPlayer(private val mProtocol: HomefyProtocol,
             val headers = HashMap<String, String>()
             mProtocol.addAuthHeader(headers)
             player.setDataSource(mContext, uri, headers)
-            mMediaSession?.setMetadata(song.toMediaMetadata())
+            mediaSession { it.setMetadata(song.toMediaMetadata(showAlbumArtInLockScreen)) }
+
+            AlbumArtRetriever(song, uri, headers) { originalSong, bitmap ->
+                Log.d(TAG, "AlbumArtRetriever: A result! $bitmap")
+                val now = nowPlaying() ?: return@AlbumArtRetriever
+                if (now.id != originalSong.id) {
+                    return@AlbumArtRetriever
+                }
+                mediaSession {
+                    Log.d(TAG, "AlbumArtRetriever: Setting new Metadata!")
+                    song.albumArt = bitmap
+                    it.setMetadata(song.toMediaMetadata(showAlbumArtInLockScreen))
+                    mPlaybackListeners.forEach { it(song, STATE_PLAY, -1) }
+                }
+            }.execute()
             updatePlaybackState(PlaybackStateCompat.STATE_CONNECTING)
             player.prepareAsync()
             true
@@ -460,6 +477,36 @@ class HomefyPlayer(private val mProtocol: HomefyProtocol,
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
                 pause()
             }
+        }
+    }
+
+    private class AlbumArtRetriever(val song: Song,
+                                    val uri: Uri,
+                                    val headers: MutableMap<String, String>,
+                                    val albumArtCallback: (Song, Bitmap) -> Unit) :
+            AsyncTask<Void, Void, Bitmap?>() {
+
+        override fun doInBackground(vararg params: Void?): Bitmap? {
+            val mmr = MediaMetadataRetriever()
+            try {
+                Log.v(TAG, "AlbumArtRetriever: $uri")
+                mmr.setDataSource(uri.toString(), headers)
+                val artBytes = mmr.embeddedPicture ?: return null
+                val inputStream = ByteArrayInputStream(artBytes)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                return bitmap
+            } catch (ex: RuntimeException) {
+                Log.w(TAG, "AlbumArtRetriever: $song", ex)
+                return null
+            } finally {
+                mmr.release()
+            }
+        }
+
+        override fun onPostExecute(result: Bitmap?) {
+            result ?: return
+            albumArtCallback(song, result)
         }
     }
 

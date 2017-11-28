@@ -27,13 +27,13 @@ package xyz.hetula.homefy.setup
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.TextInputEditText
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import xyz.hetula.homefy.HomefyFragment
@@ -44,9 +44,9 @@ import xyz.hetula.homefy.service.protocol.VersionInfo
 class SetupFragment : HomefyFragment() {
     private lateinit var mViewCredentials: View
     private lateinit var mConnect: Button
-    private lateinit var mAddress: EditText
-    private lateinit var mUser: EditText
-    private lateinit var mPass: EditText
+    private lateinit var mAddress: TextInputEditText
+    private lateinit var mUser: TextInputEditText
+    private lateinit var mPass: TextInputEditText
     private var mConnecting: Boolean = false
     private var mNeedsAuth = false
 
