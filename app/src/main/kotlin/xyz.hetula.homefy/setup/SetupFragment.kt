@@ -27,6 +27,7 @@ package xyz.hetula.homefy.setup
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputEditText
 import android.util.Log
 import android.view.KeyEvent
@@ -35,24 +36,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.Toast
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.protocol.VersionInfo
 
 
 class SetupFragment : HomefyFragment() {
+    private lateinit var mMain: LinearLayout
     private lateinit var mViewCredentials: View
     private lateinit var mConnect: Button
     private lateinit var mAddress: TextInputEditText
     private lateinit var mUser: TextInputEditText
     private lateinit var mPass: TextInputEditText
-    private var mConnecting: Boolean = false
+    private var mConnecting = false
     private var mNeedsAuth = false
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater!!.inflate(R.layout.fragment_setup, container, false) as LinearLayout
+        mMain = main
         mConnect = main.findViewById(R.id.btn_connect)
         mAddress = main.findViewById(R.id.txt_address)
         mUser = main.findViewById(R.id.txt_username)
@@ -84,7 +86,7 @@ class SetupFragment : HomefyFragment() {
         pref.edit().putString(ADDRESS_KEY, address).apply()
 
         if (address.isEmpty()) {
-            Toast.makeText(context, "Enter Server address!", Toast.LENGTH_LONG).show()
+            Snackbar.make(mMain, R.string.enter_server_address, Snackbar.LENGTH_SHORT).show()
             return
         }
         if (!mNeedsAuth) {
@@ -93,7 +95,7 @@ class SetupFragment : HomefyFragment() {
             val user = mUser.text.toString()
             val pass = mPass.text.toString()
             if (user.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(context, "Check Credentials!", Toast.LENGTH_LONG).show()
+                Snackbar.make(mMain, R.string.check_credentials, Snackbar.LENGTH_SHORT).show()
                 return
             }
             pref.edit()
@@ -108,8 +110,7 @@ class SetupFragment : HomefyFragment() {
         mConnecting = true
         homefy().getProtocol().requestVersionInfo(this::onVersionInfo,
                 { _ ->
-                    Toast.makeText(context,
-                            "Error when Connecting!", Toast.LENGTH_LONG).show()
+                    Snackbar.make(mMain, R.string.connection_error, Snackbar.LENGTH_SHORT).show()
                     mConnecting = false
                 })
     }
@@ -119,8 +120,7 @@ class SetupFragment : HomefyFragment() {
         homefy().getProtocol().setAuth(user, pass)
         homefy().getProtocol().requestVersionInfoAuth(this::onVersionInfoAuth,
                 { _ ->
-                    Toast.makeText(context,
-                            "Error when Connecting!", Toast.LENGTH_LONG).show()
+                    Snackbar.make(mMain, R.string.connection_error, Snackbar.LENGTH_SHORT).show()
                     mConnecting = false
                 })
     }
@@ -143,6 +143,7 @@ class SetupFragment : HomefyFragment() {
 
     private fun onVersionInfoAuth(versionInfo: VersionInfo) {
         Log.d("SetupFragment", versionInfo.toString())
+        mConnecting = false
         startLoading()
     }
 

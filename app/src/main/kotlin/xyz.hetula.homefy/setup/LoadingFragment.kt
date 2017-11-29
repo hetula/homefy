@@ -82,11 +82,10 @@ class LoadingFragment : HomefyFragment() {
     }
 
     private fun loadFromNet() {
-        homefy().getProtocol().requestPages(250,
+        homefy().getProtocol().requestPages(resources.getInteger(R.integer.load_page_song_count),
                 this::fetchData,
                 { er ->
-                    Toast.makeText(context,
-                            "Error when Connecting!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
                     Log.e("LoadingFragment", "Connection error! Can't recover!", er.cause)
                     activity.finish()
                 })
@@ -94,16 +93,19 @@ class LoadingFragment : HomefyFragment() {
 
     private fun fetchData(urls: Array<String>) {
         mCount = AtomicInteger(urls.size)
-        for (url in urls) {
-            homefy().getProtocol().request(
-                    url,
-                    { onSongs(it) },
-                    { _ ->
-                        Toast.makeText(context,
-                                "Error when Connecting!", Toast.LENGTH_LONG).show()
-                        onDataRequestFinished(false)
-                    },
-                    Array<Song>::class.java)
+        if (mCount.get() == 0) {
+            onSongs(arrayOf())
+        } else {
+            for (url in urls) {
+                homefy().getProtocol().request(
+                        url,
+                        { onSongs(it) },
+                        { _ ->
+                            Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
+                            onDataRequestFinished(false)
+                        },
+                        Array<Song>::class.java)
+            }
         }
     }
 

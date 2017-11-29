@@ -48,7 +48,11 @@
     <string name="nav_favs">Favorites</string>
     <string name="nav_playlists">Playlists</string>
 
-    <string name="loading">Homefy is loading…</string>
+    <string name="enter_server_address">Address is missing!</string>
+    <string name="check_credentials">Enter login!</string>
+    <string name="connection_error">Connection error!</string>
+
+    <string name="loading">Loading…</string>
     <string name="server_address">Server address</string>
     <string name="username_if_needed">Username</string>
     <string name="password_if_needed">Password</string>

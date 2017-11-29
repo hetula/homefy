@@ -46,7 +46,6 @@ import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.HomefyPlaylist
-import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 
 /**
@@ -89,10 +88,10 @@ class HomefyService : Service() {
         super.onCreate()
         createChannel()
 
-        mProtocol = DefaultHomefyProtocol()
-        mLibrary = HomefyLibrary(mProtocol)
-        mPlayer = HomefyPlayer(mProtocol, mLibrary)
-        mPlaylists = HomefyPlaylist()
+        mProtocol = ServiceInitializer.protocol(Unit)
+        mLibrary = ServiceInitializer.library(mProtocol)
+        mPlayer = ServiceInitializer.player(mProtocol, mLibrary)
+        mPlaylists = ServiceInitializer.playlist(Unit)
 
         mProtocol.initialize(applicationContext)
     }
@@ -119,7 +118,7 @@ class HomefyService : Service() {
 
     fun getPlaylists() = mPlaylists
 
-    private fun initialize() {
+    fun initialize() {
         Log.d(TAG, "Initializing HomefyService")
         val session = mPlayer.initalize(applicationContext)
         mSession = session

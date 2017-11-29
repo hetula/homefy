@@ -20,41 +20,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package xyz.hetula.homefy.player
 
-buildscript {
-    ext.min_sdk = 25
-    ext.target_sdk = 26
-    ext.build_tools_version = '26.0.2'
-    ext.gradle_version = '3.0.1'
+import android.util.Log
+import xyz.hetula.homefy.library.HomefyLibrary
+import xyz.hetula.homefy.service.protocol.HomefyProtocol
 
-    ext.kotlin_version = '1.2.0'
-    ext.support_version = '26.1.0'
-    ext.gson_version = '2.8.1'
-    ext.volley_version = '1.0.0'
-
-
-
-    repositories {
-        jcenter()
-        google()
+class TestHomefyPlayer(protocol: HomefyProtocol, library: HomefyLibrary) : HomefyPlayer(protocol, library) {
+    init {
+        Log.d("TestPlayer", "Created TestPlayer")
     }
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradle_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        google()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

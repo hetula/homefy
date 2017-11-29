@@ -20,41 +20,22 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package xyz.hetula.homefy.service
 
-buildscript {
-    ext.min_sdk = 25
-    ext.target_sdk = 26
-    ext.build_tools_version = '26.0.2'
-    ext.gradle_version = '3.0.1'
+import xyz.hetula.homefy.library.HomefyLibrary
+import xyz.hetula.homefy.player.HomefyPlayer
+import xyz.hetula.homefy.playlist.HomefyPlaylist
+import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
+import xyz.hetula.homefy.service.protocol.HomefyProtocol
 
-    ext.kotlin_version = '1.2.0'
-    ext.support_version = '26.1.0'
-    ext.gson_version = '2.8.1'
-    ext.volley_version = '1.0.0'
+internal object ServiceInitializer {
+    internal var protocol: (Unit) -> HomefyProtocol = { DefaultHomefyProtocol() }
 
+    internal var library: (HomefyProtocol) -> HomefyLibrary = { protocol -> HomefyLibrary(protocol) }
 
+    internal var player: (HomefyProtocol, HomefyLibrary) -> HomefyPlayer = { protocol, library -> HomefyPlayer(protocol, library) }
 
-    repositories {
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradle_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        google()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    internal var playlist: (Unit) -> HomefyPlaylist = { HomefyPlaylist() }
 }

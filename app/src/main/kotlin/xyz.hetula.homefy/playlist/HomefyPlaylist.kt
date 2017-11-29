@@ -38,7 +38,7 @@ import java.io.FileReader
  * @version 1.0
  * @since 1.0
  */
-class HomefyPlaylist {
+open class HomefyPlaylist {
     private val playlistDirectory = "playlists/"
     private val mPlaylists = HashMap<String, Playlist>()
     val favorites = Playlist("favorites", "Favorites", favs = true)

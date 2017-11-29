@@ -55,7 +55,7 @@ import kotlin.collections.ArrayList
  * @version 1.0
  * @since 1.0
  */
-class HomefyPlayer(private val mProtocol: HomefyProtocol,
+open class HomefyPlayer(private val mProtocol: HomefyProtocol,
                    private val mLibrary: HomefyLibrary) {
     private val playNextThresholdMs = 500L
     private val mPlaybackListeners = HashSet<(Song?, Int, Int) -> Unit>()
