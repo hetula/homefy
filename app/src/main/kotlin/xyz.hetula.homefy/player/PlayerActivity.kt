@@ -1,25 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.player
@@ -35,7 +27,7 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.R
-import xyz.hetula.homefy.service.Homefy
+import xyz.hetula.homefy.service.HomefyService
 import java.util.HashMap
 import kotlin.collections.ArrayList
 
@@ -56,7 +48,10 @@ class PlayerActivity : HomefyActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.hide()
+    }
 
+    override fun serviceConnected(service: HomefyService) {
+        super.serviceConnected(service)
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.container, PlayerFragment())
@@ -107,9 +102,9 @@ class PlayerActivity : HomefyActivity() {
         }
         song.getFileType {
             val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val request = DownloadManager.Request(Uri.parse(Homefy.library().getPlayPath(song)))
+            val request = DownloadManager.Request(Uri.parse(homefy.getLibrary().getPlayPath(song)))
             val headers = HashMap<String, String>()
-            Homefy.protocol().addAuthHeader(headers)
+            homefy.getProtocol().addAuthHeader(headers)
             request.addRequestHeader("Authorization", headers["Authorization"])
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             request.setVisibleInDownloadsUi(false)

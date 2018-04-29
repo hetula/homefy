@@ -1,26 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.library
@@ -47,9 +38,9 @@ import xyz.hetula.homefy.playlist.PlaylistFragment
  */
 class LibraryFragment : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_library, container, false) as LinearLayout
+        val main = inflater.inflate(R.layout.fragment_library, container, false) as LinearLayout
 
         val clicks = View.OnClickListener { this.onLibraryClick(it) }
         main.library_music.setOnClickListener(clicks)
@@ -66,7 +57,7 @@ class LibraryFragment : Fragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
+        (activity as AppCompatActivity).supportActionBar?.title = context!!.getString(R.string.app_name)
     }
 
     private fun onLibraryClick(v: View) {
@@ -98,7 +89,7 @@ class LibraryFragment : Fragment() {
     }
 
     private fun openFragment(fragment: Fragment) {
-        fragmentManager
+        fragmentManager!!
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
@@ -108,6 +99,6 @@ class LibraryFragment : Fragment() {
 
     private fun openPlayer() {
         val intent = Intent(context, PlayerActivity::class.java)
-        activity.startActivity(intent)
+        activity!!.startActivity(intent)
     }
 }

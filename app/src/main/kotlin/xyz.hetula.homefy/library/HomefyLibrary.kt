@@ -1,35 +1,29 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.library
 
+import android.content.Context
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.SystemClock
 import android.util.Log
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
+import xyz.hetula.homefy.service.HomefyService
+import xyz.hetula.homefy.service.protocol.HomefyProtocol
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
@@ -49,7 +43,7 @@ import kotlin.collections.ArrayList
  * @version 1.0
  * @since 1.0
  */
-class HomefyLibrary {
+class HomefyLibrary(private val protocol: HomefyProtocol) {
     private val mSearchExecutor = Executors.newCachedThreadPool()
     private var mSongDatabase: MutableMap<String, Song>? = null
     private val mArtistCache = HashMap<String, ArrayList<Song>>()
@@ -60,7 +54,9 @@ class HomefyLibrary {
 
     private var mSearchTask: AsyncTask<SearchRequest, Void, List<Song>>? = null
 
-    fun initialize(music: List<Song>) {
+    private var mReady = false
+
+    fun initialize(context: Context, music: List<Song>) {
         Log.d(TAG, "Initializing with ${music.size} songs!")
         val start = SystemClock.elapsedRealtime()
         val size = music.size
@@ -85,6 +81,10 @@ class HomefyLibrary {
         Collections.sort(mAlbums)
         Collections.sort(mArtists)
         val time = SystemClock.elapsedRealtime() - start
+        mReady = true
+        val completeIntent = Intent(context, HomefyService::class.java)
+        completeIntent.action = HomefyService.INIT_COMPLETE
+        context.startService(completeIntent)
         Log.d("HomefyLibrary", "Library initialized in $time ms")
     }
 
@@ -102,7 +102,10 @@ class HomefyLibrary {
         mAlbumCache.clear()
         mAlbums.clear()
         mArtists.clear()
+        mReady = false
     }
+
+    fun isLibraryReady() = mReady
 
     private fun sanitizeMusic(music: List<Song>): List<Song> {
         // WMA filter, low bitrate filter(0 can be unknown)
@@ -143,7 +146,7 @@ class HomefyLibrary {
     }
 
     fun getPlayPath(song: Song): String {
-        return Homefy.protocol().server + "/play/" + song.id
+        return protocol.server + "/play/" + song.id
     }
 
     @Synchronized

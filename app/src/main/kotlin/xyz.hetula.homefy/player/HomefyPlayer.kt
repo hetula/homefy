@@ -1,25 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.player
@@ -28,69 +20,56 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioAttributes
-import android.media.AudioManager
-import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-import android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
-import android.media.MediaPlayer
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.*
+import android.media.AudioManager.*
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.AsyncTask
 import android.os.PowerManager
 import android.os.SystemClock
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import xyz.hetula.homefy.service.Homefy
+import xyz.hetula.homefy.library.HomefyLibrary
+import xyz.hetula.homefy.service.protocol.HomefyProtocol
+import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-class HomefyPlayer(private val mContext: Context) {
+open class HomefyPlayer(private val mProtocol: HomefyProtocol,
+                        private val mLibrary: HomefyLibrary) {
     private val playNextThresholdMs = 500L
-
-    val mediaSession = MediaSessionCompat(mContext, "Homefy Player")
-    private val afChangeListener = this::onAudioFocusChange
     private val mPlaybackListeners = HashSet<(Song?, Int, Int) -> Unit>()
-    private val mController: MediaControllerCompat
-    private val mWifiLock: WifiManager.WifiLock
-    private val myNoisyAudioStreamReceiver = BecomingNoisyReceiver()
-    private val mPlayer = MediaPlayer()
     private val mPlayback = Playback()
 
-    private var mHasFocus = false
+    private var mNoisyAudioStreamReceiver: BecomingNoisyReceiver? = null
+    private var mMediaSession: MediaSessionCompat? = null
+    private var mController: MediaControllerCompat? = null
+    private var mWifiLock: WifiManager.WifiLock? = null
+    private var mPlayer: MediaPlayer? = null
+    private var mContext: Context? = null
+
+    private var afChangeListener = this::onAudioFocusChange
     private var mLastPlayPress = 0L
+    private var mHasFocus = false
+    private var mAudioFocusRequest: AudioFocusRequest? = null
+    private var showAlbumArtInLockScreen = false
 
-    init {
-        val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-        mContext.registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
-
+    fun initalize(context: Context): MediaSessionCompat {
+        Log.d(TAG, "initialize: Initializing!")
+        val mediaSession = MediaSessionCompat(context, "Homefy Player")
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
-
-        updatePlaybackState(PlaybackStateCompat.STATE_NONE)
-        mediaSession.isActive = true
-        mController = mediaSession.controller
-
-        mPlayer.setAudioAttributes(AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .build())
-
-        mPlayer.setOnCompletionListener(this::onPlayComplete)
-        mPlayer.setOnPreparedListener(this::onPrepareComplete)
-        mPlayer.setOnErrorListener(this::onError)
-        mPlayer.setOnBufferingUpdateListener(this::onBuffering)
-        mPlayer.setWakeMode(mContext.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
-
-        mWifiLock = (mContext.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
-                .createWifiLock(WifiManager.WIFI_MODE_FULL, "HomefyPlayerWifiLock")
-
         mediaSession.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() {
                 pauseResume()
@@ -113,28 +92,55 @@ class HomefyPlayer(private val mContext: Context) {
             }
         })
 
-        tryGainAudioFocus()
+        val player = MediaPlayer()
+        player.setAudioAttributes(AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .build())
+
+        player.setOnCompletionListener(this::onPlayComplete)
+        player.setOnPreparedListener(this::onPrepareComplete)
+        player.setOnErrorListener(this::onError)
+        player.setOnBufferingUpdateListener(this::onBuffering)
+        player.setWakeMode(context.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
+
+        mWifiLock = (context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager)
+                .createWifiLock(WifiManager.WIFI_MODE_FULL, "HomefyPlayerWifiLock")
+
+        mContext = context
+        mPlayer = player
+        mMediaSession = mediaSession
+        mController = mediaSession.controller
+
+        val noisyAudioStreamReceiver = BecomingNoisyReceiver()
+        val intentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        context.registerReceiver(noisyAudioStreamReceiver, intentFilter)
+        mNoisyAudioStreamReceiver = noisyAudioStreamReceiver
+
+        mediaSession.isActive = true
+        updatePlaybackState(PlaybackStateCompat.STATE_NONE)
+
+        return mediaSession
     }
 
-    fun release() {
+    fun release(context: Context) {
+        releaseBroadcastReceiver(context, mNoisyAudioStreamReceiver)
+        mNoisyAudioStreamReceiver = null
+
         loseAudioFocus()
         mPlaybackListeners.clear()
 
-        mediaSession.release()
+        mPlayer?.release()
+        mPlayer = null
 
-        mPlayer.release()
+        mMediaSession?.release()
+        mMediaSession = null
+        mController = null
 
-        if (mWifiLock.isHeld) {
-            mWifiLock.release()
-        }
+        releaseWifiLock(mWifiLock)
+        mWifiLock = null
 
-        // Just in case as Android does not behave nicely when unregistering non-registered
-        // receivers. Should never happen, but it is better to catch it than crash whole app.
-        try {
-            mContext.unregisterReceiver(myNoisyAudioStreamReceiver)
-        } catch (ex: IllegalStateException) {
-            Log.w(TAG, "Releasing unregistered Noisy Receiver!", ex)
-        }
+        mContext = null
     }
 
     fun nowPlaying(): Song? {
@@ -150,7 +156,8 @@ class HomefyPlayer(private val mContext: Context) {
     }
 
     fun play(song: Song, playlist: ArrayList<Song>?) {
-        if (setupPlay(song)) {
+        val player = mPlayer ?: return
+        if (setupPlay(player, song)) {
             if (playlist == null)
                 mPlayback.playSong(song, ArrayList())
             else
@@ -168,10 +175,12 @@ class HomefyPlayer(private val mContext: Context) {
         }
         mLastPlayPress = SystemClock.elapsedRealtime()
 
-        if (mPlayer.isPlaying) {
-            pause()
-        } else {
-            play()
+        player {
+            if (it.isPlaying) {
+                pause()
+            } else {
+                play()
+            }
         }
     }
 
@@ -184,29 +193,39 @@ class HomefyPlayer(private val mContext: Context) {
     }
 
     private fun pause() {
-        if (mPlayback.isEmpty() || !mPlayer.isPlaying) return
-        mPlayer.pause()
-        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PAUSE, -1) }
-        updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
+        player {
+            if (mPlayback.isEmpty() || !it.isPlaying) return
+            it.pause()
+            mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PAUSE, -1) }
+            updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
+        }
     }
 
     private fun play() {
         if (mPlayback.isEmpty()) return
-        mPlayer.start()
-        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
-        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+        player {
+            it.start()
+            mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
+            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+        }
     }
 
     val isPlaying: Boolean
-        get() = !mPlayback.isEmpty() && mPlayer.isPlaying
+        get(): Boolean {
+            val player = mPlayer ?: return false
+            return !mPlayback.isEmpty() && player.isPlaying
+        }
 
     val isPaused: Boolean
-        get() = !mPlayback.isEmpty() && !mPlayer.isPlaying
+        get(): Boolean {
+            val player = mPlayer ?: return false
+            return !mPlayback.isEmpty() && !player.isPlaying
+        }
 
     fun stop() {
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
         mPlayback.stop()
-        mPlayer.stop()
+        mPlayer?.stop()
         updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
     }
 
@@ -214,14 +233,18 @@ class HomefyPlayer(private val mContext: Context) {
         mPlayback.previous()
         if (mPlayback.isEmpty()) return
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
-        setupPlay(mPlayback.getCurrent()!!)
+        mPlayback.getCurrent { song ->
+            player { setupPlay(it, song) }
+        }
     }
 
     fun next() {
         mPlayback.next()
         if (mPlayback.isEmpty()) return
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
-        setupPlay(mPlayback.getCurrent()!!)
+        mPlayback.getCurrent { song ->
+            player { setupPlay(it, song) }
+        }
     }
 
     fun cyclePlaybackMode(): PlaybackMode {
@@ -231,19 +254,21 @@ class HomefyPlayer(private val mContext: Context) {
 
     fun queryPosition(): Int {
         if (mPlayback.isEmpty()) return 0
-        return mPlayer.currentPosition / 1000
+        val player = mPlayer ?: return 0
+        return player.currentPosition / 1000
     }
 
     fun seekTo(position: Int) {
-        mPlayer.seekTo(position * 1000)
+        mPlayer?.seekTo(position * 1000)
     }
 
     private fun queryPosMs(): Long {
         if (mPlayback.isEmpty()) return 0L
-        return mPlayer.currentPosition.toLong()
+        val player = mPlayer ?: return 0L
+        return player.currentPosition.toLong()
     }
 
-    private fun setupPlay(song: Song): Boolean {
+    private fun setupPlay(player: MediaPlayer, song: Song): Boolean {
         if (!mHasFocus) {
             tryGainAudioFocus()
             if (!mHasFocus) {
@@ -251,22 +276,35 @@ class HomefyPlayer(private val mContext: Context) {
             }
         }
         Log.d(TAG, "Setuping new song to play!")
-        try {
-            if (!mWifiLock.isHeld) {
-                mWifiLock.acquire()
-            }
-            val uri = Uri.parse(Homefy.library().getPlayPath(song))
-            mPlayer.reset()
+        return try {
+            acquireWifiLock(mWifiLock)
+            val uri = Uri.parse(mLibrary.getPlayPath(song))
+            player.reset()
             val headers = HashMap<String, String>()
-            Homefy.protocol().addAuthHeader(headers)
-            mPlayer.setDataSource(mContext, uri, headers)
-            mediaSession.setMetadata(song.toMediaMetadata())
+            mProtocol.addAuthHeader(headers)
+            player.setDataSource(mContext, uri, headers)
+            mediaSession { it.setMetadata(song.toMediaMetadata(showAlbumArtInLockScreen)) }
+
+            AlbumArtRetriever(song, uri, headers) { originalSong, bitmap ->
+                Log.d(TAG, "AlbumArtRetriever: A result! $bitmap")
+                val now = nowPlaying() ?: return@AlbumArtRetriever
+                if (now.id != originalSong.id) {
+                    return@AlbumArtRetriever
+                }
+                mediaSession {
+                    Log.d(TAG, "AlbumArtRetriever: Setting new Metadata!")
+                    song.albumArt = bitmap
+                    it.setMetadata(song.toMediaMetadata(showAlbumArtInLockScreen))
+                    mPlaybackListeners.forEach { it(song, STATE_PLAY, -1) }
+                }
+            }.execute()
             updatePlaybackState(PlaybackStateCompat.STATE_CONNECTING)
-            mPlayer.prepareAsync()
-            return true
+            player.prepareAsync()
+            true
         } catch (e: IOException) {
             Log.e(TAG, "Error when playing", e)
-            return false
+            releaseWifiLock(mWifiLock)
+            false
         }
     }
 
@@ -294,41 +332,52 @@ class HomefyPlayer(private val mContext: Context) {
         mPlaybackListeners.forEach { it(nowPlaying(), STATE_BUFFERING, i) }
         if (i < 100) return
         Log.d(TAG, "Fully buffered! $mediaPlayer")
-        if (mWifiLock.isHeld) {
-            mWifiLock.release()
-        }
+        releaseWifiLock(mWifiLock)
     }
 
     private fun tryGainAudioFocus() {
-        val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        // Request audio focus for playback
-        val result = am.requestAudioFocus(afChangeListener,
-                AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN)
-        mHasFocus =
-                if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    Log.w(TAG, "No AudioFocus Granted!")
-                    false
-                } else {
-                    true
-                }
+        if (mHasFocus) {
+            loseAudioFocus()
+        }
+        context {
+            val am = it.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+            val req = AudioFocusRequest.Builder(AUDIOFOCUS_GAIN)
+                    .setOnAudioFocusChangeListener(afChangeListener)
+                    .setAcceptsDelayedFocusGain(false)
+                    .setAudioAttributes(AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build())
+                    .build()
+            val result = am.requestAudioFocus(req)
+
+
+            mHasFocus =
+                    if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                        Log.w(TAG, "No AudioFocus Granted!")
+                        false
+                    } else {
+                        true
+                    }
+        }
     }
 
     private fun loseAudioFocus() {
-        val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        am.abandonAudioFocus(afChangeListener)
-        if (mWifiLock.isHeld) {
-            mWifiLock.release()
+        context {
+            val am = it.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val req = mAudioFocusRequest ?: return
+            am.abandonAudioFocusRequest(req)
         }
     }
 
     private fun onAudioFocusChange(focusChange: Int) {
-        Log.d(TAG, "Focus Change!! " + focusChange)
+        Log.d(TAG, "Focus Change!! $focusChange")
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS -> pause()
             AUDIOFOCUS_LOSS_TRANSIENT -> pause()
-            AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> mPlayer.setVolume(0.1f, 0.1f)
-            AudioManager.AUDIOFOCUS_GAIN -> mPlayer.setVolume(1f, 1f)
+            AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> player { it.setVolume(0.1f, 0.1f) }
+            AudioManager.AUDIOFOCUS_GAIN -> player { it.setVolume(1f, 1f) }
         }
     }
 
@@ -350,8 +399,58 @@ class HomefyPlayer(private val mContext: Context) {
                         PlaybackStateCompat.ACTION_STOP)
 
         stateBuilder.setState(state, queryPosMs(), 1f)
+        mediaSession { it.setPlaybackState(stateBuilder.build()) }
+    }
 
-        mediaSession.setPlaybackState(stateBuilder.build())
+    private fun releaseBroadcastReceiver(context: Context,
+                                         noiseAudioStreamReceiver: BroadcastReceiver?) {
+        noiseAudioStreamReceiver ?: return
+        try {
+            context.unregisterReceiver(noiseAudioStreamReceiver)
+        } catch (ex: IllegalStateException) {
+            Log.w(TAG, "Can't release: " + noiseAudioStreamReceiver.javaClass.simpleName, ex)
+        }
+    }
+
+    private fun acquireWifiLock(wifiLock: WifiManager.WifiLock?) {
+        wifiLock ?: return
+        if (!wifiLock.isHeld) {
+            wifiLock.acquire()
+        }
+    }
+
+    private fun releaseWifiLock(wifiLock: WifiManager.WifiLock?) {
+        wifiLock ?: return
+        if (wifiLock.isHeld) {
+            wifiLock.release()
+        }
+    }
+
+    private inline fun mediaSession(mediaSessionCallback: (MediaSessionCompat) -> Unit) {
+        val mediaSession = mMediaSession
+        if (mediaSession == null) {
+            Log.w(TAG, "MediaSession: No MediaSession instance!!")
+            return
+        }
+        mediaSessionCallback(mediaSession)
+    }
+
+    private inline fun player(playerCallback: (MediaPlayer) -> Unit) {
+        val player = mPlayer
+        if (player == null) {
+            Log.w(TAG, "MediaPlayer: No Player instance!!")
+            return
+        }
+        playerCallback(player)
+    }
+
+    private inline fun context(contextCallback: (Context) -> Unit) {
+        val context = mContext
+        if (context == null) {
+            Log.w(TAG, "Context: No Context set!")
+            return
+        }
+        contextCallback(context)
     }
 
     private inner class BecomingNoisyReceiver : BroadcastReceiver() {
@@ -359,6 +458,36 @@ class HomefyPlayer(private val mContext: Context) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
                 pause()
             }
+        }
+    }
+
+    private class AlbumArtRetriever(val song: Song,
+                                    val uri: Uri,
+                                    val headers: MutableMap<String, String>,
+                                    val albumArtCallback: (Song, Bitmap) -> Unit) :
+            AsyncTask<Void, Void, Bitmap?>() {
+
+        override fun doInBackground(vararg params: Void?): Bitmap? {
+            val mmr = MediaMetadataRetriever()
+            try {
+                Log.v(TAG, "AlbumArtRetriever: $uri")
+                mmr.setDataSource(uri.toString(), headers)
+                val artBytes = mmr.embeddedPicture ?: return null
+                val inputStream = ByteArrayInputStream(artBytes)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                return bitmap
+            } catch (ex: RuntimeException) {
+                Log.w(TAG, "AlbumArtRetriever: $song", ex)
+                return null
+            } finally {
+                mmr.release()
+            }
+        }
+
+        override fun onPostExecute(result: Bitmap?) {
+            result ?: return
+            albumArtCallback(song, result)
         }
     }
 

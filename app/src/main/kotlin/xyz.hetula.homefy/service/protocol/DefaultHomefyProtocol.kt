@@ -1,25 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.service.protocol
@@ -28,6 +20,7 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
+import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.Volley
@@ -40,8 +33,8 @@ import java.nio.charset.StandardCharsets
  * @version 1.0
  * @since 1.0
  */
-class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
-    private var mQueryQueue = Volley.newRequestQueue(context.applicationContext)
+class DefaultHomefyProtocol : HomefyProtocol {
+    private var mQueryQueue: RequestQueue? = null
     private var mUserPass = ""
     private var mServerId = ""
 
@@ -53,15 +46,24 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
 
     override var info = VersionInfo("", "Homefy", "0.0", "", VersionInfo.AuthType.NONE)
 
+    override fun initialize(context: Context) {
+        mQueryQueue = Volley.newRequestQueue(context.applicationContext)
+    }
+
+    override fun release() {
+        mQueryQueue?.stop()
+        mQueryQueue = null
+    }
+
     override fun setAuth(user: String, pass: String) {
-        mUserPass = String(Base64.encode((user + ":" + pass)
-                .toByteArray(StandardCharsets.UTF_8), 0), StandardCharsets.UTF_8)
+        mUserPass = String(Base64.encode("$user:$pass".toByteArray(StandardCharsets.UTF_8), 0),
+                StandardCharsets.UTF_8)
     }
 
     override fun requestVersionInfo(versionConsumer: (VersionInfo) -> Unit,
                                     errorConsumer: (VolleyError) -> Unit) {
         val versionReq = GsonRequest(
-                server + "/version",
+                "$server/version",
                 VersionInfo::class.java,
                 { v ->
                     info = v
@@ -71,13 +73,13 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     Log.e(TAG, error.toString())
                     errorConsumer(error)
                 }))
-        mQueryQueue!!.add(versionReq)
+        mQueryQueue?.add(versionReq)
     }
 
     override fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit,
                                         errorConsumer: (VolleyError) -> Unit) {
         val versionReq = GsonRequest(
-                server + "/version/auth",
+                "$server/version/auth",
                 VersionInfo::class.java,
                 { v ->
                     info = v
@@ -88,14 +90,14 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(versionReq)
-        mQueryQueue!!.add(versionReq)
+        mQueryQueue?.add(versionReq)
     }
 
     override fun requestPages(pageLength: Int,
                               pagesConsumer: (Array<String>) -> Unit,
                               errorConsumer: (VolleyError) -> Unit) {
         val pagesRequest = GsonRequest(
-                server + "/songs/pages?length=" + pageLength,
+                "$server/songs/pages?length=$pageLength",
                 Array<String>::class.java,
                 pagesConsumer,
                 Response.ErrorListener({ error ->
@@ -103,7 +105,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(pagesRequest)
-        mQueryQueue!!.add(pagesRequest)
+        mQueryQueue?.add(pagesRequest)
     }
 
     override fun requestSongs(songsConsumer: (Array<Song>) -> Unit,
@@ -126,7 +128,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
             params.deleteCharAt(params.length - 1)
         }
         val songsReq = GsonRequest(
-                server + "/songs" + params.toString(),
+                "$server/songs" + params.toString(),
                 Array<Song>::class.java,
                 songsConsumer,
                 Response.ErrorListener({ error ->
@@ -134,14 +136,14 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(songsReq)
-        mQueryQueue!!.add(songsReq)
+        mQueryQueue?.add(songsReq)
     }
 
     override fun requestSong(id: String,
                              songConsumer: (Song) -> Unit,
                              errorConsumer: (VolleyError) -> Unit) {
         val songReq = GsonRequest(
-                server + "/song/" + id,
+                "$server/song/$id",
                 Song::class.java,
                 songConsumer,
                 Response.ErrorListener({ error ->
@@ -149,7 +151,7 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(songReq)
-        mQueryQueue!!.add(songReq)
+        mQueryQueue?.add(songReq)
     }
 
     override fun <T> request(url: String,
@@ -165,25 +167,20 @@ class DefaultHomefyProtocol(context: Context) : HomefyProtocol {
                     errorConsumer(error)
                 }))
         appendHeaders(request)
-        mQueryQueue!!.add(request)
-    }
-
-    override fun release() {
-        mQueryQueue!!.stop()
-        mQueryQueue = null
+        mQueryQueue?.add(request)
     }
 
     override fun addAuthHeader(headers: HashMap<String, String>) {
         if (TextUtils.isEmpty(mUserPass)) return
-        headers.put("Authorization", "Basic " + mUserPass)
+        headers["Authorization"] = "Basic $mUserPass"
     }
 
     private fun appendHeaders(request: GsonRequest<*>) {
         if (TextUtils.isEmpty(mUserPass)) return
-        request.putHeader("Authorization", "Basic " + mUserPass)
+        request.putHeader("Authorization", "Basic $mUserPass")
     }
 
     companion object {
-        private val TAG = "HomefyProtocol"
+        private const val TAG = "HomefyProtocol"
     }
 }

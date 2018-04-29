@@ -1,26 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.setup
@@ -28,7 +19,6 @@ package xyz.hetula.homefy.setup
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.SystemClock
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -37,27 +27,30 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.LibraryFragment
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
+import xyz.hetula.homefy.service.protocol.HomefyProtocol
 import java.io.File
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class LoadingFragment : Fragment() {
-    private val mTag = "LoadingFragment"
+class LoadingFragment : HomefyFragment() {
     private var mCount: AtomicInteger = AtomicInteger()
     private var mSongs: MutableList<Song> = ArrayList()
-    private var mLoaded: TextView? = null
+
+    private lateinit var mLoaded: TextView
+
     private var mSongsTotal: Int = 0
     private var mLoadStarted: Long = 0
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_loading, container, false) as FrameLayout
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View? {
+        val main = inflater.inflate(R.layout.fragment_loading, container, false) as FrameLayout
         mLoaded = main.findViewById(R.id.txt_songs_loaded)
-        val info = Homefy.protocol().info
+        val info = homefy().getProtocol().info
         mSongsTotal = info.databaseSize
         initialize(info.databaseId)
         return main
@@ -66,11 +59,11 @@ class LoadingFragment : Fragment() {
     private fun initialize(databaseId: String) {
         mSongs.clear()
         mLoadStarted = SystemClock.elapsedRealtime()
-        val serverId = Homefy.protocol().info.server_id
+        val serverId = homefy().getProtocol().info.server_id
 
-        Homefy.playlist().setBaseLocation(context.filesDir.resolve(serverId))
-        Homefy.playlist().loadPlaylists()
-        LoadCacheFile(context.filesDir.resolve("cache/").resolve(databaseId)) {
+        homefy().getPlaylists().setBaseLocation(context!!.filesDir.resolve(serverId))
+        homefy().getPlaylists().loadPlaylists()
+        LoadCacheFile(context!!.filesDir.resolve("cache/").resolve(databaseId)) {
             if (it == null) {
                 loadFromNet()
             } else {
@@ -80,28 +73,30 @@ class LoadingFragment : Fragment() {
     }
 
     private fun loadFromNet() {
-        Homefy.protocol().requestPages(250,
+        homefy().getProtocol().requestPages(resources.getInteger(R.integer.load_page_song_count),
                 this::fetchData,
                 { er ->
-                    Toast.makeText(context,
-                            "Error when Connecting!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
                     Log.e("LoadingFragment", "Connection error! Can't recover!", er.cause)
-                    activity.finish()
+                    activity!!.finish()
                 })
     }
 
     private fun fetchData(urls: Array<String>) {
         mCount = AtomicInteger(urls.size)
-        for (url in urls) {
-            Homefy.protocol().request(
-                    url,
-                    { onSongs(it) },
-                    { _ ->
-                        Toast.makeText(context,
-                                "Error when Connecting!", Toast.LENGTH_LONG).show()
-                        onDataRequestFinished(false)
-                    },
-                    Array<Song>::class.java)
+        if (mCount.get() == 0) {
+            onSongs(arrayOf())
+        } else {
+            for (url in urls) {
+                homefy().getProtocol().request(
+                        url,
+                        { onSongs(it) },
+                        { _ ->
+                            Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
+                            onDataRequestFinished(false)
+                        },
+                        Array<Song>::class.java)
+            }
         }
     }
 
@@ -111,7 +106,7 @@ class LoadingFragment : Fragment() {
 
     private fun onSongs(songs: Array<Song>, saveLoaded: Boolean = true) {
         mSongs.addAll(Arrays.asList(*songs))
-        mLoaded?.text = context.resources
+        mLoaded.text = context!!.resources
                 .getQuantityString(R.plurals.songs_loaded, mSongs.size, mSongs.size, mSongsTotal)
 
         onDataRequestFinished(saveLoaded)
@@ -122,7 +117,7 @@ class LoadingFragment : Fragment() {
             val time = SystemClock.elapsedRealtime() - mLoadStarted
             Log.d("LoadingFragment", "Songs loaded in $time ms")
             if (saveLoaded) {
-                SaveCacheFile(context.filesDir, mSongs) {
+                SaveCacheFile(context!!.filesDir, homefy().getProtocol(), mSongs) {
                     initializeHomefy()
                 }
             } else {
@@ -135,8 +130,8 @@ class LoadingFragment : Fragment() {
         val songs = mSongs
         mSongs = ArrayList() // Create new list so old one can't be used here
         // initialize will use given list and does not create new one.
-        Homefy.library().initialize(songs)
-        fragmentManager
+        homefy().getLibrary().initialize(context!!.applicationContext, songs)
+        fragmentManager!!
                 .beginTransaction()
                 .replace(R.id.container, LibraryFragment())
                 .commit()
@@ -156,7 +151,8 @@ class LoadingFragment : Fragment() {
                 Log.d("LoadCacheFile", "Loading from cache! $databaseCache")
                 return try {
                     val songData = databaseCache.readText()
-                    Gson().fromJson<Array<Song>>(songData, Array<Song>::class.java)
+                    GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+                            .create().fromJson<Array<Song>>(songData, Array<Song>::class.java)
                 } catch (ex: Exception) {
                     Log.e("LoadCacheFile", "Can't load cache file, reverting to Network!", ex)
                     null
@@ -171,6 +167,7 @@ class LoadingFragment : Fragment() {
     }
 
     private class SaveCacheFile(databaseCache: File,
+                                private val mProtocol: HomefyProtocol,
                                 private val mSongs: List<Song>,
                                 private val resultCb: (Unit) -> Unit) :
             AsyncTask<File, Void, Void?>() {
@@ -187,7 +184,7 @@ class LoadingFragment : Fragment() {
                 cacheDir.deleteRecursively()
                 cacheDir.mkdir()
             }
-            val cacheFile = cacheDir.resolve(Homefy.protocol().info.databaseId)
+            val cacheFile = cacheDir.resolve(mProtocol.info.databaseId)
             Log.d("SAveCacheFile", "Saving to cache! $cacheFile")
             if (cacheFile.exists()) {
                 Log.d("SAveCacheFile", "Old cache found! Deleting: ${cacheFile.delete()}")

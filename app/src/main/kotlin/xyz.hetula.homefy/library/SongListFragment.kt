@@ -1,32 +1,22 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.library
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -36,73 +26,80 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_song_list.view.*
+import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.Homefy
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-class SongListFragment : Fragment() {
+class SongListFragment : HomefyFragment() {
     private var mParentTitle: String = ""
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater!!.inflate(R.layout.fragment_song_list, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_song_list, container, false)
         root.recyclerView!!.setHasFixedSize(true)
         root.recyclerView.layoutManager = LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false)
 
-        val type = arguments.getInt(LIST_TYPE_KEY)
-        val name = arguments.getString(LIST_NAME_KEY, "Invalid Name")
+        val type = arguments!!.getInt(LIST_TYPE_KEY)
+        val name = arguments!!.getString(LIST_NAME_KEY, "Invalid Name")
 
         val adapter: RecyclerView.Adapter<*>
         when (type) {
             ALL_MUSIC -> {
-                adapter = SongAdapter(Homefy.library().songs)
+                adapter = SongAdapter(homefy().getLibrary().songs,
+                        homefy().getPlayer(), homefy().getPlaylists())
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_music)
+                        getString(R.string.nav_music)
             }
             ARTISTS -> {
-                adapter = SongListAdapter(Homefy.library().artists,
-                        { artist -> Homefy.library().getArtistSongs(artist) },
+                adapter = SongListAdapter(homefy().getLibrary().artists,
+                        homefy().getPlayer(),
+                        { artist -> homefy().getLibrary().getArtistSongs(artist) },
                         this::onArtistClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_artists)
+                        getString(R.string.nav_artists)
             }
             ALBUMS -> {
-                adapter = SongListAdapter(Homefy.library().albums,
-                        { album -> Homefy.library().getAlbumSongs(album) },
+                adapter = SongListAdapter(homefy().getLibrary().albums,
+                        homefy().getPlayer(),
+                        { album -> homefy().getLibrary().getAlbumSongs(album) },
                         this::onAlbumClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_albums)
+                        getString(R.string.nav_albums)
             }
             ARTIST_MUSIC -> {
-                adapter = SongAdapter(Homefy.library().getArtistSongs(name))
-                mParentTitle = context.getString(R.string.nav_artists)
+                adapter = SongAdapter(homefy().getLibrary().getArtistSongs(name),
+                        homefy().getPlayer(), homefy().getPlaylists())
+                mParentTitle = getString(R.string.nav_artists)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             ALBUM_MUSIC -> {
-                adapter = SongAdapter(Homefy.library().getAlbumSongs(name))
-                mParentTitle = context.getString(R.string.nav_albums)
+                adapter = SongAdapter(homefy().getLibrary().getAlbumSongs(name),
+                        homefy().getPlayer(), homefy().getPlaylists())
+                mParentTitle = getString(R.string.nav_albums)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             FAVORITES -> {
-                adapter = SongAdapter(Homefy.playlist().favorites.songs, this::onFavClick)
+                adapter = SongAdapter(homefy().getPlaylists().favorites.songs,
+                        homefy().getPlayer(), homefy().getPlaylists(), this::onFavClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_favs)
+                        getString(R.string.nav_favs)
             }
             PLAYLIST -> {
-                val playlist = Homefy.playlist()[name] ?:
+                val playlist = homefy().getPlaylists()[name] ?:
                         throw IllegalArgumentException("Calling SongListFragment with invalid playlist id: $name")
 
-                adapter = SongAdapter(playlist.songs, playlist = playlist)
+                adapter = SongAdapter(playlist.songs, homefy().getPlayer(),
+                        homefy().getPlaylists(), playlist = playlist)
                 (activity as AppCompatActivity).supportActionBar?.title = playlist.name
-                mParentTitle = context.getString(R.string.nav_playlists)
+                mParentTitle = getString(R.string.nav_playlists)
             }
             else -> {
-                Log.e(TAG, "Invalid TYPE: " + type)
+                Log.e(TAG, "Invalid TYPE: $type")
                 throw IllegalArgumentException("Calling SongListFragment with invalid type: $type")
             }
         }
@@ -119,7 +116,7 @@ class SongListFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         if (mParentTitle.isBlank()) {
-            (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
+            (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.app_name)
             (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         } else {
             (activity as AppCompatActivity).supportActionBar?.title = mParentTitle
@@ -127,8 +124,11 @@ class SongListFragment : Fragment() {
     }
 
     private fun onFavClick(adapter: SongAdapter, song: Song) {
-        if (Homefy.playlist().isFavorite(song)) adapter.add(song)
-        else adapter.remove(song)
+        if (homefy().getPlaylists().isFavorite(song)) {
+            adapter.add(song)
+        } else {
+            adapter.remove(song)
+        }
     }
 
     private fun onArtistClick(artist: String) {
@@ -148,7 +148,7 @@ class SongListFragment : Fragment() {
     private fun createSongListFragment(args: Bundle) {
         val fragment = SongListFragment()
         fragment.arguments = args
-        fragmentManager
+        fragmentManager!!
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
@@ -157,16 +157,16 @@ class SongListFragment : Fragment() {
     }
 
     companion object {
-        val TAG = "SongListFragment"
-        val LIST_TYPE_KEY = "SongListFragment_LIST_TYPE_KEY"
-        val LIST_NAME_KEY = "SongListFragment_LIST_NAME_KEY"
+        const val TAG = "SongListFragment"
+        const val LIST_TYPE_KEY = "SongListFragment_LIST_TYPE_KEY"
+        const val LIST_NAME_KEY = "SongListFragment_LIST_NAME_KEY"
 
-        val ALL_MUSIC = 1
-        val ARTISTS = 2
-        val ALBUMS = 3
-        val ARTIST_MUSIC = 4
-        val ALBUM_MUSIC = 5
-        val FAVORITES = 6
-        val PLAYLIST = 7
+        const val ALL_MUSIC = 1
+        const val ARTISTS = 2
+        const val ALBUMS = 3
+        const val ARTIST_MUSIC = 4
+        const val ALBUM_MUSIC = 5
+        const val FAVORITES = 6
+        const val PLAYLIST = 7
     }
 }

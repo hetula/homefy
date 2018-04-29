@@ -1,25 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy.playlist
@@ -36,20 +28,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import kotlinx.android.synthetic.main.fragment_playlist.view.*
+import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.SongListFragment
-import xyz.hetula.homefy.service.Homefy
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-class PlaylistFragment : Fragment() {
-    private var mAdapter: PlaylistAdapter? = null
+class PlaylistFragment : HomefyFragment() {
+    private lateinit var mAdapter: PlaylistAdapter
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater!!.inflate(R.layout.fragment_playlist, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_playlist, container, false)
         root.btn_create_playlist.setOnClickListener { createPlaylist() }
         root.recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -63,7 +55,7 @@ class PlaylistFragment : Fragment() {
             openFragment(fragment)
         }
 
-        mAdapter?.setPlaylists(Homefy.playlist().getAllPlaylists())
+        mAdapter.setPlaylists(homefy().getPlaylists().getAllPlaylists())
         root.recyclerView.adapter = mAdapter
 
         return root
@@ -73,8 +65,8 @@ class PlaylistFragment : Fragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_playlists)
-        mAdapter?.notifyDataSetChanged()
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.nav_playlists)
+        mAdapter.notifyDataSetChanged()
     }
 
     override fun onPause() {
@@ -83,11 +75,11 @@ class PlaylistFragment : Fragment() {
     }
 
     private fun addPlaylist(playlist: Playlist) {
-        mAdapter?.addPlaylist(playlist)
+        mAdapter.addPlaylist(playlist)
     }
 
     private fun openFragment(fragment: Fragment) {
-        fragmentManager
+        fragmentManager!!
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
@@ -96,7 +88,7 @@ class PlaylistFragment : Fragment() {
     }
 
     private fun createPlaylist() {
-        val ask = AlertDialog.Builder(activity)
+        val ask = AlertDialog.Builder(activity!!)
         ask.setTitle("New Playlist")
         val txtName = EditText(context)
         txtName.inputType = InputType.TYPE_CLASS_TEXT
@@ -106,7 +98,7 @@ class PlaylistFragment : Fragment() {
             if (name.isBlank()) {
                 d.cancel()
             } else {
-                addPlaylist(Homefy.playlist().createPlaylist(name))
+                addPlaylist(homefy().getPlaylists().createPlaylist(name))
             }
         })
         ask.setNegativeButton(android.R.string.cancel, { d, _ ->

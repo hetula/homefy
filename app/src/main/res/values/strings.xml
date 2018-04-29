@@ -1,26 +1,17 @@
 <!--
-  ~ MIT License
+  ~ Copyright (c) 2018 Tuomo Heino
   ~
-  ~ Copyright (c) 2017 Tuomo Heino
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
   ~
-  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
-  ~ of this software and associated documentation files (the "Software"), to deal
-  ~ in the Software without restriction, including without limitation the rights
-  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  ~ copies of the Software, and to permit persons to whom the Software is
-  ~ furnished to do so, subject to the following conditions:
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
-  ~ The above copyright notice and this permission notice shall be included in all
-  ~ copies or substantial portions of the Software.
-  ~
-  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  ~ SOFTWARE.
-  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
   -->
 
 <resources>
@@ -32,9 +23,15 @@
     <string name="play_pause_desc">Play/Pause</string>
     <string name="stop_desc">Stop</string>
     <string name="next_desc">Next</string>
+    <string name="download_desc">Download song</string>
+    <string name="shutdown_desc">Shutdown Player</string>
     <!-- Content Desc END -->
 
+
     <string name="app_name">Homefy</string>
+    <string name="app_desc">Play some music!</string>
+    <string name="channel_name">Media playback</string>
+    <string name="channel_desc">Media playback controls</string>
     <string name="nav_music">Music</string>
     <string name="nav_albums">Albums</string>
     <string name="nav_artists">Artists</string>
@@ -42,14 +39,16 @@
     <string name="nav_favs">Favorites</string>
     <string name="nav_playlists">Playlists</string>
 
-    <string name="loading">Homefy is loading…</string>
-    <string name="homefy_server_setup">Homefy Server Setup</string>
+    <string name="enter_server_address">Address is missing!</string>
+    <string name="check_credentials">Enter login!</string>
+    <string name="connection_error">Connection error!</string>
+
+    <string name="loading">Loading…</string>
     <string name="server_address">Server address</string>
-    <string name="user_credentials">User credentials</string>
     <string name="username_if_needed">Username</string>
     <string name="password_if_needed">Password</string>
     <string name="connect">Connect</string>
-    <string name="authenticate">Authenticate</string>
+    <string name="authenticate">Login</string>
     <string name="http">http://</string>
     <string name="search_hint">Search…</string>
     <string name="buffering">%03d%% Buffering</string>

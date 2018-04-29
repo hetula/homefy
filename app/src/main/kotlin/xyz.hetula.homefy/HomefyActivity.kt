@@ -1,36 +1,28 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package xyz.hetula.homefy
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.Bundle
+import android.os.IBinder
+import android.support.annotation.CallSuper
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import xyz.hetula.homefy.service.HomefyService
 
 /**
  * @author Tuomo Heino
@@ -38,32 +30,72 @@ import android.util.Log
  * @since 1.0
  */
 abstract class HomefyActivity : AppCompatActivity() {
+    lateinit var homefy: HomefyService
+    private val mHomefyConnection = HomefyConnection { serviceConnected(it) }
     private var mKillReceiver: BroadcastReceiver? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "Creating HomefyActivity")
+        Log.v(TAG, "Creating HomefyActivity")
         super.onCreate(savedInstanceState)
         val filter = IntentFilter(KILL_INTENT)
         mKillReceiver = (object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                Log.d(TAG, "onReceive: " + intent?.action)
+                Log.v(TAG, "onReceive: " + intent?.action)
                 if (intent?.action == KILL_INTENT) {
-                    Log.d(TAG, "Finishing Activity!")
-                    finishAndRemoveTask()
+                    Log.v(TAG, "Finishing Activity!")
+                    finishAffinity()
                 }
             }
         })
         applicationContext.registerReceiver(mKillReceiver, filter)
     }
 
+    override fun onStart() {
+        Log.v("HomefyActivity", "onStart(): " + javaClass.simpleName)
+        super.onStart()
+        val intent = Intent(this, HomefyService::class.java)
+        if (!bindService(intent, mHomefyConnection,
+                Context.BIND_AUTO_CREATE or Context.BIND_ABOVE_CLIENT)) {
+            unbindService(mHomefyConnection)
+        }
+    }
+
+    override fun onStop() {
+        Log.v("HomefyActivity", "onStop(): " + javaClass.simpleName)
+        super.onStop()
+        unbindService(mHomefyConnection)
+    }
+
+
     override fun onDestroy() {
-        Log.d(TAG, "Destroying HomefyActivity")
+        Log.v(TAG, "Destroying HomefyActivity")
         super.onDestroy()
         applicationContext.unregisterReceiver(mKillReceiver)
+        mKillReceiver = null
+    }
+
+    @CallSuper
+    protected open fun serviceConnected(service: HomefyService) {
+        homefy = service
+    }
+
+    internal class HomefyConnection(private val serviceCallback: (HomefyService) -> Unit) :
+            ServiceConnection {
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.v("HomefyConnection", "HomefyService Disconnected!")
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Log.v("HomefyConnection", "HomefyService Connected!")
+            if (service != null) {
+                serviceCallback((service as HomefyService.HomefyBinder).getService())
+            }
+        }
+
     }
 
     companion object {
-        private val TAG = "HomefyActivity"
-        val KILL_INTENT = "xyz.hetula.homefy.KILL_INTENT"
+        private const val TAG = "HomefyActivity"
+        const val KILL_INTENT = "xyz.hetula.homefy.KILL_INTENT"
     }
 }

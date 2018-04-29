@@ -1,26 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018 Tuomo Heino
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 apply plugin: 'com.android.application'
@@ -34,8 +25,8 @@ android {
         applicationId "xyz.hetula.homefy"
         minSdkVersion min_sdk
         targetSdkVersion target_sdk
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -48,6 +39,12 @@ android {
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
+
+        kotlinOptions {
+            jvmTarget = "1.8"
+            apiVersion = "1.2"
+            languageVersion = "1.2"
+        }
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -58,13 +55,14 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.android.support:appcompat-v7:$support_version"
     implementation "com.android.support:recyclerview-v7:$support_version"
     implementation "com.android.support:design:$support_version"
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.android.volley:volley:$volley_version"
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.0.6'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
