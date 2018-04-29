@@ -11,6 +11,6 @@ Homefy is written in Kotlin
 
 
 ## License and Copyright
- This Project is Licensed under the MIT License.  
+ This Project is Licensed under the Apache 2 License.  
  See LICENSE for the full license.  
- Copyright (c) 2017 Tuomo Heino
+ Copyright (c) 2018 Tuomo Heino
