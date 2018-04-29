@@ -47,14 +47,14 @@ import xyz.hetula.homefy.player.Song
 class SongListFragment : HomefyFragment() {
     private var mParentTitle: String = ""
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater!!.inflate(R.layout.fragment_song_list, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_song_list, container, false)
         root.recyclerView!!.setHasFixedSize(true)
         root.recyclerView.layoutManager = LinearLayoutManager(context,
                 LinearLayoutManager.VERTICAL, false)
 
-        val type = arguments.getInt(LIST_TYPE_KEY)
-        val name = arguments.getString(LIST_NAME_KEY, "Invalid Name")
+        val type = arguments!!.getInt(LIST_TYPE_KEY)
+        val name = arguments!!.getString(LIST_NAME_KEY, "Invalid Name")
 
         val adapter: RecyclerView.Adapter<*>
         when (type) {
@@ -62,7 +62,7 @@ class SongListFragment : HomefyFragment() {
                 adapter = SongAdapter(homefy().getLibrary().songs,
                         homefy().getPlayer(), homefy().getPlaylists())
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_music)
+                        getString(R.string.nav_music)
             }
             ARTISTS -> {
                 adapter = SongListAdapter(homefy().getLibrary().artists,
@@ -70,7 +70,7 @@ class SongListFragment : HomefyFragment() {
                         { artist -> homefy().getLibrary().getArtistSongs(artist) },
                         this::onArtistClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_artists)
+                        getString(R.string.nav_artists)
             }
             ALBUMS -> {
                 adapter = SongListAdapter(homefy().getLibrary().albums,
@@ -78,25 +78,25 @@ class SongListFragment : HomefyFragment() {
                         { album -> homefy().getLibrary().getAlbumSongs(album) },
                         this::onAlbumClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_albums)
+                        getString(R.string.nav_albums)
             }
             ARTIST_MUSIC -> {
                 adapter = SongAdapter(homefy().getLibrary().getArtistSongs(name),
                         homefy().getPlayer(), homefy().getPlaylists())
-                mParentTitle = context.getString(R.string.nav_artists)
+                mParentTitle = getString(R.string.nav_artists)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             ALBUM_MUSIC -> {
                 adapter = SongAdapter(homefy().getLibrary().getAlbumSongs(name),
                         homefy().getPlayer(), homefy().getPlaylists())
-                mParentTitle = context.getString(R.string.nav_albums)
+                mParentTitle = getString(R.string.nav_albums)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             FAVORITES -> {
                 adapter = SongAdapter(homefy().getPlaylists().favorites.songs,
                         homefy().getPlayer(), homefy().getPlaylists(), this::onFavClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        context.getString(R.string.nav_favs)
+                        getString(R.string.nav_favs)
             }
             PLAYLIST -> {
                 val playlist = homefy().getPlaylists()[name] ?:
@@ -105,10 +105,10 @@ class SongListFragment : HomefyFragment() {
                 adapter = SongAdapter(playlist.songs, homefy().getPlayer(),
                         homefy().getPlaylists(), playlist = playlist)
                 (activity as AppCompatActivity).supportActionBar?.title = playlist.name
-                mParentTitle = context.getString(R.string.nav_playlists)
+                mParentTitle = getString(R.string.nav_playlists)
             }
             else -> {
-                Log.e(TAG, "Invalid TYPE: " + type)
+                Log.e(TAG, "Invalid TYPE: $type")
                 throw IllegalArgumentException("Calling SongListFragment with invalid type: $type")
             }
         }
@@ -125,7 +125,7 @@ class SongListFragment : HomefyFragment() {
     override fun onDestroy() {
         super.onDestroy()
         if (mParentTitle.isBlank()) {
-            (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
+            (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.app_name)
             (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         } else {
             (activity as AppCompatActivity).supportActionBar?.title = mParentTitle
@@ -157,7 +157,7 @@ class SongListFragment : HomefyFragment() {
     private fun createSongListFragment(args: Bundle) {
         val fragment = SongListFragment()
         fragment.arguments = args
-        fragmentManager
+        fragmentManager!!
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
@@ -166,16 +166,16 @@ class SongListFragment : HomefyFragment() {
     }
 
     companion object {
-        val TAG = "SongListFragment"
-        val LIST_TYPE_KEY = "SongListFragment_LIST_TYPE_KEY"
-        val LIST_NAME_KEY = "SongListFragment_LIST_NAME_KEY"
+        const val TAG = "SongListFragment"
+        const val LIST_TYPE_KEY = "SongListFragment_LIST_TYPE_KEY"
+        const val LIST_NAME_KEY = "SongListFragment_LIST_NAME_KEY"
 
-        val ALL_MUSIC = 1
-        val ARTISTS = 2
-        val ALBUMS = 3
-        val ARTIST_MUSIC = 4
-        val ALBUM_MUSIC = 5
-        val FAVORITES = 6
-        val PLAYLIST = 7
+        const val ALL_MUSIC = 1
+        const val ARTISTS = 2
+        const val ALBUMS = 3
+        const val ARTIST_MUSIC = 4
+        const val ALBUM_MUSIC = 5
+        const val FAVORITES = 6
+        const val PLAYLIST = 7
     }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Tuomo Heino
+ * Copyright (c) 2018 Tuomo Heino
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,37 +22,28 @@
  * SOFTWARE.
  *
  */
+package xyz.hetula.homefy
 
-buildscript {
-    ext.min_sdk = 27
-    ext.target_sdk = 27
-    ext.build_tools_version = '27.0.3'
-    ext.gradle_version = '3.1.2'
+import java.security.MessageDigest
+import java.util.*
 
-    ext.kotlin_version = '1.2.41'
-    ext.support_version = '27.1.1'
-    ext.gson_version = '2.8.1'
-    ext.volley_version = '1.0.0'
-
-
-
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:$gradle_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+fun Long.parseSeconds(): String {
+    val min = this / 60
+    return String.format(Locale.getDefault(), "%02d:%02d", min, this - min * 60)
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
+fun String.toSongHash(): String {
+    val digest = MessageDigest.getInstance("SHA-1")
+    val bytes = this.toByteArray()
+    val hashed = digest.digest(bytes)
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    val sb = StringBuilder()
+    for (aHashed in hashed) {
+        if (0xff and aHashed.toInt() < 0x10) {
+            sb.append(0).append(Integer.toHexString(0xFF and aHashed.toInt()))
+        } else {
+            sb.append(Integer.toHexString(0xFF and aHashed.toInt()))
+        }
+    }
+    return sb.toString()
 }

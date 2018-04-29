@@ -103,7 +103,7 @@ abstract class HomefyActivity : AppCompatActivity() {
     }
 
     companion object {
-        private val TAG = "HomefyActivity"
-        val KILL_INTENT = "xyz.hetula.homefy.KILL_INTENT"
+        private const val TAG = "HomefyActivity"
+        const val KILL_INTENT = "xyz.hetula.homefy.KILL_INTENT"
     }
 }

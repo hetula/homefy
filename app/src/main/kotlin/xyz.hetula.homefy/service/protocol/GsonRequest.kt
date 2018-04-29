@@ -27,7 +27,7 @@ class GsonRequest<T>(url: String,
     }
 
     internal fun putHeader(header: String, value: String) {
-        headers.put(header, value)
+        headers[header] = value
     }
 
     override fun deliverResponse(response: T) {

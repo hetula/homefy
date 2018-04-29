@@ -47,9 +47,9 @@ import xyz.hetula.homefy.playlist.PlaylistFragment
  */
 class LibraryFragment : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_library, container, false) as LinearLayout
+        val main = inflater.inflate(R.layout.fragment_library, container, false) as LinearLayout
 
         val clicks = View.OnClickListener { this.onLibraryClick(it) }
         main.library_music.setOnClickListener(clicks)
@@ -66,7 +66,7 @@ class LibraryFragment : Fragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.app_name)
+        (activity as AppCompatActivity).supportActionBar?.title = context!!.getString(R.string.app_name)
     }
 
     private fun onLibraryClick(v: View) {
@@ -98,7 +98,7 @@ class LibraryFragment : Fragment() {
     }
 
     private fun openFragment(fragment: Fragment) {
-        fragmentManager
+        fragmentManager!!
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
@@ -108,6 +108,6 @@ class LibraryFragment : Fragment() {
 
     private fun openPlayer() {
         val intent = Intent(context, PlayerActivity::class.java)
-        activity.startActivity(intent)
+        activity!!.startActivity(intent)
     }
 }

@@ -31,7 +31,6 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
@@ -62,7 +61,7 @@ class HomefyService : Service() {
     private lateinit var mPlayer: HomefyPlayer
     private lateinit var mPlaylists: HomefyPlaylist
 
-    private val mPlaybackListener = this::onPlay
+    private val mPlaybackListener = { _: Song?, state: Int, _: Int -> onPlay(state) }
     private var mSession: MediaSessionCompat? = null
 
     override fun onBind(intent: Intent): IBinder? = mBinder
@@ -118,7 +117,7 @@ class HomefyService : Service() {
 
     fun getPlaylists() = mPlaylists
 
-    fun initialize() {
+    private fun initialize() {
         Log.d(TAG, "Initializing HomefyService")
         val session = mPlayer.initalize(applicationContext)
         mSession = session
@@ -128,9 +127,6 @@ class HomefyService : Service() {
     }
 
     private fun createChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return
-        }
         val homefyChannel = NotificationChannel(homefyNotificationId,
                 getString(R.string.channel_name), NotificationManager.IMPORTANCE_DEFAULT)
         homefyChannel.description = getString(R.string.channel_desc)
@@ -146,9 +142,6 @@ class HomefyService : Service() {
     }
 
     private fun destroyChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return
-        }
         val notificationMngr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationMngr.deleteNotificationChannel(homefyNotificationId)
     }
@@ -214,7 +207,8 @@ class HomefyService : Service() {
         val nextIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                 PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
 
-        val largeIcon = song.albumArt ?: BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
+        val largeIcon = song.albumArt
+                ?: BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         builder.setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                 PlaybackStateCompat.ACTION_STOP))
                 .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
@@ -244,7 +238,7 @@ class HomefyService : Service() {
         val taskStack = TaskStackBuilder.create(this)
         taskStack.addParentStack(PlayerActivity::class.java)
         taskStack.addNextIntent(launchMe)
-        return taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        return taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
     private fun closeIntent(): PendingIntent {
@@ -269,7 +263,7 @@ class HomefyService : Service() {
         )
     }
 
-    private fun onPlay(song: Song?, state: Int, param: Int) {
+    private fun onPlay(state: Int) {
         if (state == HomefyPlayer.STATE_PLAY ||
                 state == HomefyPlayer.STATE_PAUSE ||
                 state == HomefyPlayer.STATE_RESUME) {
@@ -283,11 +277,11 @@ class HomefyService : Service() {
     }
 
     companion object {
-        val CLOSE_INTENT = "xyz.hetula.homefy.service.CLOSE"
-        val FAV_INTENT = "xyz.hetula.homefy.service.FAVORITE"
-        val INIT_COMPLETE = "xyz.hetula.homefy.service.INIT_COMPLETE"
+        const val CLOSE_INTENT = "xyz.hetula.homefy.service.CLOSE"
+        const val FAV_INTENT = "xyz.hetula.homefy.service.FAVORITE"
+        const val INIT_COMPLETE = "xyz.hetula.homefy.service.INIT_COMPLETE"
 
-        private val TAG = "HomefyService"
-        private val NOTIFICATION_ID = 444
+        private const val TAG = "HomefyService"
+        private const val NOTIFICATION_ID = 444
     }
 }

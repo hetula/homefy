@@ -55,9 +55,9 @@ class LoadingFragment : HomefyFragment() {
     private var mSongsTotal: Int = 0
     private var mLoadStarted: Long = 0
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_loading, container, false) as FrameLayout
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View? {
+        val main = inflater.inflate(R.layout.fragment_loading, container, false) as FrameLayout
         mLoaded = main.findViewById(R.id.txt_songs_loaded)
         val info = homefy().getProtocol().info
         mSongsTotal = info.databaseSize
@@ -70,9 +70,9 @@ class LoadingFragment : HomefyFragment() {
         mLoadStarted = SystemClock.elapsedRealtime()
         val serverId = homefy().getProtocol().info.server_id
 
-        homefy().getPlaylists().setBaseLocation(context.filesDir.resolve(serverId))
+        homefy().getPlaylists().setBaseLocation(context!!.filesDir.resolve(serverId))
         homefy().getPlaylists().loadPlaylists()
-        LoadCacheFile(context.filesDir.resolve("cache/").resolve(databaseId)) {
+        LoadCacheFile(context!!.filesDir.resolve("cache/").resolve(databaseId)) {
             if (it == null) {
                 loadFromNet()
             } else {
@@ -87,7 +87,7 @@ class LoadingFragment : HomefyFragment() {
                 { er ->
                     Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
                     Log.e("LoadingFragment", "Connection error! Can't recover!", er.cause)
-                    activity.finish()
+                    activity!!.finish()
                 })
     }
 
@@ -115,7 +115,7 @@ class LoadingFragment : HomefyFragment() {
 
     private fun onSongs(songs: Array<Song>, saveLoaded: Boolean = true) {
         mSongs.addAll(Arrays.asList(*songs))
-        mLoaded.text = context.resources
+        mLoaded.text = context!!.resources
                 .getQuantityString(R.plurals.songs_loaded, mSongs.size, mSongs.size, mSongsTotal)
 
         onDataRequestFinished(saveLoaded)
@@ -126,7 +126,7 @@ class LoadingFragment : HomefyFragment() {
             val time = SystemClock.elapsedRealtime() - mLoadStarted
             Log.d("LoadingFragment", "Songs loaded in $time ms")
             if (saveLoaded) {
-                SaveCacheFile(context.filesDir, homefy().getProtocol(), mSongs) {
+                SaveCacheFile(context!!.filesDir, homefy().getProtocol(), mSongs) {
                     initializeHomefy()
                 }
             } else {
@@ -139,8 +139,8 @@ class LoadingFragment : HomefyFragment() {
         val songs = mSongs
         mSongs = ArrayList() // Create new list so old one can't be used here
         // initialize will use given list and does not create new one.
-        homefy().getLibrary().initialize(context.applicationContext, songs)
-        fragmentManager
+        homefy().getLibrary().initialize(context!!.applicationContext, songs)
+        fragmentManager!!
                 .beginTransaction()
                 .replace(R.id.container, LibraryFragment())
                 .commit()

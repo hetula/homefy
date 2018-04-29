@@ -48,8 +48,8 @@ import xyz.hetula.homefy.library.SongListFragment
 class PlaylistFragment : HomefyFragment() {
     private lateinit var mAdapter: PlaylistAdapter
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater!!.inflate(R.layout.fragment_playlist, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_playlist, container, false)
         root.btn_create_playlist.setOnClickListener { createPlaylist() }
         root.recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -73,7 +73,7 @@ class PlaylistFragment : HomefyFragment() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_playlists)
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.nav_playlists)
         mAdapter.notifyDataSetChanged()
     }
 
@@ -87,7 +87,7 @@ class PlaylistFragment : HomefyFragment() {
     }
 
     private fun openFragment(fragment: Fragment) {
-        fragmentManager
+        fragmentManager!!
                 .beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
@@ -96,7 +96,7 @@ class PlaylistFragment : HomefyFragment() {
     }
 
     private fun createPlaylist() {
-        val ask = AlertDialog.Builder(activity)
+        val ask = AlertDialog.Builder(activity!!)
         ask.setTitle("New Playlist")
         val txtName = EditText(context)
         txtName.inputType = InputType.TYPE_CLASS_TEXT

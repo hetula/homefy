@@ -45,7 +45,8 @@
             android:layout_weight="1"
             android:hint="@string/search_hint"
             android:paddingEnd="8dp"
-            android:paddingStart="8dp" />
+            android:paddingStart="8dp"
+            android:inputType="textAutoComplete" />
 
     </LinearLayout>
 

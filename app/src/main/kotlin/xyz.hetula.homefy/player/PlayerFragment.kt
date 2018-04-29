@@ -68,9 +68,9 @@ class PlayerFragment : HomefyFragment() {
     private var mIsShowing = false
 
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_player, container, false) as LinearLayout
+        val main = inflater.inflate(R.layout.fragment_player, container, false) as LinearLayout
         mTxtTitle = main.txt_song_title!!
         mTxtArtist = main.txt_song_artist!!
         mTxtAlbum = main.txt_song_album!!
@@ -104,7 +104,7 @@ class PlayerFragment : HomefyFragment() {
         }
         main.btn_add_to_playlist.setOnClickListener {
             val song = homefy().getPlayer().nowPlaying() ?: return@setOnClickListener
-            PlaylistDialog.addToPlaylist(context, song, homefy().getPlaylists()) {
+            PlaylistDialog.addToPlaylist(context!!, song, homefy().getPlaylists()) {
                 Snackbar.make(main, R.string.playlist_dialog_added,
                         Snackbar.LENGTH_SHORT).show()
             }
@@ -159,10 +159,10 @@ class PlayerFragment : HomefyFragment() {
         Log.d(TAG, "Buffering $buffered")
         if (buffered >= 100) {
             mTxtBuffering.visibility = View.INVISIBLE
-            mTxtBuffering.text = context.getString(R.string.buffering, 0)
+            mTxtBuffering.text = getString(R.string.buffering, 0)
         } else {
             mTxtBuffering.visibility = View.VISIBLE
-            mTxtBuffering.text = context.getString(R.string.buffering, buffered)
+            mTxtBuffering.text = getString(R.string.buffering, buffered)
         }
     }
 
@@ -246,14 +246,14 @@ class PlayerFragment : HomefyFragment() {
             PlaybackMode.REPEAT_SINGLE -> R.drawable.ic_repeat_one
             PlaybackMode.RANDOM -> R.drawable.ic_shuffle
         }
-        button.setImageDrawable(ContextCompat.getDrawable(context, imgRes))
+        button.setImageDrawable(ContextCompat.getDrawable(context!!, imgRes))
     }
 
     private fun doShutdown() {
         Log.d(TAG, "Shutting down!")
-        val context = activity.applicationContext
+        val context = activity!!.applicationContext
         context.stopService(Intent(context, HomefyService::class.java))
-        activity.finishAffinity()
+        activity!!.finishAffinity()
     }
 
     private class SeekListener(val player: PlayerFragment) : SeekBar.OnSeekBarChangeListener {
@@ -274,6 +274,6 @@ class PlayerFragment : HomefyFragment() {
     }
 
     companion object {
-        val TAG = "PlayerFragment"
+        const val TAG = "PlayerFragment"
     }
 }

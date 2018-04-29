@@ -51,9 +51,9 @@ class SetupFragment : HomefyFragment() {
     private var mConnecting = false
     private var mNeedsAuth = false
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val main = inflater!!.inflate(R.layout.fragment_setup, container, false) as LinearLayout
+        val main = inflater.inflate(R.layout.fragment_setup, container, false) as LinearLayout
         mMain = main
         mConnect = main.findViewById(R.id.btn_connect)
         mAddress = main.findViewById(R.id.txt_address)
@@ -68,7 +68,7 @@ class SetupFragment : HomefyFragment() {
             }
             false
         }
-        val pref = activity.getPreferences(Context.MODE_PRIVATE)
+        val pref = activity!!.getPreferences(Context.MODE_PRIVATE)
         mAddress.setText(pref.getString(ADDRESS_KEY, ""))
         mUser.setText(pref.getString(USERNAME_KEY, ""))
         mPass.setText(pref.getString(PASSWORD_KEY, ""))
@@ -82,7 +82,7 @@ class SetupFragment : HomefyFragment() {
         val address = mAddress.text.toString()
         homefy().getProtocol().server = address
         // Save it for later
-        val pref = activity.getPreferences(Context.MODE_PRIVATE)
+        val pref = activity!!.getPreferences(Context.MODE_PRIVATE)
         pref.edit().putString(ADDRESS_KEY, address).apply()
 
         if (address.isEmpty()) {
@@ -148,16 +148,16 @@ class SetupFragment : HomefyFragment() {
     }
 
     private fun startLoading() {
-        fragmentManager
+        fragmentManager!!
                 .beginTransaction()
                 .replace(R.id.container, LoadingFragment())
                 .commit()
     }
 
     companion object {
-        private val TAG = "SetupFragment"
-        private val ADDRESS_KEY = "SetupFragement.ADDRESS_KEY"
-        private val USERNAME_KEY = "SetupFragement.USERNAME_KEY"
-        private val PASSWORD_KEY = "SetupFragement.PASSWORD_KEY"
+        private const val TAG = "SetupFragment"
+        private const val ADDRESS_KEY = "SetupFragement.ADDRESS_KEY"
+        private const val USERNAME_KEY = "SetupFragement.USERNAME_KEY"
+        private const val PASSWORD_KEY = "SetupFragement.PASSWORD_KEY"
     }
 }

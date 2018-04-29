@@ -39,15 +39,13 @@ class PlaylistAdapter(private val click: (Playlist) -> Unit) :
 
     private val mPlaylists = SortedList<Playlist>(Playlist::class.java, PlaylistCallback(this))
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): PlaylistViewHolder {
-        parent!!
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.list_item_playlist, parent, false)
         return PlaylistViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: PlaylistViewHolder?, position: Int) {
-        holder ?: return
+    override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         val context = holder.itemView.context
         val playlist = mPlaylists.get(position)
         holder.playlistName.text = playlist.name

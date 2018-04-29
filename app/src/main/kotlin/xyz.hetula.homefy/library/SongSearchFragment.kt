@@ -49,8 +49,8 @@ class SongSearchFragment : HomefyFragment(), AdapterView.OnItemSelectedListener 
     private var mSearch: EditText? = null
     private var mAdapter: SongAdapter? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val root = inflater!!.inflate(R.layout.fragment_song_search, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val root = inflater.inflate(R.layout.fragment_song_search, container, false)
 
         val mRecycler = root.recyclerView
         mRecycler!!.setHasFixedSize(true)
@@ -75,7 +75,7 @@ class SongSearchFragment : HomefyFragment(), AdapterView.OnItemSelectedListener 
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar?.title = context.getString(R.string.nav_search)
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.nav_search)
     }
 
     override fun onPause() {

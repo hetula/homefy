@@ -105,7 +105,7 @@ class DefaultHomefyProtocol : HomefyProtocol {
                               pagesConsumer: (Array<String>) -> Unit,
                               errorConsumer: (VolleyError) -> Unit) {
         val pagesRequest = GsonRequest(
-                "$server/songs/pages?length=" + pageLength,
+                "$server/songs/pages?length=$pageLength",
                 Array<String>::class.java,
                 pagesConsumer,
                 Response.ErrorListener({ error ->
@@ -151,7 +151,7 @@ class DefaultHomefyProtocol : HomefyProtocol {
                              songConsumer: (Song) -> Unit,
                              errorConsumer: (VolleyError) -> Unit) {
         val songReq = GsonRequest(
-                "$server/song/" + id,
+                "$server/song/$id",
                 Song::class.java,
                 songConsumer,
                 Response.ErrorListener({ error ->
@@ -180,7 +180,7 @@ class DefaultHomefyProtocol : HomefyProtocol {
 
     override fun addAuthHeader(headers: HashMap<String, String>) {
         if (TextUtils.isEmpty(mUserPass)) return
-        headers.put("Authorization", "Basic $mUserPass")
+        headers["Authorization"] = "Basic $mUserPass"
     }
 
     private fun appendHeaders(request: GsonRequest<*>) {
@@ -189,6 +189,6 @@ class DefaultHomefyProtocol : HomefyProtocol {
     }
 
     companion object {
-        private val TAG = "HomefyProtocol"
+        private const val TAG = "HomefyProtocol"
     }
 }
