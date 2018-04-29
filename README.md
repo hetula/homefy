@@ -6,8 +6,8 @@ Homefy is written in Kotlin
 
 ## Requirements
 
- - Android Studio >=3.0 (for Official Kotlin support, might work on lower too)
- - Android API 23
+ - Android Studio >= 3.1 (for Official Kotlin support, might work on lower too)
+ - Android API 27 (Should work on lower with some changes)
 
 
 ## License and Copyright
