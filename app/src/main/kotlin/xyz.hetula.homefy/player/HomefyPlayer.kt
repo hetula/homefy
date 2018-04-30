@@ -323,7 +323,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     private fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
         Log.e(TAG, "Playback Error: $what extra: $extra MediaPlayer: $mp")
         MediaPlayer.MEDIA_ERROR_IO
-        mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
+        mPlaybackListeners.forEach { it(nowPlaying(), STATE_STOP, -1) }
         updatePlaybackState(PlaybackStateCompat.STATE_ERROR)
         return true
     }

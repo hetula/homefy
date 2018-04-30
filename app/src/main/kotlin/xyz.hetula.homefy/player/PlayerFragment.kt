@@ -25,10 +25,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.SeekBar
-import android.widget.TextView
+import android.widget.*
 import kotlinx.android.synthetic.main.fragment_player.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
@@ -53,6 +50,7 @@ class PlayerFragment : HomefyFragment() {
     private lateinit var mBtnPausePlay: ImageButton
     private lateinit var mBtnFavorite: ImageButton
     private lateinit var mSeekBar: SeekBar
+    private lateinit var mSongIconView: ImageView
 
     private val mPositionLoop = Handler()
     private val mUpdateRunnable = this::posQuery
@@ -70,6 +68,7 @@ class PlayerFragment : HomefyFragment() {
         mSeekBar = main.seek_song_length!!
         mBtnPausePlay = main.btn_play_pause!!
         mBtnFavorite = main.btn_favorite!!
+        mSongIconView = main.song_icon_view!!
 
         mBtnPausePlay.setOnClickListener { _ -> homefy().getPlayer().pauseResume() }
 
@@ -117,6 +116,7 @@ class PlayerFragment : HomefyFragment() {
         val song = homefy().getPlayer().nowPlaying()
         if (song != null) {
             updateSongInfo(song)
+            updateSongIcon(song)
         }
         homefy().getPlayer().registerPlaybackListener(mPlaybackListener)
         mPositionLoop.post(mUpdateRunnable)
@@ -141,8 +141,21 @@ class PlayerFragment : HomefyFragment() {
             HomefyPlayer.STATE_STOP -> clear()
             HomefyPlayer.STATE_RESUME -> onDurUpdate(false)
         }
-        if (song != null && state != HomefyPlayer.STATE_BUFFERING) {
+        if(song == null) {
+            mSongIconView.setImageResource(R.drawable.ic_music)
+            return
+        }
+        if (state != HomefyPlayer.STATE_BUFFERING) {
             updateSongInfo(song)
+        }
+        updateSongIcon(song)
+    }
+
+    private fun updateSongIcon(song: Song) {
+        if(song.albumArt == null) {
+            mSongIconView.setImageResource(R.drawable.ic_music)
+        } else {
+            mSongIconView.setImageBitmap(song.albumArt)
         }
     }
 
