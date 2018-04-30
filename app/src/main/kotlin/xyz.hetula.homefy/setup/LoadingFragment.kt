@@ -77,7 +77,8 @@ class LoadingFragment : HomefyFragment() {
                 this::fetchData,
                 { er ->
                     Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
-                    Log.e("LoadingFragment", "Connection error! Can't recover!", er.cause)
+                    Log.e("LoadingFragment", "Connection error! Can't recover!", er.volleyError.cause)
+                    // TODO: Try to recover at some point
                     activity!!.finish()
                 })
     }

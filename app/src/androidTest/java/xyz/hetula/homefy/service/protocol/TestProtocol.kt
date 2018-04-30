@@ -20,7 +20,6 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
-import com.android.volley.VolleyError
 import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
 import java.nio.charset.StandardCharsets
@@ -61,36 +60,36 @@ class TestProtocol : HomefyProtocol {
     }
 
     override fun setAuth(user: String, pass: String) {
-        mUserPass = String(Base64.encode((user + ":" + pass)
+        mUserPass = String(Base64.encode(("$user:$pass")
                 .toByteArray(StandardCharsets.UTF_8), 0), StandardCharsets.UTF_8)
     }
 
     override fun addAuthHeader(headers: HashMap<String, String>) {
         if (TextUtils.isEmpty(mUserPass)) return
-        headers.put("Authorization", "Basic " + mUserPass)
+        headers["Authorization"] = "Basic $mUserPass"
     }
 
-    override fun requestVersionInfo(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (VolleyError) -> Unit) {
+    override fun requestVersionInfo(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (RequestError) -> Unit) {
         executor.submit { requestVersionInfo("$server/version", versionConsumer) }
     }
 
-    override fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (VolleyError) -> Unit) {
+    override fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (RequestError) -> Unit) {
     }
 
-    override fun requestSongs(songsConsumer: (Array<Song>) -> Unit, errorConsumer: (VolleyError) -> Unit) {
+    override fun requestSongs(songsConsumer: (Array<Song>) -> Unit, errorConsumer: (RequestError) -> Unit) {
     }
 
-    override fun requestSongs(parameters: Map<String, String>?, songsConsumer: (Array<Song>) -> Unit, errorConsumer: (VolleyError) -> Unit) {
+    override fun requestSongs(parameters: Map<String, String>?, songsConsumer: (Array<Song>) -> Unit, errorConsumer: (RequestError) -> Unit) {
     }
 
-    override fun requestSong(id: String, songConsumer: (Song) -> Unit, errorConsumer: (VolleyError) -> Unit) {
+    override fun requestSong(id: String, songConsumer: (Song) -> Unit, errorConsumer: (RequestError) -> Unit) {
     }
 
-    override fun requestPages(pageLength: Int, pagesConsumer: (Array<String>) -> Unit, errorConsumer: (VolleyError) -> Unit) {
+    override fun requestPages(pageLength: Int, pagesConsumer: (Array<String>) -> Unit, errorConsumer: (RequestError) -> Unit) {
         executor.submit { requestPages(pageLength, pagesConsumer) }
     }
 
-    override fun <T> request(url: String, consumer: (T) -> Unit, errorConsumer: (VolleyError) -> Unit, clasz: Class<T>) {
+    override fun <T> request(url: String, consumer: (T) -> Unit, errorConsumer: (RequestError) -> Unit, clasz: Class<T>) {
 
     }
 

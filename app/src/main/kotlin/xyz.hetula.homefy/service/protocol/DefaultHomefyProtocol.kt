@@ -61,7 +61,7 @@ class DefaultHomefyProtocol : HomefyProtocol {
     }
 
     override fun requestVersionInfo(versionConsumer: (VersionInfo) -> Unit,
-                                    errorConsumer: (VolleyError) -> Unit) {
+                                    errorConsumer: (RequestError) -> Unit) {
         val versionReq = GsonRequest(
                 "$server/version",
                 VersionInfo::class.java,
@@ -71,13 +71,14 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 },
                 Response.ErrorListener({ error ->
                     Log.e(TAG, error.toString())
-                    errorConsumer(error)
+                    val code = getErrorCode(error)
+                    errorConsumer(RequestError(code, error))
                 }))
         mQueryQueue?.add(versionReq)
     }
 
     override fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit,
-                                        errorConsumer: (VolleyError) -> Unit) {
+                                        errorConsumer: (RequestError) -> Unit) {
         val versionReq = GsonRequest(
                 "$server/version/auth",
                 VersionInfo::class.java,
@@ -87,7 +88,8 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 },
                 Response.ErrorListener({ error ->
                     Log.e(TAG, error.toString())
-                    errorConsumer(error)
+                    val code = getErrorCode(error)
+                    errorConsumer(RequestError(code, error))
                 }))
         appendHeaders(versionReq)
         mQueryQueue?.add(versionReq)
@@ -95,27 +97,28 @@ class DefaultHomefyProtocol : HomefyProtocol {
 
     override fun requestPages(pageLength: Int,
                               pagesConsumer: (Array<String>) -> Unit,
-                              errorConsumer: (VolleyError) -> Unit) {
+                              errorConsumer: (RequestError) -> Unit) {
         val pagesRequest = GsonRequest(
                 "$server/songs/pages?length=$pageLength",
                 Array<String>::class.java,
                 pagesConsumer,
                 Response.ErrorListener({ error ->
                     Log.e(TAG, error.toString())
-                    errorConsumer(error)
+                    val code = getErrorCode(error)
+                    errorConsumer(RequestError(code, error))
                 }))
         appendHeaders(pagesRequest)
         mQueryQueue?.add(pagesRequest)
     }
 
     override fun requestSongs(songsConsumer: (Array<Song>) -> Unit,
-                              errorConsumer: (VolleyError) -> Unit) {
+                              errorConsumer: (RequestError) -> Unit) {
         requestSongs(null, songsConsumer, errorConsumer)
     }
 
     override fun requestSongs(parameters: Map<String, String>?,
                               songsConsumer: (Array<Song>) -> Unit,
-                              errorConsumer: (VolleyError) -> Unit) {
+                              errorConsumer: (RequestError) -> Unit) {
         val params = StringBuilder()
         if (parameters != null && parameters.isEmpty()) {
             params.append('?')
@@ -133,7 +136,8 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 songsConsumer,
                 Response.ErrorListener({ error ->
                     Log.e(TAG, error.toString())
-                    errorConsumer(error)
+                    val code = getErrorCode(error)
+                    errorConsumer(RequestError(code, error))
                 }))
         appendHeaders(songsReq)
         mQueryQueue?.add(songsReq)
@@ -141,14 +145,15 @@ class DefaultHomefyProtocol : HomefyProtocol {
 
     override fun requestSong(id: String,
                              songConsumer: (Song) -> Unit,
-                             errorConsumer: (VolleyError) -> Unit) {
+                             errorConsumer: (RequestError) -> Unit) {
         val songReq = GsonRequest(
                 "$server/song/$id",
                 Song::class.java,
                 songConsumer,
                 Response.ErrorListener({ error ->
                     Log.e(TAG, error.toString())
-                    errorConsumer(error)
+                    val code = getErrorCode(error)
+                    errorConsumer(RequestError(code, error))
                 }))
         appendHeaders(songReq)
         mQueryQueue?.add(songReq)
@@ -156,7 +161,7 @@ class DefaultHomefyProtocol : HomefyProtocol {
 
     override fun <T> request(url: String,
                              consumer: (T) -> Unit,
-                             errorConsumer: (VolleyError) -> Unit,
+                             errorConsumer: (RequestError) -> Unit,
                              clasz: Class<T>) {
         val request = GsonRequest(
                 url,
@@ -164,7 +169,8 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 consumer,
                 Response.ErrorListener({ error ->
                     Log.e(TAG, error.toString())
-                    errorConsumer(error)
+                    val code = getErrorCode(error)
+                    errorConsumer(RequestError(code, error))
                 }))
         appendHeaders(request)
         mQueryQueue?.add(request)
@@ -178,6 +184,12 @@ class DefaultHomefyProtocol : HomefyProtocol {
     private fun appendHeaders(request: GsonRequest<*>) {
         if (TextUtils.isEmpty(mUserPass)) return
         request.putHeader("Authorization", "Basic $mUserPass")
+    }
+
+    private fun getErrorCode(volleyError: VolleyError?): Int {
+        volleyError ?: return -1
+        volleyError.networkResponse ?: return -1
+        return volleyError.networkResponse.statusCode
     }
 
     companion object {

@@ -18,6 +18,7 @@ package xyz.hetula.homefy.setup
 
 import android.content.Context
 import android.os.Bundle
+import android.support.annotation.StringRes
 import android.support.design.widget.Snackbar
 import android.support.design.widget.TextInputEditText
 import android.util.Log
@@ -29,6 +30,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.service.protocol.RequestError
 import xyz.hetula.homefy.service.protocol.VersionInfo
 
 
@@ -72,7 +74,7 @@ class SetupFragment : HomefyFragment() {
         if (mConnecting) return
         val address = mAddress.text.toString()
         homefy().getProtocol().server = address
-        // Save it for later
+
         val pref = activity!!.getPreferences(Context.MODE_PRIVATE)
         pref.edit().putString(ADDRESS_KEY, address).apply()
 
@@ -85,8 +87,12 @@ class SetupFragment : HomefyFragment() {
         } else {
             val user = mUser.text.toString()
             val pass = mPass.text.toString()
-            if (user.isEmpty() || pass.isEmpty()) {
-                Snackbar.make(mMain, R.string.check_credentials, Snackbar.LENGTH_SHORT).show()
+            if (user.isEmpty()) {
+                Snackbar.make(mMain, R.string.check_credentials_username, Snackbar.LENGTH_SHORT).show()
+                return
+            }
+            if(pass.isEmpty()) {
+                Snackbar.make(mMain, R.string.check_credentials_password, Snackbar.LENGTH_SHORT).show()
                 return
             }
             pref.edit()
@@ -100,8 +106,8 @@ class SetupFragment : HomefyFragment() {
     private fun onConnect() {
         mConnecting = true
         homefy().getProtocol().requestVersionInfo(this::onVersionInfo,
-                { _ ->
-                    Snackbar.make(mMain, R.string.connection_error, Snackbar.LENGTH_SHORT).show()
+                { err ->
+                    Snackbar.make(mMain, getRequestErrorStringRes(err), Snackbar.LENGTH_SHORT).show()
                     mConnecting = false
                 })
     }
@@ -110,8 +116,8 @@ class SetupFragment : HomefyFragment() {
         mConnecting = true
         homefy().getProtocol().setAuth(user, pass)
         homefy().getProtocol().requestVersionInfoAuth(this::onVersionInfoAuth,
-                { _ ->
-                    Snackbar.make(mMain, R.string.connection_error, Snackbar.LENGTH_SHORT).show()
+                { err ->
+                    Snackbar.make(mMain, getRequestErrorStringRes(err), Snackbar.LENGTH_SHORT).show()
                     mConnecting = false
                 })
     }
@@ -128,6 +134,7 @@ class SetupFragment : HomefyFragment() {
             }
             else -> {
                 Log.w(TAG, "Unsupported auth method")
+                Snackbar.make(mMain, R.string.unsupported_authentication, Snackbar.LENGTH_LONG).show()
             }
         }
     }
@@ -143,6 +150,13 @@ class SetupFragment : HomefyFragment() {
                 .beginTransaction()
                 .replace(R.id.container, LoadingFragment())
                 .commit()
+    }
+
+    @StringRes
+    private fun getRequestErrorStringRes(error: RequestError): Int = when(error.errCode) {
+        401 -> R.string.authentication_error
+        -1 -> R.string.malformed_url
+        else -> R.string.connection_error
     }
 
     companion object {

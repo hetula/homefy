@@ -17,8 +17,6 @@
 package xyz.hetula.homefy.service.protocol
 
 import android.content.Context
-import com.android.volley.VolleyError
-
 import xyz.hetula.homefy.player.Song
 
 /**
@@ -40,18 +38,18 @@ interface HomefyProtocol {
 
     fun addAuthHeader(headers: HashMap<String, String>)
 
-    fun requestVersionInfo(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (VolleyError) -> Unit)
+    fun requestVersionInfo(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (RequestError) -> Unit)
 
-    fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (VolleyError) -> Unit)
+    fun requestVersionInfoAuth(versionConsumer: (VersionInfo) -> Unit, errorConsumer: (RequestError) -> Unit)
 
-    fun requestSongs(songsConsumer: (Array<Song>) -> Unit, errorConsumer: (VolleyError) -> Unit)
+    fun requestSongs(songsConsumer: (Array<Song>) -> Unit, errorConsumer: (RequestError) -> Unit)
 
-    fun requestSongs(parameters: Map<String, String>?, songsConsumer: (Array<Song>) -> Unit, errorConsumer: (VolleyError) -> Unit)
+    fun requestSongs(parameters: Map<String, String>?, songsConsumer: (Array<Song>) -> Unit, errorConsumer: (RequestError) -> Unit)
 
-    fun requestSong(id: String, songConsumer: (Song) -> Unit, errorConsumer: (VolleyError) -> Unit)
+    fun requestSong(id: String, songConsumer: (Song) -> Unit, errorConsumer: (RequestError) -> Unit)
 
-    fun requestPages(pageLength: Int, pagesConsumer: (Array<String>) -> Unit, errorConsumer: (VolleyError) -> Unit)
+    fun requestPages(pageLength: Int, pagesConsumer: (Array<String>) -> Unit, errorConsumer: (RequestError) -> Unit)
 
-    fun <T> request(url: String, consumer: (T) -> Unit, errorConsumer: (VolleyError) -> Unit, clasz: Class<T>)
+    fun <T> request(url: String, consumer: (T) -> Unit, errorConsumer: (RequestError) -> Unit, clasz: Class<T>)
 
 }

@@ -40,8 +40,12 @@
     <string name="nav_playlists">Playlists</string>
 
     <string name="enter_server_address">Address is missing!</string>
-    <string name="check_credentials">Enter login!</string>
+    <string name="check_credentials_username">Enter username!</string>
+    <string name="check_credentials_password">Enter password!</string>
+    <string name="unsupported_authentication">Unsupported authentication!</string>
+    <string name="malformed_url">Invalid URL!</string>
     <string name="connection_error">Connection error!</string>
+    <string name="authentication_error">Invalid Username or Password!</string>
 
     <string name="loading">Loading…</string>
     <string name="server_address">Server address</string>
