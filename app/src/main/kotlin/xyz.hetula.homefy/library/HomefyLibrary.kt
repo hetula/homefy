@@ -63,12 +63,12 @@ class HomefyLibrary(private val protocol: HomefyProtocol) {
         mMusic = ArrayList(sanitizeMusic(music))
         Log.d(TAG, "Sanitized from $size to ${mMusic.size}")
 
-        Collections.sort(mMusic)
+        mMusic.sort()
 
         mSongDatabase = HashMap((mMusic.size * 1.25).toInt())
 
         for (song in mMusic) {
-            mSongDatabase!!.put(song.id, song)
+            mSongDatabase!![song.id] = song
             createAndAdd(mArtistCache, song.artist, song)
             createAndAdd(mAlbumCache, song.album, song)
         }
@@ -78,8 +78,8 @@ class HomefyLibrary(private val protocol: HomefyProtocol) {
         mArtists = ArrayList(mArtistCache.keys)
 
         // Sort
-        Collections.sort(mAlbums)
-        Collections.sort(mArtists)
+        mAlbums.sort()
+        mArtists.sort()
         val time = SystemClock.elapsedRealtime() - start
         mReady = true
         val completeIntent = Intent(context, HomefyService::class.java)
@@ -118,7 +118,7 @@ class HomefyLibrary(private val protocol: HomefyProtocol) {
         var list: ArrayList<Song>? = cache[key]
         if (list == null) {
             list = ArrayList()
-            cache.put(key, list)
+            cache[key] = list
         }
         list.add(song)
     }
@@ -274,6 +274,6 @@ class HomefyLibrary(private val protocol: HomefyProtocol) {
     }
 
     companion object {
-        val TAG = "HomefyLibrary"
+        const val TAG = "HomefyLibrary"
     }
 }

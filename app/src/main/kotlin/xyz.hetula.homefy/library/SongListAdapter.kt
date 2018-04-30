@@ -68,7 +68,7 @@ internal class SongListAdapter(names: List<String>,
         return mNameList.size
     }
 
-    class SongListViewHolder(val songListAdapter: SongListAdapter, itemView: View) :
+    class SongListViewHolder(private val songListAdapter: SongListAdapter, itemView: View) :
             RecyclerView.ViewHolder(itemView) {
         val txtMainInfo: TextView = itemView.findViewById(R.id.txt_main_info)
         val txtMoreInfo: TextView = itemView.findViewById(R.id.txt_more_info)
@@ -95,8 +95,8 @@ internal class SongListAdapter(names: List<String>,
         }
 
         companion object {
-            private val PLAY_ALL_ID = 0
-            private val QUEUE_ALL_ID = 1
+            private const val PLAY_ALL_ID = 0
+            private const val QUEUE_ALL_ID = 1
         }
 
     }

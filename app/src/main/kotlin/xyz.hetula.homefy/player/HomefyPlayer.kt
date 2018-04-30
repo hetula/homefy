@@ -59,7 +59,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     private var mPlayer: MediaPlayer? = null
     private var mContext: Context? = null
 
-    private var afChangeListener = this::onAudioFocusChange
+    private var afChangeListener = {focusChange: Int -> onAudioFocusChange(focusChange)}
     private var mLastPlayPress = 0L
     private var mHasFocus = false
     private var mAudioFocusRequest: AudioFocusRequest? = null
@@ -492,15 +492,15 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     }
 
     companion object {
-        private val TAG = "HomefyPlayer"
+        private const val TAG = "HomefyPlayer"
 
         /*
          * Playback Codes
          */
-        val STATE_PLAY = 0
-        val STATE_PAUSE = 1
-        val STATE_RESUME = 2
-        val STATE_STOP = 3
-        val STATE_BUFFERING = 4
+        const val STATE_PLAY = 0
+        const val STATE_PAUSE = 1
+        const val STATE_RESUME = 2
+        const val STATE_STOP = 3
+        const val STATE_BUFFERING = 4
     }
 }

@@ -23,7 +23,7 @@ fun Long.parseSeconds(): String {
     return String.format(Locale.getDefault(), "%02d:%02d", min, this - min * 60)
 }
 
-fun String.toSongHash(): String {
+fun String.toSHA1Hash(): String {
     val digest = MessageDigest.getInstance("SHA-1")
     val bytes = this.toByteArray()
     val hashed = digest.digest(bytes)

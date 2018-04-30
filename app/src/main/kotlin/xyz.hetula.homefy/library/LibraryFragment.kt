@@ -83,7 +83,7 @@ class LibraryFragment : Fragment() {
             R.id.library_playlists -> openFragment(PlaylistFragment())
             R.id.homefy_header -> openPlayer()
             else -> {
-                Log.w("LibraryFragment", "Unhandled Click from " + v)
+                Log.w("LibraryFragment", "Unhandled Click from $v")
             }
         }
     }

@@ -29,7 +29,7 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 import xyz.hetula.homefy.R
-import xyz.hetula.homefy.Utils
+import xyz.hetula.homefy.parseSeconds
 import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
@@ -69,7 +69,7 @@ class SongAdapter(songs: List<Song>,
             holder.txtTrackTitle.text = String.format(Locale.getDefault(), "%d - %s", song.track, song.title)
         }
         holder.txtArtistAlbum.text = String.format(Locale.getDefault(), "%s - %s", song.artist, song.album)
-        holder.txtLength.text = Utils.parseSeconds(song.length)
+        holder.txtLength.text = song.length.parseSeconds()
         holder.itemView.setOnClickListener { v ->
             mPlayer.play(song, mSongs)
             openPlayer(v.context)
@@ -115,7 +115,7 @@ class SongAdapter(songs: List<Song>,
         context.startActivity(intent)
     }
 
-    class SongViewHolder(val songAdapter: SongAdapter,
+    class SongViewHolder(private val songAdapter: SongAdapter,
                          itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtTrackTitle: TextView = itemView.findViewById(R.id.song_track_title)
         val txtArtistAlbum: TextView = itemView.findViewById(R.id.song_artist_album)

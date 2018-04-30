@@ -20,8 +20,8 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
-import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
+import xyz.hetula.homefy.toSHA1Hash
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -45,7 +45,7 @@ class TestProtocol : HomefyProtocol {
     override var server: String = ""
         set(value) {
             field = value
-            mServerId = Utils.getHash(value)
+            mServerId = value.toSHA1Hash()
         }
 
     override fun initialize(context: Context) {
