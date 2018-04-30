@@ -61,7 +61,7 @@
                 <TextView
                     style="@style/NavigationView.Content"
                     android:drawableStart="@drawable/ic_library_music"
-                    android:text="@string/nav_music" />
+                    android:text="@string/library_music" />
             </FrameLayout>
 
             <include layout="@layout/view_divider_vertical" />
@@ -73,7 +73,7 @@
                 <TextView
                     style="@style/NavigationView.Content"
                     android:drawableStart="@drawable/ic_album"
-                    android:text="@string/nav_albums" />
+                    android:text="@string/library_albums" />
             </FrameLayout>
 
             <include layout="@layout/view_divider_vertical" />
@@ -85,7 +85,7 @@
                 <TextView
                     style="@style/NavigationView.Content"
                     android:drawableStart="@drawable/ic_favorite_library"
-                    android:text="@string/nav_favs" />
+                    android:text="@string/library_favs" />
             </FrameLayout>
 
             <include layout="@layout/view_divider_vertical" />
@@ -109,7 +109,7 @@
                 <TextView
                     style="@style/NavigationView.Content"
                     android:drawableStart="@drawable/ic_search"
-                    android:text="@string/nav_search" />
+                    android:text="@string/library_search" />
             </FrameLayout>
 
             <include layout="@layout/view_divider_vertical" />
@@ -121,7 +121,7 @@
                 <TextView
                     style="@style/NavigationView.Content"
                     android:drawableStart="@drawable/ic_artists"
-                    android:text="@string/nav_artists" />
+                    android:text="@string/library_artists" />
             </FrameLayout>
 
             <include layout="@layout/view_divider_vertical" />
@@ -133,7 +133,7 @@
                 <TextView
                     style="@style/NavigationView.Content"
                     android:drawableStart="@drawable/ic_playlist"
-                    android:text="@string/nav_playlists" />
+                    android:text="@string/library_playlists" />
             </FrameLayout>
 
             <include layout="@layout/view_divider_vertical" />

@@ -67,7 +67,7 @@ class SongSearchFragment : HomefyFragment(), AdapterView.OnItemSelectedListener 
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.show()
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.nav_search)
+        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.library_search)
     }
 
     override fun onPause() {

@@ -35,7 +35,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/search_hint"
+            android:hint="@string/library_search_hint"
             android:paddingEnd="8dp"
             android:paddingStart="8dp"
             android:inputType="textAutoComplete" />

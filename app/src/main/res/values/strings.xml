@@ -25,44 +25,48 @@
     <string name="next_desc">Next</string>
     <string name="download_desc">Download song</string>
     <string name="shutdown_desc">Shutdown Player</string>
+    <string name="add_to_playlist_desc">Add to Playlist</string>
     <!-- Content Desc END -->
-
 
     <string name="app_name">Homefy</string>
     <string name="app_desc">Play some music!</string>
+
     <string name="channel_name">Media playback</string>
     <string name="channel_desc">Media playback controls</string>
-    <string name="nav_music">Music</string>
-    <string name="nav_albums">Albums</string>
-    <string name="nav_artists">Artists</string>
-    <string name="nav_search">Search</string>
-    <string name="nav_favs">Favorites</string>
-    <string name="nav_playlists">Playlists</string>
 
-    <string name="enter_server_address">Address is missing!</string>
-    <string name="check_credentials_username">Enter username!</string>
-    <string name="check_credentials_password">Enter password!</string>
-    <string name="unsupported_authentication">Unsupported authentication!</string>
-    <string name="malformed_url">Invalid URL!</string>
-    <string name="connection_error">Connection error!</string>
-    <string name="authentication_error">Invalid Username or Password!</string>
+    <string name="library_music">Music</string>
+    <string name="library_albums">Albums</string>
+    <string name="library_artists">Artists</string>
+    <string name="library_search">Search</string>
+    <string name="library_favs">Favorites</string>
+    <string name="library_playlists">Playlists</string>
+    <string name="library_search_hint">Search…</string>
 
-    <string name="loading">Loading…</string>
-    <string name="server_address">Server address</string>
-    <string name="username_if_needed">Username</string>
-    <string name="password_if_needed">Password</string>
-    <string name="connect">Connect</string>
-    <string name="authenticate">Login</string>
-    <string name="http">http://</string>
-    <string name="search_hint">Search…</string>
-    <string name="buffering">%03d%% Buffering</string>
-    <string name="buffering_place_holder">100%% Buffering</string>
-    <string name="add_to_playlist_desc">Add to Playlist</string>
+    <string name="setup_enter_server_address">Address is missing!</string>
+    <string name="setup_check_credentials_username">Enter username!</string>
+    <string name="setup_check_credentials_password">Enter password!</string>
+    <string name="setup_unsupported_authentication">Unsupported authentication!</string>
+    <string name="setup_malformed_url">Invalid URL!</string>
+    <string name="setup_connection_error">Connection error!</string>
+    <string name="setup_authentication_error">Invalid Username or Password!</string>
+    <string name="setup_http_hint" translatable="false">http://</string>
+    <string name="setup_server_address_hint">Server address</string>
+    <string name="setup_username_if_needed_hint">Username</string>
+    <string name="setup_password_if_needed_hint">Password</string>
+    <string name="setup_connect">Connect</string>
+    <string name="setup_authenticate">Login</string>
+
+    <string name="load_loading">Loading…</string>
+
+    <string name="player_buffering">%03d%% Buffering</string>
+    <string name="player_buffering_place_holder">100%% Buffering</string>
+
     <string name="menu_shutdown">Shutdown</string>
     <string name="menu_song_play_all">Play All</string>
     <string name="menu_song_queue">Queue</string>
     <string name="menu_song_add_to_playlist">Add to Playlist</string>
     <string name="menu_song_remove_from_playlist">Remove from Playlist</string>
+
     <string name="playlist_songs_format">Songs: %d</string>
     <string name="playlist_dialog_title">Add to Playlist</string>
     <string name="playlist_dialog_added">Song added!</string>

@@ -71,20 +71,20 @@ class LoadingTests : TestBase() {
         }
 
         onView(withId(R.id.btn_connect)).perform(click())
-        onView(withText(R.string.enter_server_address)).check(matches(isDisplayed()))
+        onView(withText(R.string.setup_enter_server_address)).check(matches(isDisplayed()))
 
         onView(withId(R.id.txt_address)).perform(replaceText(url))
         assertEquals("Url already set!", "", protocol.server)
         onView(withId(R.id.btn_connect)).perform(click())
         assertEquals("Url Mismatch!", url, protocol.server)
-        onView(withText(R.string.loading)).check(matches(isDisplayed()))
+        onView(withText(R.string.load_loading)).check(matches(isDisplayed()))
 
         waitSome(750)
-        onView(withText(R.string.nav_music)).check(matches(isDisplayed()))
-        onView(withText(R.string.nav_albums)).check(matches(isDisplayed()))
-        onView(withText(R.string.nav_artists)).check(matches(isDisplayed()))
-        onView(withText(R.string.nav_favs)).check(matches(isDisplayed()))
-        onView(withText(R.string.nav_playlists)).check(matches(isDisplayed()))
-        onView(withText(R.string.nav_search)).check(matches(isDisplayed()))
+        onView(withText(R.string.library_music)).check(matches(isDisplayed()))
+        onView(withText(R.string.library_albums)).check(matches(isDisplayed()))
+        onView(withText(R.string.library_artists)).check(matches(isDisplayed()))
+        onView(withText(R.string.library_favs)).check(matches(isDisplayed()))
+        onView(withText(R.string.library_playlists)).check(matches(isDisplayed()))
+        onView(withText(R.string.library_search)).check(matches(isDisplayed()))
     }
 }

@@ -76,7 +76,7 @@ class LoadingFragment : HomefyFragment() {
         homefy().getProtocol().requestPages(resources.getInteger(R.integer.load_page_song_count),
                 this::fetchData,
                 { er ->
-                    Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, R.string.setup_connection_error, Toast.LENGTH_LONG).show()
                     Log.e("LoadingFragment", "Connection error! Can't recover!", er.volleyError.cause)
                     // TODO: Try to recover at some point
                     activity!!.finish()
@@ -93,7 +93,7 @@ class LoadingFragment : HomefyFragment() {
                         url,
                         { onSongs(it) },
                         { _ ->
-                            Toast.makeText(context, R.string.connection_error, Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, R.string.setup_connection_error, Toast.LENGTH_LONG).show()
                             onDataRequestFinished(false)
                         },
                         Array<Song>::class.java)

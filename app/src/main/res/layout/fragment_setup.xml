@@ -34,10 +34,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="12"
-            android:hint="@string/server_address"
+            android:hint="@string/setup_server_address_hint"
             android:inputType="textUri"
             android:lines="1"
-            android:text="@string/http" />
+            android:text="@string/setup_http_hint" />
 
     </android.support.design.widget.TextInputLayout>
 
@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="12"
-                android:hint="@string/username_if_needed"
+                android:hint="@string/setup_username_if_needed_hint"
                 android:inputType="text"
                 android:lines="1" />
 
@@ -83,7 +83,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="12"
-                android:hint="@string/password_if_needed"
+                android:hint="@string/setup_password_if_needed_hint"
                 android:inputType="textPassword"
                 android:lines="1" />
 
@@ -99,6 +99,6 @@
         android:id="@+id/btn_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/connect" />
+        android:text="@string/setup_connect" />
 
 </LinearLayout>

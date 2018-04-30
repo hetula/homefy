@@ -79,7 +79,7 @@ class SetupFragment : HomefyFragment() {
         pref.edit().putString(ADDRESS_KEY, address).apply()
 
         if (address.isEmpty()) {
-            Snackbar.make(mMain, R.string.enter_server_address, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(mMain, R.string.setup_enter_server_address, Snackbar.LENGTH_SHORT).show()
             return
         }
         if (!mNeedsAuth) {
@@ -88,11 +88,11 @@ class SetupFragment : HomefyFragment() {
             val user = mUser.text.toString()
             val pass = mPass.text.toString()
             if (user.isEmpty()) {
-                Snackbar.make(mMain, R.string.check_credentials_username, Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(mMain, R.string.setup_check_credentials_username, Snackbar.LENGTH_SHORT).show()
                 return
             }
             if(pass.isEmpty()) {
-                Snackbar.make(mMain, R.string.check_credentials_password, Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(mMain, R.string.setup_check_credentials_password, Snackbar.LENGTH_SHORT).show()
                 return
             }
             pref.edit()
@@ -129,12 +129,12 @@ class SetupFragment : HomefyFragment() {
             VersionInfo.AuthType.NONE -> startLoading()
             VersionInfo.AuthType.BASIC -> {
                 mNeedsAuth = true
-                mConnect.setText(R.string.authenticate)
+                mConnect.setText(R.string.setup_authenticate)
                 mViewCredentials.visibility = View.VISIBLE
             }
             else -> {
                 Log.w(TAG, "Unsupported auth method")
-                Snackbar.make(mMain, R.string.unsupported_authentication, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(mMain, R.string.setup_unsupported_authentication, Snackbar.LENGTH_LONG).show()
             }
         }
     }
@@ -154,9 +154,9 @@ class SetupFragment : HomefyFragment() {
 
     @StringRes
     private fun getRequestErrorStringRes(error: RequestError): Int = when(error.errCode) {
-        401 -> R.string.authentication_error
-        -1 -> R.string.malformed_url
-        else -> R.string.connection_error
+        401 -> R.string.setup_authentication_error
+        -1 -> R.string.setup_malformed_url
+        else -> R.string.setup_connection_error
     }
 
     companion object {

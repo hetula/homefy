@@ -152,7 +152,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/buffering_place_holder"
+            android:text="@string/player_buffering_place_holder"
             android:textColor="@color/buffer_font"
             android:visibility="invisible"
             tools:visibility="visible" />

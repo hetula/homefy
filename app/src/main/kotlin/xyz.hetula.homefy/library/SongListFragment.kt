@@ -53,7 +53,7 @@ class SongListFragment : HomefyFragment() {
                 adapter = SongAdapter(homefy().getLibrary().songs,
                         homefy().getPlayer(), homefy().getPlaylists())
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        getString(R.string.nav_music)
+                        getString(R.string.library_music)
             }
             ARTISTS -> {
                 adapter = SongListAdapter(homefy().getLibrary().artists,
@@ -61,7 +61,7 @@ class SongListFragment : HomefyFragment() {
                         { artist -> homefy().getLibrary().getArtistSongs(artist) },
                         this::onArtistClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        getString(R.string.nav_artists)
+                        getString(R.string.library_artists)
             }
             ALBUMS -> {
                 adapter = SongListAdapter(homefy().getLibrary().albums,
@@ -69,25 +69,25 @@ class SongListFragment : HomefyFragment() {
                         { album -> homefy().getLibrary().getAlbumSongs(album) },
                         this::onAlbumClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        getString(R.string.nav_albums)
+                        getString(R.string.library_albums)
             }
             ARTIST_MUSIC -> {
                 adapter = SongAdapter(homefy().getLibrary().getArtistSongs(name),
                         homefy().getPlayer(), homefy().getPlaylists())
-                mParentTitle = getString(R.string.nav_artists)
+                mParentTitle = getString(R.string.library_artists)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             ALBUM_MUSIC -> {
                 adapter = SongAdapter(homefy().getLibrary().getAlbumSongs(name),
                         homefy().getPlayer(), homefy().getPlaylists())
-                mParentTitle = getString(R.string.nav_albums)
+                mParentTitle = getString(R.string.library_albums)
                 (activity as AppCompatActivity).supportActionBar?.title = name
             }
             FAVORITES -> {
                 adapter = SongAdapter(homefy().getPlaylists().favorites.songs,
                         homefy().getPlayer(), homefy().getPlaylists(), this::onFavClick)
                 (activity as AppCompatActivity).supportActionBar?.title =
-                        getString(R.string.nav_favs)
+                        getString(R.string.library_favs)
             }
             PLAYLIST -> {
                 val playlist = homefy().getPlaylists()[name] ?:
@@ -96,7 +96,7 @@ class SongListFragment : HomefyFragment() {
                 adapter = SongAdapter(playlist.songs, homefy().getPlayer(),
                         homefy().getPlaylists(), playlist = playlist)
                 (activity as AppCompatActivity).supportActionBar?.title = playlist.name
-                mParentTitle = getString(R.string.nav_playlists)
+                mParentTitle = getString(R.string.library_playlists)
             }
             else -> {
                 Log.e(TAG, "Invalid TYPE: $type")

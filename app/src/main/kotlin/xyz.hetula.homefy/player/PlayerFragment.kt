@@ -150,10 +150,10 @@ class PlayerFragment : HomefyFragment() {
         Log.d(TAG, "Buffering $buffered")
         if (buffered >= 100) {
             mTxtBuffering.visibility = View.INVISIBLE
-            mTxtBuffering.text = getString(R.string.buffering, 0)
+            mTxtBuffering.text = getString(R.string.player_buffering, 0)
         } else {
             mTxtBuffering.visibility = View.VISIBLE
-            mTxtBuffering.text = getString(R.string.buffering, buffered)
+            mTxtBuffering.text = getString(R.string.player_buffering, buffered)
         }
     }
 
