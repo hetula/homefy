@@ -180,4 +180,8 @@ class Song : Comparable<Song> {
         if (type.startsWith("Ogg")) consumer("ogg")
     }
 
+    override fun toString(): String {
+        return "Song(id='$id', track=$track, title='$title', artist='$artist', album='$album', genre='$genre', length=$length, bitrate=$bitrate, samplerate=$samplerate, channels='$channels', type='$type', albumArt=$albumArt)"
+    }
+
 }

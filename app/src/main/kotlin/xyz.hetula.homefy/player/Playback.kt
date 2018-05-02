@@ -16,6 +16,7 @@
 
 package xyz.hetula.homefy.player
 
+import android.support.annotation.VisibleForTesting
 import android.util.Log
 import java.util.*
 
@@ -26,83 +27,73 @@ import java.util.*
  * @since 1.0
  */
 class Playback {
-    private val previous = ArrayDeque<Song>()
-    private val queue = ArrayList<Song>()
-    private val next = ArrayList<Song>()
+    private val mPrevious = ArrayDeque<Song>()
+    private val mQueue = ArrayList<Song>()
+    private val mNext = ArrayList<Song>()
 
-    private var playback: PlaybackProvider = RANDOM_PROVIDER
-    private var lastRequest: PlayRequest? = null
-    private var playing: Song? = null
+    private var mRnd = Random()
+    private var mPlaybackProvider: PlaybackProvider = RandomProvider
+    private var mLastPlayRequest: PlayRequest? = null
+    private var mNowPlaying: Song? = null
 
     var playbackMode: PlaybackMode = PlaybackMode.RANDOM
-        private set(value) {
+        @VisibleForTesting
+        internal set(value) {
             field = value
             setupPlaybackStyle(value)
         }
 
-    fun stop() {
-        playing?.clearAlbumArt()
-        playing = null
-    }
-
     fun playSong(play: Song, playlist: ArrayList<Song>) {
-        playing?.clearAlbumArt()
-        playing = play
-        lastRequest = PlayRequest(play, playlist)
+        mNowPlaying = play
+        val newPlayRequest = PlayRequest(play, playlist, mRnd)
 
-        next.clear()
-        next.addAll(playlist)
-        queue.clear()
-    }
-
-    private fun setupPlaybackStyle(mode: PlaybackMode) {
-        playback = when (mode) {
-            PlaybackMode.NORMAL -> NORMAL_PROVIDER
-            PlaybackMode.REPEAT -> REPEAT_PROVIDER
-            PlaybackMode.REPEAT_SINGLE -> REPEAT_SINGLE_PROVIDER
-            PlaybackMode.RANDOM -> RANDOM_PROVIDER
-        }
+        mNext.clear()
+        mQueue.clear()
+        mPlaybackProvider.onPlayRequest(play, newPlayRequest, mNext)
+        mLastPlayRequest = newPlayRequest
     }
 
     fun queueSong(queue: List<Song>) {
-        this.queue.addAll(0, queue)
+        this.mQueue.addAll(0, queue)
     }
 
-    private fun queueSong(song: Song) {
-        queue.add(0, song)
+    fun next() {
+        val lastPlayRequest = mLastPlayRequest ?: return
+        val current = mNowPlaying
+        if (current != null && current != mPrevious.peekLast()) {
+            addToPrevious(current)
+        }
+        mNowPlaying = if (mQueue.isNotEmpty()) {
+            mQueue.removeAt(0)
+        } else {
+            mPlaybackProvider.moveToNext(mNowPlaying, mNext, lastPlayRequest)
+        }
     }
 
-    fun isEmpty(): Boolean {
-        return playing == null
+    fun previous() {
+        val nowPlaying = mNowPlaying
+        mNowPlaying = mPlaybackProvider.moveToPrevious(nowPlaying, mPrevious) {
+            if (nowPlaying != null) {
+                queueSong(nowPlaying)
+            }
+        }
+    }
+
+    fun stop() {
+        mNowPlaying = null
+    }
+
+    fun hasPlayback(): Boolean {
+        return mNowPlaying == null
     }
 
     fun getCurrent(): Song? {
-        return playing
+        return mNowPlaying
     }
 
     inline fun getCurrent(songCallback: (Song) -> Unit) {
         val song = getCurrent() ?: return
         songCallback(song)
-    }
-
-    fun previous() {
-        if (!isEmpty()) {
-            queueSong(playing!!)
-        }
-        playing?.clearAlbumArt()
-        playing = if (previous.isEmpty()) null else previous.removeLast()
-    }
-
-    fun next() {
-        if (playing != null && playing != previous.peekLast()) {
-            addToPrevious(playing!!)
-        }
-        playing?.clearAlbumArt()
-        playing = if (!queue.isEmpty()) {
-            queue.removeAt(0)
-        } else {
-            playback(playing, next, lastRequest)
-        }
     }
 
     fun cyclePlaybackMode() {
@@ -112,35 +103,50 @@ class Playback {
         else
             PlaybackMode.values()[ord]
 
+        val lastPlaybackRequest = mLastPlayRequest ?: return
+        mNext.clear()
+        mPlaybackProvider.onPlayRequest(mNowPlaying, lastPlaybackRequest, mNext)
+    }
+
+    private fun queueSong(song: Song) {
+        if (mQueue.isNotEmpty() && mQueue[0] == song) {
+            Log.i("Playback", "Queue already contains given song as first, not adding again!")
+        } else {
+            mQueue.add(0, song)
+        }
+    }
+
+    private fun setupPlaybackStyle(mode: PlaybackMode) {
+        mPlaybackProvider = when (mode) {
+            PlaybackMode.NORMAL -> NormalProvider
+            PlaybackMode.REPEAT -> RepeatProvider
+            PlaybackMode.REPEAT_SINGLE -> RepeatSingleProvider
+            PlaybackMode.RANDOM -> RandomProvider
+        }
     }
 
     private fun addToPrevious(song: Song) {
-        if (previous.size >= 100) {
+        if (mPrevious.size >= 100) {
             do { // Truncate
-                Log.v("Playback", "Previous list is full => " + previous.size)
-                previous.removeFirst()
-            } while (previous.size >= 100)
+                Log.v("Playback", "Previous list is full => " + mPrevious.size)
+                mPrevious.removeFirst()
+            } while (mPrevious.size >= 100)
         }
-        previous.addLast(song)
+        mPrevious.addLast(song)
     }
 
-    private companion object {
-        private val rnd = Random()
-        val NORMAL_PROVIDER: PlaybackProvider = { _, nowPlaying, _ ->
-            if (nowPlaying == null || nowPlaying.isEmpty()) null else nowPlaying.removeAt(0)
-        }
-        val REPEAT_PROVIDER: PlaybackProvider = { _, nowPlaying, lastRequest ->
-            if (nowPlaying == null || lastRequest == null) null
-            else {
-                if (nowPlaying.isEmpty()) {
-                    lastRequest.fill(nowPlaying)
-                }
-                nowPlaying.removeAt(0)
-            }
-        }
-        val REPEAT_SINGLE_PROVIDER: PlaybackProvider = { now, _, _ -> now }
-        val RANDOM_PROVIDER: PlaybackProvider = { _, _, lastRequest -> lastRequest?.getAny(rnd) }
+    @VisibleForTesting
+    internal fun getPrevious(): ArrayDeque<Song> {
+        return mPrevious
+    }
+
+    @VisibleForTesting
+    internal fun getNext(): List<Song> {
+        return mNext
+    }
+
+    @VisibleForTesting
+    internal fun setupRandom(i: Long) {
+        mRnd = Random(i)
     }
 }
-
-typealias PlaybackProvider = (Song?, ArrayList<Song>?, PlayRequest?) -> Song?

@@ -158,6 +158,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     fun play(song: Song, playlist: ArrayList<Song>?) {
         val player = mPlayer ?: return
         if (setupPlay(player, song)) {
+            mPlayback.getCurrent()?.clearAlbumArt()
             if (playlist == null)
                 mPlayback.playSong(song, ArrayList())
             else
@@ -166,7 +167,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     }
 
     fun pauseResume() {
-        if (mPlayback.isEmpty()) {
+        if (mPlayback.hasPlayback()) {
             return
         }
         if (shouldPlayNext()) {
@@ -194,7 +195,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
 
     private fun pause() {
         player {
-            if (mPlayback.isEmpty() || !it.isPlaying) return
+            if (mPlayback.hasPlayback() || !it.isPlaying) return
             it.pause()
             mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PAUSE, -1) }
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
@@ -202,7 +203,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     }
 
     private fun play() {
-        if (mPlayback.isEmpty()) return
+        if (mPlayback.hasPlayback()) return
         player {
             it.start()
             mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
@@ -213,25 +214,27 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     val isPlaying: Boolean
         get(): Boolean {
             val player = mPlayer ?: return false
-            return !mPlayback.isEmpty() && player.isPlaying
+            return !mPlayback.hasPlayback() && player.isPlaying
         }
 
     val isPaused: Boolean
         get(): Boolean {
             val player = mPlayer ?: return false
-            return !mPlayback.isEmpty() && !player.isPlaying
+            return !mPlayback.hasPlayback() && !player.isPlaying
         }
 
     fun stop() {
         mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_STOP, -1) }
+        mPlayback.getCurrent()?.clearAlbumArt()
         mPlayback.stop()
         mPlayer?.stop()
         updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
     }
 
     fun previous() {
+        mPlayback.getCurrent()?.clearAlbumArt()
         mPlayback.previous()
-        if (mPlayback.isEmpty()) return
+        if (mPlayback.hasPlayback()) return
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
         mPlayback.getCurrent { song ->
             player { setupPlay(it, song) }
@@ -239,8 +242,9 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     }
 
     fun next() {
+        mPlayback.getCurrent()?.clearAlbumArt()
         mPlayback.next()
-        if (mPlayback.isEmpty()) return
+        if (mPlayback.hasPlayback()) return
         updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
         mPlayback.getCurrent { song ->
             player { setupPlay(it, song) }
@@ -253,7 +257,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     }
 
     fun queryPosition(): Int {
-        if (mPlayback.isEmpty()) return 0
+        if (mPlayback.hasPlayback()) return 0
         val player = mPlayer ?: return 0
         return player.currentPosition / 1000
     }
@@ -263,7 +267,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     }
 
     private fun queryPosMs(): Long {
-        if (mPlayback.isEmpty()) return 0L
+        if (mPlayback.hasPlayback()) return 0L
         val player = mPlayer ?: return 0L
         return player.currentPosition.toLong()
     }

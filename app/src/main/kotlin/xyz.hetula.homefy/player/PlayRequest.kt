@@ -23,37 +23,17 @@ import java.util.*
  * @version 1.0
  * @since 1.0
  */
-class PlayRequest internal constructor(private val play: Song,
-                                       private val playContext: ArrayList<Song>) {
-
-    init {
-        if (!this.playContext.isEmpty()) {
-            organizeList()
-        }
-    }
+class PlayRequest internal constructor(internal val play: Song,
+                                       private val playContext: ArrayList<Song>,
+                                       private val rnd: Random?) {
 
     fun fill(next: MutableCollection<Song>) {
         next.addAll(playContext)
     }
 
-    fun getAny(rnd: Random): Song {
-        val n = rnd.nextInt(playContext.size + 1)
+    fun getAny(): Song {
+        val n = rnd?.nextInt(playContext.size + 1) ?: return play
         if (n >= playContext.size) return play
         return playContext[n]
-    }
-
-    private fun organizeList() {
-        val index = playContext.indexOf(play)
-        if (index == -1 || index == 0) return
-        val temp = ArrayList<Song>()
-        var i = 0
-        val iterator = playContext.iterator()
-        while (iterator.hasNext()) {
-            if (i > index) break
-            temp.add(iterator.next())
-            iterator.remove()
-            i++
-        }
-        playContext.addAll(temp)
     }
 }

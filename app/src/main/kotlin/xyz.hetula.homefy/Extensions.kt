@@ -38,3 +38,16 @@ fun String.toSHA1Hash(): String {
     }
     return sb.toString()
 }
+
+inline fun Int.useFor(useFunc: (Int) -> Unit) {
+    if (this < 1) return
+    for (i in 0 until this) {
+        useFunc(i)
+    }
+}
+
+fun <T> ArrayList<T>.removeAtIfPresent(index: Int): T? = if (this.isEmpty()) {
+    null
+} else {
+    this.removeAt(index)
+}
