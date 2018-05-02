@@ -49,7 +49,13 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+
+    flavorDimensions "full"
+
     productFlavors {
+        homefy {
+            dimension "full"
+        }
     }
 }
 
