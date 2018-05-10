@@ -90,8 +90,8 @@ class SongListFragment : HomefyFragment() {
                         getString(R.string.library_favs)
             }
             PLAYLIST -> {
-                val playlist = homefy().getPlaylists()[name] ?:
-                        throw IllegalArgumentException("Calling SongListFragment with invalid playlist id: $name")
+                val playlist = homefy().getPlaylists()[name]
+                        ?: throw IllegalArgumentException("Calling SongListFragment with invalid playlist id: $name")
 
                 adapter = SongAdapter(playlist.songs, homefy().getPlayer(),
                         homefy().getPlaylists(), playlist = playlist)

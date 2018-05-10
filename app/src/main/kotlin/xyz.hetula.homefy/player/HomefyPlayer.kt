@@ -59,7 +59,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     private var mPlayer: MediaPlayer? = null
     private var mContext: Context? = null
 
-    private var afChangeListener = {focusChange: Int -> onAudioFocusChange(focusChange)}
+    private var afChangeListener = { focusChange: Int -> onAudioFocusChange(focusChange) }
     private var mLastPlayPress = 0L
     private var mHasFocus = false
     private var mAudioFocusRequest: AudioFocusRequest? = null

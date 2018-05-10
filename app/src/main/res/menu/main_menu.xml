@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018 Tuomo Heino
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +16,9 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_shutdown"
+    <item
+        android:id="@+id/menu_shutdown"
         android:icon="@drawable/ic_power_down"
         android:title="@string/menu_shutdown"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 </menu>

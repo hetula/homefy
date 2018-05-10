@@ -46,8 +46,8 @@ class LoadingFragment : HomefyFragment() {
     private var mSongsTotal: Int = 0
     private var mLoadStarted: Long = 0
 
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                                  savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
         val main = inflater.inflate(R.layout.fragment_loading, container, false) as FrameLayout
         mLoaded = main.findViewById(R.id.txt_songs_loaded)
         val info = homefy().getProtocol().info
@@ -101,7 +101,8 @@ class LoadingFragment : HomefyFragment() {
         }
     }
 
-    @Synchronized private fun ready(): Boolean {
+    @Synchronized
+    private fun ready(): Boolean {
         return mCount.decrementAndGet() <= 0
     }
 

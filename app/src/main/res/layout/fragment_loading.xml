@@ -25,7 +25,7 @@
         android:text="@string/load_loading"
         android:textSize="24sp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="96dp"/>
+        android:layout_marginTop="96dp" />
 
     <TextView
         android:id="@+id/txt_songs_loaded"
@@ -34,13 +34,13 @@
         android:layout_gravity="center"
         android:layout_marginTop="48dp"
         android:textSize="16sp"
-        tools:text="0 / 69 Songs loaded"/>
+        tools:text="0 / 69 Songs loaded" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:indeterminate="true"/>
+        android:indeterminate="true" />
 
 
 </FrameLayout>

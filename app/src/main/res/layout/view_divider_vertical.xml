@@ -14,4 +14,4 @@
   ~ limitations under the License.
   -->
 
-<View style="@style/NavigationDivider.Vertical"/>
+<View style="@style/NavigationDivider.Vertical" />

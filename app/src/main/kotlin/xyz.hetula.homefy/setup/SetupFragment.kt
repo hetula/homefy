@@ -91,7 +91,7 @@ class SetupFragment : HomefyFragment() {
                 Snackbar.make(mMain, R.string.setup_check_credentials_username, Snackbar.LENGTH_SHORT).show()
                 return
             }
-            if(pass.isEmpty()) {
+            if (pass.isEmpty()) {
                 Snackbar.make(mMain, R.string.setup_check_credentials_password, Snackbar.LENGTH_SHORT).show()
                 return
             }
@@ -153,7 +153,7 @@ class SetupFragment : HomefyFragment() {
     }
 
     @StringRes
-    private fun getRequestErrorStringRes(error: RequestError): Int = when(error.errCode) {
+    private fun getRequestErrorStringRes(error: RequestError): Int = when (error.errCode) {
         401 -> R.string.setup_authentication_error
         -1 -> R.string.setup_malformed_url
         else -> R.string.setup_connection_error

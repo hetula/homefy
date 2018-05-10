@@ -141,7 +141,7 @@ class PlayerFragment : HomefyFragment() {
             HomefyPlayer.STATE_STOP -> clear()
             HomefyPlayer.STATE_RESUME -> onDurUpdate(false)
         }
-        if(song == null) {
+        if (song == null) {
             mSongIconView.setImageResource(R.drawable.ic_music)
             return
         }
@@ -152,7 +152,7 @@ class PlayerFragment : HomefyFragment() {
     }
 
     private fun updateSongIcon(song: Song) {
-        if(song.albumArt == null) {
+        if (song.albumArt == null) {
             mSongIconView.setImageResource(R.drawable.ic_music)
         } else {
             mSongIconView.setImageBitmap(song.albumArt)
@@ -216,7 +216,7 @@ class PlayerFragment : HomefyFragment() {
     }
 
     private fun posQuery() {
-        if(!mIsShowing) {
+        if (!mIsShowing) {
             return
         }
         val song = homefy().getPlayer().nowPlaying()

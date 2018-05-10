@@ -28,7 +28,8 @@ data class VersionInfo(@Expose val server_id: String,
                        @Expose val version: String,
                        @Expose val databaseId: String,
                        @Expose val authentication: AuthType) {
-    @Expose var databaseSize = 0
+    @Expose
+    var databaseSize = 0
 
     override fun toString(): String {
         return "VersionInfo{" +

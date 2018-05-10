@@ -55,7 +55,7 @@ abstract class HomefyActivity : AppCompatActivity() {
         super.onStart()
         val intent = Intent(this, HomefyService::class.java)
         if (!bindService(intent, mHomefyConnection,
-                Context.BIND_AUTO_CREATE or Context.BIND_ABOVE_CLIENT)) {
+                        Context.BIND_AUTO_CREATE or Context.BIND_ABOVE_CLIENT)) {
             unbindService(mHomefyConnection)
         }
     }
