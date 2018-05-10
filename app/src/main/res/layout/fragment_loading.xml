@@ -36,11 +36,12 @@
         android:textSize="16sp"
         tools:text="0 / 69 Songs loaded" />
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/loadingView"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_gravity="center"
-        android:indeterminate="true" />
+        android:src="@drawable/ic_loading_songs"/>
 
 
 </FrameLayout>

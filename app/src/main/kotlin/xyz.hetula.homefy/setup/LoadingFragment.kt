@@ -23,11 +23,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatImageView
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.android.synthetic.main.fragment_loading.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.LibraryFragment
@@ -42,6 +45,7 @@ class LoadingFragment : HomefyFragment() {
     private var mSongs: MutableList<Song> = ArrayList()
 
     private lateinit var mLoaded: TextView
+    private lateinit var mLoadingView: AppCompatImageView
 
     private var mSongsTotal: Int = 0
     private var mLoadStarted: Long = 0
@@ -49,11 +53,29 @@ class LoadingFragment : HomefyFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater.inflate(R.layout.fragment_loading, container, false) as FrameLayout
-        mLoaded = main.findViewById(R.id.txt_songs_loaded)
+        mLoaded = main.txt_songs_loaded
+        mLoadingView = main.loadingView
+
         val info = homefy().getProtocol().info
         mSongsTotal = info.databaseSize
+        animateLoading()
+
         initialize(info.databaseId)
         return main
+    }
+
+    override fun onDestroyView() {
+        mLoadingView.animate().cancel()
+        super.onDestroyView()
+    }
+
+    private fun animateLoading() {
+        mLoadingView.animate()
+                .rotationBy(360f)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .setDuration(1200L)
+                .withEndAction(this::animateLoading)
+                .start()
     }
 
     private fun initialize(databaseId: String) {
