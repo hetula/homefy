@@ -19,9 +19,9 @@ package xyz.hetula.homefy
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
-import android.support.annotation.CallSuper
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import androidx.annotation.CallSuper
+import androidx.appcompat.app.AppCompatActivity
 import xyz.hetula.homefy.service.HomefyService
 
 /**

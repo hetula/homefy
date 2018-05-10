@@ -19,8 +19,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion target_sdk
-    buildToolsVersion build_tools_version
+    compileSdkVersion compile_sdk
     defaultConfig {
         applicationId "xyz.hetula.homefy"
         minSdkVersion min_sdk
@@ -62,13 +61,23 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "com.android.support:appcompat-v7:$support_version"
-    implementation "com.android.support:recyclerview-v7:$support_version"
-    implementation "com.android.support:design:$support_version"
+
+    // Support libraries
+    implementation "com.google.android.material:material:$supportx_version"
+    implementation "androidx.core:core:$supportx_version"
+    implementation "androidx.media:media:$supportx_version"
+    implementation "androidx.appcompat:appcompat:$supportx_version"
+    implementation "androidx.recyclerview:recyclerview:$supportx_version"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$supportx_version"
+
+    // External libs
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.android.volley:volley:$volley_version"
+
+    // Testing
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.0.6'
+
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

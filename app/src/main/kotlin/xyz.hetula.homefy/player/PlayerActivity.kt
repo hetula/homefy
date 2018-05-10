@@ -23,8 +23,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.support.v4.content.ContextCompat
 import android.util.Log
+import androidx.core.content.ContextCompat
 import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.HomefyService

@@ -19,13 +19,13 @@ package xyz.hetula.homefy.player
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.support.design.widget.Snackbar
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_player.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R

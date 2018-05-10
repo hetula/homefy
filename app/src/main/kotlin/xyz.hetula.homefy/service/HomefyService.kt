@@ -23,12 +23,11 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Binder
 import android.os.IBinder
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.TaskStackBuilder
-import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.media.session.MediaButtonReceiver
 import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.HomefyLibrary
@@ -207,7 +206,7 @@ class HomefyService : Service() {
                 .addAction(playDrawable, playDesc, playPauseIntent)
                 .addAction(R.drawable.ic_skip_next_notification, "Next", nextIntent)
                 .addAction(favDrawable, "Favorite", favIntent())
-                .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
+                .setStyle( 	androidx.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(mediaSession.sessionToken)
                         .setShowActionsInCompactView(2, 3, 4))
                 .setColorized(true)

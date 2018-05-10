@@ -16,7 +16,7 @@
 
 package xyz.hetula.homefy
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 
 abstract class HomefyFragment : Fragment() {
     protected fun homefy() = (activity as HomefyActivity).homefy

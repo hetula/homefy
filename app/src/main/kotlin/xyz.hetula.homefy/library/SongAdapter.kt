@@ -18,9 +18,6 @@ package xyz.hetula.homefy.library
 
 import android.content.Context
 import android.content.Intent
-import android.support.annotation.StringRes
-import android.support.design.widget.Snackbar
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
@@ -28,6 +25,9 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.parseSeconds
 import xyz.hetula.homefy.player.HomefyPlayer

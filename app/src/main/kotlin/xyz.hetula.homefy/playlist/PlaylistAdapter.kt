@@ -16,13 +16,13 @@
 
 package xyz.hetula.homefy.playlist
 
-import android.support.v7.util.SortedList
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.util.SortedListAdapterCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
+import androidx.recyclerview.widget.SortedListAdapterCallback
 import kotlinx.android.synthetic.main.list_item_playlist.view.*
 import xyz.hetula.homefy.R
 

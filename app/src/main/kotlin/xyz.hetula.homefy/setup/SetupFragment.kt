@@ -18,9 +18,6 @@ package xyz.hetula.homefy.setup
 
 import android.content.Context
 import android.os.Bundle
-import android.support.annotation.StringRes
-import android.support.design.widget.Snackbar
-import android.support.design.widget.TextInputEditText
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -28,6 +25,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import androidx.annotation.StringRes
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.protocol.RequestError
