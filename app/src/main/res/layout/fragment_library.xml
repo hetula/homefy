@@ -72,7 +72,7 @@
 
                 <TextView
                     style="@style/NavigationView.Content"
-                    android:drawableStart="@drawable/ic_album"
+                    android:drawableStart="@drawable/ic_library_albums"
                     android:text="@string/library_albums" />
             </FrameLayout>
 
@@ -84,7 +84,7 @@
 
                 <TextView
                     style="@style/NavigationView.Content"
-                    android:drawableStart="@drawable/ic_favorite_library"
+                    android:drawableStart="@drawable/ic_library_favorites"
                     android:text="@string/library_favs" />
             </FrameLayout>
 
@@ -120,7 +120,7 @@
 
                 <TextView
                     style="@style/NavigationView.Content"
-                    android:drawableStart="@drawable/ic_artists"
+                    android:drawableStart="@drawable/ic_library_artists"
                     android:text="@string/library_artists" />
             </FrameLayout>
 
@@ -132,7 +132,7 @@
 
                 <TextView
                     style="@style/NavigationView.Content"
-                    android:drawableStart="@drawable/ic_playlist"
+                    android:drawableStart="@drawable/ic_library_playlists"
                     android:text="@string/library_playlists" />
             </FrameLayout>
 

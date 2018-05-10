@@ -21,7 +21,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import xyz.hetula.homefy.library.LibraryFragment
+import androidx.emoji.bundled.BundledEmojiCompatConfig
+import androidx.emoji.text.EmojiCompat
+import xyz.hetula.homefy.library2.LibraryFragment2
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
 
@@ -34,6 +36,7 @@ class MainActivity : HomefyActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        EmojiCompat.init(BundledEmojiCompatConfig(applicationContext))
         setContentView(R.layout.activity_main)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
@@ -49,7 +52,7 @@ class MainActivity : HomefyActivity() {
                 .beginTransaction()
                 .replace(R.id.container,
                         if (service.getLibrary().isLibraryReady()) {
-                            LibraryFragment()
+                            LibraryFragment2()
                         } else {
                             SetupFragment()
                         })

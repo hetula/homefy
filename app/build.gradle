@@ -69,6 +69,8 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$supportx_version"
     implementation "androidx.recyclerview:recyclerview:$supportx_version"
     implementation "androidx.coordinatorlayout:coordinatorlayout:$supportx_version"
+    implementation "androidx.emoji:emoji-appcompat:$supportx_version"
+    implementation "androidx.emoji:emoji-bundled:$supportx_version"
 
     // External libs
     implementation "com.google.code.gson:gson:$gson_version"

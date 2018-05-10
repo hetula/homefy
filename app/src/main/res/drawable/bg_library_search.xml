@@ -14,10 +14,8 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/menu_shutdown"
-        android:icon="@drawable/ic_power_down"
-        android:title="@string/menu_shutdown"
-        android:showAsAction="ifRoom" />
-</menu>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="24dp" />
+    <solid android:color="@android:color/white" />
+</shape>
