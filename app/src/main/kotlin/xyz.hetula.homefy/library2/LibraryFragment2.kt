@@ -31,6 +31,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.fragment_library2.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.Song
+import xyz.hetula.homefy.playlist.Playlist
 
 class LibraryFragment2 : HomefyFragment() {
     private var mCurrentTab = NavigationTab.NONE
@@ -113,9 +115,12 @@ class LibraryFragment2 : HomefyFragment() {
 
     private fun selectPlaylistTab() = selectTabIfNotSelected(NavigationTab.PLAYLIST) {
         mNowPlayingView.visibility = View.GONE
-        mTopSearch.visibility = View.VISIBLE
+        mTopSearch.visibility = View.GONE
         mLibraryList.visibility = View.VISIBLE
-        mLibraryList.adapter = null
+        val playlists = ArrayList<Playlist>()
+        playlists.add(homefy().getPlaylists().favorites)
+        playlists.addAll(homefy().getPlaylists().getAllPlaylists())
+        mLibraryList.adapter = PlaylistAdapter(playlists, this::showPlaylistContent)
     }
 
     private fun selectNowPlayingTab() = selectTabIfNotSelected(NavigationTab.NOW_PLAYING) {
@@ -142,27 +147,29 @@ class LibraryFragment2 : HomefyFragment() {
         Log.d(TAG, "$songs")
         val albumCount = songs.map { it.album }.distinct().count()
         val subtitle = context.resources.getQuantityString(R.plurals.album_count, albumCount, albumCount)
-        val dilFrag = SongsFragment()
-        dilFrag.setup(homefy(), artist, subtitle, songs)
-        fragmentManager!!.beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(R.id.container, dilFrag)
-                .addToBackStack("SongsView_$artist")
-                .commit()
+        showSongFragment(artist, subtitle, songs)
     }
 
     private fun showAlbumDialog(album: String) {
         val songs = homefy().getLibrary().getAlbumSongs(album)
-        Log.d(TAG, "$songs")
         val subtitle = songs.map { it.artist }.distinct().reduce { allArtists, artist ->
             "$allArtists, $artist"
         }
-        val dilFrag = SongsFragment()
-        dilFrag.setup(homefy(), album, subtitle, songs)
+        showSongFragment(album, subtitle, songs)
+    }
+
+    private fun showPlaylistContent(playlist: Playlist) {
+        showSongFragment(playlist.name, "", playlist.songs)
+    }
+
+    private fun showSongFragment(title: String, subtitle: String, songs: List<Song>) {
+        val songsFragment = SongsFragment()
+        // TODO: This should use proper setting methods, not garbage like this as it can be destroyed.
+        songsFragment.setup(homefy(), title, subtitle, songs)
         fragmentManager!!.beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(R.id.container, dilFrag)
-                .addToBackStack("SongsView_$album")
+                .replace(R.id.container, songsFragment)
+                .addToBackStack("SongsView_$title")
                 .commit()
     }
 

@@ -16,3 +16,38 @@
 
 package xyz.hetula.homefy.library2
 
+import android.support.constraint.ConstraintLayout
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.list_item_playlist2.view.*
+import xyz.hetula.homefy.R
+import xyz.hetula.homefy.playlist.Playlist
+
+class PlaylistAdapter(private val mPlaylists: List<Playlist>,
+                      private val onClick: (Playlist) -> Unit) : RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return PlaylistViewHolder(inflater.inflate(R.layout.list_item_playlist2, parent, false))
+    }
+
+    override fun getItemCount() = mPlaylists.size
+
+    override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
+        val playlist = mPlaylists[position]
+        holder.playlistViewBase.setOnClickListener {
+            onClick(playlist)
+        }
+        holder.playlistTitle.text = playlist.name
+        val songCount = playlist.songs.size
+        holder.songCount.text = holder.itemView.context.resources.getQuantityString(R.plurals.song_count, songCount, songCount)
+    }
+
+    class PlaylistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val playlistViewBase: ConstraintLayout = view.playlistViewBase
+        val playlistTitle: TextView = view.playlistTitle
+        val songCount: TextView = view.songCount
+    }
+}

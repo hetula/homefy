@@ -16,6 +16,7 @@
 
 package xyz.hetula.homefy.library2
 
+import android.support.constraint.ConstraintLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +48,7 @@ class ArtistAdapter(artists: List<String>,
     override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
         val artist = mArtists[position]
         holder.artistTitle.text = artist
-        holder.artistTitle.setOnClickListener {
+        holder.artistViewBase.setOnClickListener {
             onArtistClick(artist)
         }
         val songs = homefy.getLibrary().getArtistSongs(artist)
@@ -76,6 +77,7 @@ class ArtistAdapter(artists: List<String>,
     }
 
     class ArtistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val artistViewBase: ConstraintLayout = view.artistViewBase
         val artistTitle: TextView = view.artistTitle
         val albumCount: TextView = view.albumCount
     }
