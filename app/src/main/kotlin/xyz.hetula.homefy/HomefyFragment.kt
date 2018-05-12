@@ -20,4 +20,6 @@ import androidx.fragment.app.Fragment
 
 abstract class HomefyFragment : Fragment() {
     protected fun homefy() = (activity as HomefyActivity).homefy
+
+    protected fun selectTab() = (activity as MainActivity).selectTab()
 }

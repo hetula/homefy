@@ -37,7 +37,7 @@ import xyz.hetula.homefy.playlist.Playlist
 
 class LibraryFragment2 : HomefyFragment() {
     private var mCurrentTab = NavigationTab.NONE
-    private var mLastSelectedIndex = R.id.navSongs
+    private var mLastSelectedTab = R.id.navSongs
     private lateinit var mNavBar: BottomNavigationView
     private lateinit var mLibraryList: RecyclerView
     private lateinit var mNowPlayingView: PlayerView
@@ -45,8 +45,16 @@ class LibraryFragment2 : HomefyFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        val selectTab = selectTab()
+        if (selectTab != 0) {
+            mLastSelectedTab = selectTab
+        }
+
         val main = inflater.inflate(R.layout.fragment_library2, container, false) as LinearLayout
         mNavBar = main.navBar
+        if (selectTab != 0) {
+            mNavBar.selectedItemId = selectTab
+        }
         main.navBar.setOnNavigationItemSelectedListener { navBarItemClick(it) }
         mLibraryList = main.libraryList
         mNowPlayingView = main.nowPlayingView
@@ -54,12 +62,12 @@ class LibraryFragment2 : HomefyFragment() {
         mTopSearch = main.topSearch
 
         mCurrentTab = NavigationTab.NONE
-        selectTabItem(mLastSelectedIndex)
+        selectTabItem(mLastSelectedTab)
         return main
     }
 
     private fun navBarItemClick(item: MenuItem): Boolean {
-        mLastSelectedIndex = item.itemId
+        mLastSelectedTab = item.itemId
         return selectTabItem(item.itemId)
     }
 

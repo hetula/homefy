@@ -33,6 +33,7 @@ import xyz.hetula.homefy.setup.SetupFragment
  * @since 1.0
  */
 class MainActivity : HomefyActivity() {
+    private var mSelectTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +43,21 @@ class MainActivity : HomefyActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
+        val bundle = intent.extras
+        if(bundle != null) {
+            mSelectTab = bundle.getInt(EXTRA_SELECT_TAB, 0)
+        }
+
         val startService = Intent(applicationContext, HomefyService::class.java)
         startService(startService)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val bundle = intent?.extras
+        if(bundle != null) {
+            mSelectTab = bundle.getInt(EXTRA_SELECT_TAB, 0)
+        }
     }
 
     override fun serviceConnected(service: HomefyService) {
@@ -79,9 +93,15 @@ class MainActivity : HomefyActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    fun selectTab() = mSelectTab
+
     private fun doShutdown() {
         Log.d("MainActivity", "Shutting down!")
         stopService(Intent(applicationContext, HomefyService::class.java))
         finishAffinity()
+    }
+
+    companion object {
+        const val EXTRA_SELECT_TAB = "MainActivity.EXTRA_SELECT_TAB"
     }
 }

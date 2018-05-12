@@ -29,6 +29,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.session.MediaButtonReceiver
 import xyz.hetula.homefy.HomefyActivity
+import xyz.hetula.homefy.MainActivity
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.HomefyLibrary
 import xyz.hetula.homefy.player.HomefyPlayer
@@ -220,7 +221,8 @@ class HomefyService : Service() {
     }
 
     private fun contentIntent(): PendingIntent {
-        val launchMe = Intent(this, PlayerActivity::class.java)
+        val launchMe = Intent(this, MainActivity::class.java)
+        launchMe.putExtra(MainActivity.EXTRA_SELECT_TAB, R.id.navNowPlaying)
         launchMe.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
