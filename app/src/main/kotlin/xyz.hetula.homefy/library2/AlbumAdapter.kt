@@ -20,15 +20,17 @@ import android.support.constraint.ConstraintLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
 import kotlinx.android.synthetic.main.list_item_album.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.service.HomefyService
 
-class AlbumAdapter(albums: List<String>, private val onAlbumClick: (String) -> Unit) :
+class AlbumAdapter(albums: List<String>,
+                   private val homefy: HomefyService,
+                   private val onAlbumClick: (String) -> Unit) :
         RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
     private val mAlbums = SortedList<String>(String::class.java, AlbumSorter(this))
 
@@ -45,7 +47,11 @@ class AlbumAdapter(albums: List<String>, private val onAlbumClick: (String) -> U
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
         val album = mAlbums[position]
+        val songs = homefy.getLibrary().getAlbumSongs(album)
         holder.albumTitle.text = album
+        holder.artistNames.text = songs.map { it.artist }.distinct().reduce { allArtists, artist ->
+            "$allArtists, $artist"
+        }
         holder.albumBase.setOnClickListener {
             onAlbumClick(album)
         }
@@ -71,8 +77,8 @@ class AlbumAdapter(albums: List<String>, private val onAlbumClick: (String) -> U
     }
 
     class AlbumViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val albumArtView: ImageView = view.albumArtView
         val albumTitle: TextView = view.albumTitle
+        val artistNames: TextView = view.artistNames
         val albumBase: ConstraintLayout = view.albumViewBase
     }
 }

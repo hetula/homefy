@@ -77,6 +77,8 @@
     <string name="playlist_dialog_removed">Song removed!</string>
     <string name="playlist_dialog_no_playlists">No suitable Playlists!</string>
 
+    <string name="library_album_and_song_count">%s - %s</string>
+
     <!-- Plurals -->
     <plurals name="song_count">
         <item quantity="one">%d Song</item>

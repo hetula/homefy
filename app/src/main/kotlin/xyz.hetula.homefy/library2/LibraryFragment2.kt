@@ -24,15 +24,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.fragment_library2.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 
 class LibraryFragment2 : HomefyFragment() {
     private var mCurrentTab = NavigationTab.NONE
+    private var mLastSelectedIndex = R.id.navSongs
+    private lateinit var mNavBar: BottomNavigationView
     private lateinit var mLibraryList: RecyclerView
     private lateinit var mNowPlayingView: FrameLayout
     private lateinit var mTopSearch: FrameLayout
@@ -40,17 +43,24 @@ class LibraryFragment2 : HomefyFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater.inflate(R.layout.fragment_library2, container, false) as LinearLayout
+        mNavBar = main.navBar
         main.navBar.setOnNavigationItemSelectedListener { navBarItemClick(it) }
         mLibraryList = main.libraryList
         mNowPlayingView = main.nowPlayingView
         mTopSearch = main.topSearch
-        selectSongTab()
+
+        mCurrentTab = NavigationTab.NONE
+        selectTabItem(mLastSelectedIndex)
         return main
     }
 
     private fun navBarItemClick(item: MenuItem): Boolean {
-        Log.d(TAG, "Click: $item")
-        return when (item.itemId) {
+        mLastSelectedIndex = item.itemId
+        return selectTabItem(item.itemId)
+    }
+
+    private fun selectTabItem(itemId: Int): Boolean {
+        return when (itemId) {
             R.id.navSongs -> {
                 selectSongTab()
                 true
@@ -71,7 +81,10 @@ class LibraryFragment2 : HomefyFragment() {
                 selectNowPlayingTab()
                 true
             }
-            else -> false
+            else -> {
+                Log.w(TAG, "Invalid tab: $itemId")
+                false
+            }
         }
     }
 
@@ -79,7 +92,6 @@ class LibraryFragment2 : HomefyFragment() {
         mNowPlayingView.visibility = View.GONE
         mTopSearch.visibility = View.VISIBLE
         mLibraryList.visibility = View.VISIBLE
-        mLibraryList.layoutManager = LinearLayoutManager(context)
         mLibraryList.adapter = SongAdapter2(homefy().getLibrary().songs,
                 homefy().getPlayer(),
                 homefy().getPlaylists())
@@ -89,23 +101,20 @@ class LibraryFragment2 : HomefyFragment() {
         mNowPlayingView.visibility = View.GONE
         mTopSearch.visibility = View.VISIBLE
         mLibraryList.visibility = View.VISIBLE
-        mLibraryList.layoutManager = GridLayoutManager(context, 4)
-        mLibraryList.adapter = AlbumAdapter(homefy().getLibrary().albums, this::showAlbumDialog)
+        mLibraryList.adapter = AlbumAdapter(homefy().getLibrary().albums, homefy(), this::showAlbumDialog)
     }
 
     private fun selectArtistTab() = selectTabIfNotSelected(NavigationTab.ARTIST) {
         mNowPlayingView.visibility = View.GONE
         mTopSearch.visibility = View.VISIBLE
         mLibraryList.visibility = View.VISIBLE
-        mLibraryList.layoutManager = GridLayoutManager(context, 2)
-        mLibraryList.adapter = ArtistAdapter(homefy().getLibrary().artists, this::showArtistDialog)
+        mLibraryList.adapter = ArtistAdapter(homefy().getLibrary().artists, homefy(), this::showArtistDialog)
     }
 
     private fun selectPlaylistTab() = selectTabIfNotSelected(NavigationTab.PLAYLIST) {
         mNowPlayingView.visibility = View.GONE
         mTopSearch.visibility = View.VISIBLE
         mLibraryList.visibility = View.VISIBLE
-        mLibraryList.layoutManager = LinearLayoutManager(context)
         mLibraryList.adapter = null
     }
 
@@ -113,13 +122,13 @@ class LibraryFragment2 : HomefyFragment() {
         mNowPlayingView.visibility = View.VISIBLE
         mTopSearch.visibility = View.GONE
         mLibraryList.visibility = View.GONE
-        mLibraryList.layoutManager = LinearLayoutManager(context)
         mLibraryList.adapter = null
 
     }
 
     private fun selectTabIfNotSelected(tab: NavigationTab, function: () -> Unit) {
         if (mCurrentTab != tab) {
+            mLibraryList.layoutManager = LinearLayoutManager(context)
             function()
             mCurrentTab = tab
         } else {
@@ -132,16 +141,29 @@ class LibraryFragment2 : HomefyFragment() {
         val songs = homefy().getLibrary().getArtistSongs(artist)
         Log.d(TAG, "$songs")
         val albumCount = songs.map { it.album }.distinct().count()
-        val subtitle = context.resources.getQuantityString(R.plurals.album_count, albumCount)
-        SongViewDialog(context, homefy(), artist, subtitle, songs).show()
+        val subtitle = context.resources.getQuantityString(R.plurals.album_count, albumCount, albumCount)
+        val dilFrag = SongsFragment()
+        dilFrag.setup(homefy(), artist, subtitle, songs)
+        fragmentManager!!.beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .replace(R.id.container, dilFrag)
+                .addToBackStack("SongsView_$artist")
+                .commit()
     }
 
     private fun showAlbumDialog(album: String) {
-        val context = context ?: return
         val songs = homefy().getLibrary().getAlbumSongs(album)
         Log.d(TAG, "$songs")
-        val subtitle = songs.getOrNull(0)?.artist ?: ""
-        SongViewDialog(context, homefy(), album, subtitle, songs).show()
+        val subtitle = songs.map { it.artist }.distinct().reduce { allArtists, artist ->
+            "$allArtists, $artist"
+        }
+        val dilFrag = SongsFragment()
+        dilFrag.setup(homefy(), album, subtitle, songs)
+        fragmentManager!!.beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .replace(R.id.container, dilFrag)
+                .addToBackStack("SongsView_$album")
+                .commit()
     }
 
     private enum class NavigationTab {

@@ -25,8 +25,11 @@ import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
 import kotlinx.android.synthetic.main.list_item_artist.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.service.HomefyService
 
-class ArtistAdapter(artists: List<String>, private val onArtistClick: (String) -> Unit) :
+class ArtistAdapter(artists: List<String>,
+                    private val homefy: HomefyService,
+                    private val onArtistClick: (String) -> Unit) :
         RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>() {
     private val mArtists = SortedList<String>(String::class.java, ArtistSorter(this))
 
@@ -47,6 +50,12 @@ class ArtistAdapter(artists: List<String>, private val onArtistClick: (String) -
         holder.artistTitle.setOnClickListener {
             onArtistClick(artist)
         }
+        val songs = homefy.getLibrary().getArtistSongs(artist)
+        val count = songs.map { it.album }.distinct().count()
+        val context = holder.itemView.context
+        val albumCountText = context.resources.getQuantityString(R.plurals.album_count, count, count)
+        val songCountText = context.resources.getQuantityString(R.plurals.song_count, songs.size, songs.size)
+        holder.albumCount.text = context.getString(R.string.library_album_and_song_count, albumCountText, songCountText)
     }
 
     private class ArtistSorter(adapter: ArtistAdapter) : SortedListAdapterCallback<String>(adapter) {
@@ -68,5 +77,6 @@ class ArtistAdapter(artists: List<String>, private val onArtistClick: (String) -
 
     class ArtistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val artistTitle: TextView = view.artistTitle
+        val albumCount: TextView = view.albumCount
     }
 }
