@@ -31,6 +31,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.fragment_library2.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.player.PlayerView
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.Playlist
 
@@ -39,7 +40,7 @@ class LibraryFragment2 : HomefyFragment() {
     private var mLastSelectedIndex = R.id.navSongs
     private lateinit var mNavBar: BottomNavigationView
     private lateinit var mLibraryList: RecyclerView
-    private lateinit var mNowPlayingView: FrameLayout
+    private lateinit var mNowPlayingView: PlayerView
     private lateinit var mTopSearch: FrameLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +50,7 @@ class LibraryFragment2 : HomefyFragment() {
         main.navBar.setOnNavigationItemSelectedListener { navBarItemClick(it) }
         mLibraryList = main.libraryList
         mNowPlayingView = main.nowPlayingView
+        mNowPlayingView.setHomefy(homefy())
         mTopSearch = main.topSearch
 
         mCurrentTab = NavigationTab.NONE
@@ -135,6 +137,11 @@ class LibraryFragment2 : HomefyFragment() {
         if (mCurrentTab != tab) {
             mLibraryList.layoutManager = LinearLayoutManager(context)
             function()
+            if (tab == NavigationTab.NOW_PLAYING) {
+                mNowPlayingView.show()
+            } else if (mCurrentTab == NavigationTab.NOW_PLAYING) {
+                mNowPlayingView.hide()
+            }
             mCurrentTab = tab
         } else {
             Log.i(TAG, "Navigating to already selected tab: $tab")
