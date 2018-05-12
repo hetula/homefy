@@ -14,33 +14,79 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingLeft="2dp"
+    android:paddingTop="4dp"
+    android:paddingRight="2dp"
+    android:minHeight="48dp"
+    app:cardCornerRadius="8dp">
 
-    <com.google.android.material.card.MaterialCardView
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/songBase"
+        android:clickable="true"
+        android:focusable="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"
-        android:minHeight="48dp">
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="?android:attr/selectableItemBackground">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:orientation="vertical">
+        <CheckBox
+            android:id="@+id/songFavorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:button="@drawable/selector_favorite"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.emoji.widget.EmojiAppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textAlignment="center"
-                android:text="MOII"/>
+        <androidx.emoji.widget.EmojiAppCompatTextView
+            android:id="@+id/songTrackAndTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/songMore"
+            app:layout_constraintStart_toEndOf="@+id/songFavorite"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Song Title Runs Here" />
 
-        </LinearLayout>
+        <androidx.emoji.widget.EmojiAppCompatTextView
+            android:id="@+id/songArtistAndAlbum"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="2dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/songMore"
+            app:layout_constraintStart_toEndOf="@+id/songFavorite"
+            tools:text="Artist Here - Followed by Album" />
 
-    </com.google.android.material.card.MaterialCardView>
+        <ImageButton
+            android:id="@+id/songMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_more" />
 
-</FrameLayout>
+    </android.support.constraint.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -43,6 +43,9 @@
     <string name="library_now_playing">Now playing</string>
     <string name="library_search_hint">Search…..</string>
 
+    <string name="library_song_track_title">%d - %s</string>
+    <string name="library_song_artist_album">%s - %s</string>
+
     <string name="setup_enter_server_address">Address is missing!</string>
     <string name="setup_check_credentials_username">Enter username!</string>
     <string name="setup_check_credentials_password">Enter password!</string>
@@ -78,6 +81,11 @@
     <plurals name="song_count">
         <item quantity="one">%d Song</item>
         <item quantity="other">%d Songs</item>
+    </plurals>
+
+    <plurals name="album_count">
+        <item quantity="one">%d Album</item>
+        <item quantity="other">%d Albums</item>
     </plurals>
 
     <plurals name="songs_loaded">

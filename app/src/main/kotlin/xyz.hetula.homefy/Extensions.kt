@@ -15,6 +15,7 @@
  */
 package xyz.hetula.homefy
 
+import androidx.recyclerview.widget.SortedList
 import java.security.MessageDigest
 import java.util.*
 
@@ -50,4 +51,10 @@ fun <T> ArrayList<T>.removeAtIfPresent(index: Int): T? = if (this.isEmpty()) {
     null
 } else {
     this.removeAt(index)
+}
+
+inline fun <T> SortedList<T>.forEach(function: (T) -> Unit) {
+    for (i in 0 until this.size()) {
+        function(this[i])
+    }
 }

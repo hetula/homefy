@@ -17,22 +17,143 @@
 package xyz.hetula.homefy.library2
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_library2.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 
 class LibraryFragment2 : HomefyFragment() {
+    private var mCurrentTab = NavigationTab.NONE
+    private lateinit var mLibraryList: RecyclerView
+    private lateinit var mNowPlayingView: FrameLayout
+    private lateinit var mTopSearch: FrameLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val main = inflater.inflate(R.layout.fragment_library2, container, false) as LinearLayout
-        main.libraryList.layoutManager = LinearLayoutManager(context)
-        main.libraryList.adapter = SongAdapter2(homefy().getLibrary().songs)
+        main.navBar.setOnNavigationItemSelectedListener { navBarItemClick(it) }
+        mLibraryList = main.libraryList
+        mNowPlayingView = main.nowPlayingView
+        mTopSearch = main.topSearch
+        selectSongTab()
         return main
+    }
+
+    private fun navBarItemClick(item: MenuItem): Boolean {
+        Log.d(TAG, "Click: $item")
+        return when (item.itemId) {
+            R.id.navSongs -> {
+                selectSongTab()
+                true
+            }
+            R.id.navAlbums -> {
+                selectAlbumTab()
+                true
+            }
+            R.id.navArtists -> {
+                selectArtistTab()
+                true
+            }
+            R.id.navPlaylists -> {
+                selectPlaylistTab()
+                true
+            }
+            R.id.navNowPlaying -> {
+                selectNowPlayingTab()
+                true
+            }
+            else -> false
+        }
+    }
+
+    private fun selectSongTab() = selectTabIfNotSelected(NavigationTab.SONG) {
+        mNowPlayingView.visibility = View.GONE
+        mTopSearch.visibility = View.VISIBLE
+        mLibraryList.visibility = View.VISIBLE
+        mLibraryList.layoutManager = LinearLayoutManager(context)
+        mLibraryList.adapter = SongAdapter2(homefy().getLibrary().songs,
+                homefy().getPlayer(),
+                homefy().getPlaylists())
+    }
+
+    private fun selectAlbumTab() = selectTabIfNotSelected(NavigationTab.ALBUM) {
+        mNowPlayingView.visibility = View.GONE
+        mTopSearch.visibility = View.VISIBLE
+        mLibraryList.visibility = View.VISIBLE
+        mLibraryList.layoutManager = GridLayoutManager(context, 4)
+        mLibraryList.adapter = AlbumAdapter(homefy().getLibrary().albums, this::showAlbumDialog)
+    }
+
+    private fun selectArtistTab() = selectTabIfNotSelected(NavigationTab.ARTIST) {
+        mNowPlayingView.visibility = View.GONE
+        mTopSearch.visibility = View.VISIBLE
+        mLibraryList.visibility = View.VISIBLE
+        mLibraryList.layoutManager = GridLayoutManager(context, 2)
+        mLibraryList.adapter = ArtistAdapter(homefy().getLibrary().artists, this::showArtistDialog)
+    }
+
+    private fun selectPlaylistTab() = selectTabIfNotSelected(NavigationTab.PLAYLIST) {
+        mNowPlayingView.visibility = View.GONE
+        mTopSearch.visibility = View.VISIBLE
+        mLibraryList.visibility = View.VISIBLE
+        mLibraryList.layoutManager = LinearLayoutManager(context)
+        mLibraryList.adapter = null
+    }
+
+    private fun selectNowPlayingTab() = selectTabIfNotSelected(NavigationTab.NOW_PLAYING) {
+        mNowPlayingView.visibility = View.VISIBLE
+        mTopSearch.visibility = View.GONE
+        mLibraryList.visibility = View.GONE
+        mLibraryList.layoutManager = LinearLayoutManager(context)
+        mLibraryList.adapter = null
+
+    }
+
+    private fun selectTabIfNotSelected(tab: NavigationTab, function: () -> Unit) {
+        if (mCurrentTab != tab) {
+            function()
+            mCurrentTab = tab
+        } else {
+            Log.i(TAG, "Navigating to already selected tab: $tab")
+        }
+    }
+
+    private fun showArtistDialog(artist: String) {
+        val context = context ?: return
+        val songs = homefy().getLibrary().getArtistSongs(artist)
+        Log.d(TAG, "$songs")
+        val albumCount = songs.map { it.album }.distinct().count()
+        val subtitle = context.resources.getQuantityString(R.plurals.album_count, albumCount)
+        SongViewDialog(context, homefy(), artist, subtitle, songs).show()
+    }
+
+    private fun showAlbumDialog(album: String) {
+        val context = context ?: return
+        val songs = homefy().getLibrary().getAlbumSongs(album)
+        Log.d(TAG, "$songs")
+        val subtitle = songs.getOrNull(0)?.artist ?: ""
+        SongViewDialog(context, homefy(), album, subtitle, songs).show()
+    }
+
+    private enum class NavigationTab {
+        SONG,
+        ALBUM,
+        ARTIST,
+        PLAYLIST,
+        NOW_PLAYING,
+        NONE
+    }
+
+    companion object {
+        private const val TAG = "LibraryFragment"
     }
 }
