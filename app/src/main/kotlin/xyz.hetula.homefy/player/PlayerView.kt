@@ -76,7 +76,7 @@ class PlayerView : FrameLayout {
         mSongIconView = root.song_icon_view
         mBtnStop = root.btn_stop
         mBtnNext = root.btn_next
-        mBtnPrevious = root.btn_next
+        mBtnPrevious = root.btn_previous
         mBtnAddToPlaylist = root.btn_add_to_playlist
         mBtnShutdown = root.btn_shutdown
         mBtnDownload = root.btn_download
