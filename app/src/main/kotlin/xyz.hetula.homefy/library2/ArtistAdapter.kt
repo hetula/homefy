@@ -28,14 +28,17 @@ import kotlinx.android.synthetic.main.list_item_artist.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.HomefyService
 
-class ArtistAdapter(artists: List<String>,
+class ArtistAdapter(private val originalArtists: List<String>,
                     private val homefy: HomefyService,
                     private val onArtistClick: (String) -> Unit) :
-        RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>() {
-    private val mArtists = SortedList<String>(String::class.java, ArtistSorter(this))
+        RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>(), SearchableAdapter<String> {
+
+    override val mItems = SortedList<String>(String::class.java, ArtistSorter(this))
+    override var mLastSearch: String = ""
+    override var mCurrentSearchTask: SearchTask<String>? = null
 
     init {
-        mArtists.addAll(artists)
+        mItems.addAll(originalArtists)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistViewHolder {
@@ -43,10 +46,12 @@ class ArtistAdapter(artists: List<String>,
         return ArtistViewHolder(inflater.inflate(R.layout.list_item_artist, parent, false))
     }
 
-    override fun getItemCount() = mArtists.size()
+    override fun getOriginalItems() = originalArtists
+
+    override fun getItemCount() = mItems.size()
 
     override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
-        val artist = mArtists[position]
+        val artist = mItems[position]
         holder.artistTitle.text = artist
         holder.artistViewBase.setOnClickListener {
             onArtistClick(artist)
@@ -58,6 +63,8 @@ class ArtistAdapter(artists: List<String>,
         val songCountText = context.resources.getQuantityString(R.plurals.song_count, songs.size, songs.size)
         holder.albumCount.text = context.getString(R.string.library_album_and_song_count, albumCountText, songCountText)
     }
+
+    override fun searchFilter(item: String, search: String) = !item.contains(search, true)
 
     private class ArtistSorter(adapter: ArtistAdapter) : SortedListAdapterCallback<String>(adapter) {
         override fun areItemsTheSame(item1: String?, item2: String?): Boolean {

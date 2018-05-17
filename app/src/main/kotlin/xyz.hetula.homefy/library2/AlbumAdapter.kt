@@ -28,14 +28,17 @@ import kotlinx.android.synthetic.main.list_item_album.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.service.HomefyService
 
-class AlbumAdapter(albums: List<String>,
+class AlbumAdapter(private val originalAlbums: List<String>,
                    private val homefy: HomefyService,
                    private val onAlbumClick: (String) -> Unit) :
-        RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
-    private val mAlbums = SortedList<String>(String::class.java, AlbumSorter(this))
+        RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>(), SearchableAdapter<String> {
+
+    override val mItems = SortedList<String>(String::class.java, AlbumSorter(this))
+    override var mLastSearch: String = ""
+    override var mCurrentSearchTask: SearchTask<String>? = null
 
     init {
-        mAlbums.addAll(albums)
+        mItems.addAll(originalAlbums)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
@@ -43,10 +46,12 @@ class AlbumAdapter(albums: List<String>,
         return AlbumViewHolder(inflater.inflate(R.layout.list_item_album, parent, false))
     }
 
-    override fun getItemCount() = mAlbums.size()
+    override fun getOriginalItems() = originalAlbums
+
+    override fun getItemCount() = mItems.size()
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        val album = mAlbums[position]
+        val album = mItems[position]
         val songs = homefy.getLibrary().getAlbumSongs(album)
         holder.albumTitle.text = album
         holder.artistNames.text = songs.map { it.artist }.distinct().reduce { allArtists, artist ->
@@ -56,6 +61,8 @@ class AlbumAdapter(albums: List<String>,
             onAlbumClick(album)
         }
     }
+
+    override fun searchFilter(item: String, search: String) = !item.contains(search, true)
 
     private class AlbumSorter(adapter: AlbumAdapter) : SortedListAdapterCallback<String>(adapter) {
 
@@ -71,7 +78,7 @@ class AlbumAdapter(albums: List<String>,
         }
 
         override fun areContentsTheSame(oldItem: String?, newItem: String?): Boolean {
-            return oldItem.equals(newItem)
+            return false
         }
 
     }

@@ -32,14 +32,17 @@ import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.HomefyPlaylist
 
-class SongAdapter2(songs: List<Song>,
+class SongAdapter2(private val originalSongs: List<Song>,
                    private val mPlayer: HomefyPlayer,
-                   private val mPlaylists: HomefyPlaylist) : RecyclerView.Adapter<SongAdapter2.SongViewHolder>() {
+                   private val mPlaylists: HomefyPlaylist) :
+        RecyclerView.Adapter<SongAdapter2.SongViewHolder>(), SearchableAdapter<Song> {
 
-    private val mCurrentSongs: SortedList<Song> = SortedList(Song::class.java, SongSorter(this))
+    override val mItems: SortedList<Song> = SortedList(Song::class.java, SongSorter(this))
+    override var mLastSearch: String = ""
+    override var mCurrentSearchTask: SearchTask<Song>? = null
 
     init {
-        mCurrentSongs.addAll(songs)
+        mItems.addAll(originalSongs)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
@@ -47,11 +50,13 @@ class SongAdapter2(songs: List<Song>,
         return SongViewHolder(inflater.inflate(R.layout.list_item_song2, parent, false))
     }
 
-    override fun getItemCount() = mCurrentSongs.size()
+    override fun getOriginalItems() = originalSongs
+
+    override fun getItemCount() = mItems.size()
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         val context = holder.itemView.context
-        val song = mCurrentSongs[position]
+        val song = mItems[position]
         holder.songTrackAndTitle.text = if (song.track < 1) {
             song.title
         } else {
@@ -77,9 +82,11 @@ class SongAdapter2(songs: List<Song>,
 
     private fun playSongWithCurrentList(song: Song) {
         val playContext = ArrayList<Song>()
-        mCurrentSongs.forEach { playContext.add(it) }
+        mItems.forEach { playContext.add(it) }
         mPlayer.play(song, playContext)
     }
+
+    override fun searchFilter(item: Song, search: String) = !item.title.contains(search, true)
 
     class SongSorter(adapter: RecyclerView.Adapter<SongViewHolder>) : SortedListAdapterCallback<Song>(adapter) {
         override fun areItemsTheSame(s1: Song?, s2: Song?): Boolean {
