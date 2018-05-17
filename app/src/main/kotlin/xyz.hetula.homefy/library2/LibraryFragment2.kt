@@ -16,17 +16,18 @@
 
 package xyz.hetula.homefy.library2
 
+import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,21 +42,27 @@ import xyz.hetula.homefy.playlist.Playlist
 class LibraryFragment2 : HomefyFragment() {
     private var mCurrentTab = NavigationTab.NONE
     private var mLastSelectedTab = R.id.navSongs
+    private lateinit var mHandler: Handler
+    private lateinit var mMain: View
+    private lateinit var mInputManager: InputMethodManager
     private lateinit var mNavBar: BottomNavigationView
     private lateinit var mLibraryList: RecyclerView
     private lateinit var mNowPlayingView: PlayerView
     private lateinit var mTopSearch: FrameLayout
-    private lateinit var mSearchField: TextView
+    private lateinit var mSearchField: EditText
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        mHandler = Handler()
+        mInputManager = context!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         val selectTab = selectTab()
         if (selectTab != 0) {
             mLastSelectedTab = selectTab
         }
 
         val main = inflater.inflate(R.layout.fragment_library2, container, false) as LinearLayout
+        mMain = main
         mNavBar = main.navBar
         if (selectTab != 0) {
             mNavBar.selectedItemId = selectTab
@@ -68,10 +75,27 @@ class LibraryFragment2 : HomefyFragment() {
         mSearchField = main.searchField
 
         mSearchField.addTextChangedListener(SearchTextListener(::searchWith))
+        mSearchField.setOnEditorActionListener { view, actionId, keyEvent ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT ||
+                    keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                view.clearFocus()
+                mMain.focusEater.requestFocus()
+                hideSoftKeyboard()
+                true
+            } else {
+                false
+            }
+        }
 
         mCurrentTab = NavigationTab.NONE
         selectTabItem(mLastSelectedTab)
         return main
+    }
+
+    private fun hideSoftKeyboard() {
+        mHandler.post {
+            mInputManager.hideSoftInputFromWindow(mMain.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        }
     }
 
     private fun searchWith(search: String) {
@@ -79,7 +103,7 @@ class LibraryFragment2 : HomefyFragment() {
             return
         }
         val adapter = mLibraryList.adapter ?: return
-        if(adapter is SearchableAdapter<*>) {
+        if (adapter is SearchableAdapter<*>) {
             adapter.searchWith(search)
         }
     }
@@ -156,9 +180,10 @@ class LibraryFragment2 : HomefyFragment() {
 
     private fun selectTabIfNotSelected(tab: NavigationTab, function: () -> Unit) {
         if (mCurrentTab != tab) {
+            hideSoftKeyboard()
             mLibraryList.layoutManager = LinearLayoutManager(context)
             mLibraryList.adapter = null
-            mSearchField.text = ""
+            mSearchField.text.clear()
             mTopSearch.visibility = if (tab.noSearch()) {
                 View.GONE
             } else {

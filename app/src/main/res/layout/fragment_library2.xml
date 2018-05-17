@@ -42,13 +42,25 @@
             android:background="@drawable/bg_library_search"
             android:elevation="6dp"
             android:hint="@string/library_search_hint"
+            android:imeOptions="actionNext"
             android:lines="1"
+            android:nextFocusLeft="@id/focusEater"
+            android:nextFocusRight="@id/focusEater"
+            android:nextFocusUp="@id/focusEater"
+            android:nextFocusDown="@id/focusEater"
+            android:nextFocusForward="@id/focusEater"
             android:paddingStart="16dp"
             android:paddingTop="4dp"
             android:paddingEnd="16dp"
             android:paddingBottom="4dp"
             android:singleLine="true" />
     </FrameLayout>
+
+    <View
+        android:id="@+id/focusEater"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:focusable="true" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/libraryList"
@@ -72,6 +84,7 @@
         android:background="@color/colorPrimary"
         app:itemIconTint="@color/selector_library_nav_bar"
         app:itemTextColor="@android:color/white"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_library" />
 
 </LinearLayout>
