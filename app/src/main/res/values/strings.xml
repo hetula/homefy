@@ -40,7 +40,7 @@
     <string name="library_search">Search</string>
     <string name="library_favs">Favorites</string>
     <string name="library_playlists">Playlists</string>
-    <string name="library_now_playing">Now playing</string>
+    <string name="library_now_playing">Playing</string>
     <string name="library_search_hint">Search…..</string>
 
     <string name="library_song_track_title">%d - %s</string>
