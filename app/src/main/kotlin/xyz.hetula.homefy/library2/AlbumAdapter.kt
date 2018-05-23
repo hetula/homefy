@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
 import kotlinx.android.synthetic.main.list_item_album.view.*
 import xyz.hetula.homefy.R
+import xyz.hetula.homefy.forEach
+import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
 
 class AlbumAdapter(private val originalAlbums: List<String>,
@@ -63,6 +65,17 @@ class AlbumAdapter(private val originalAlbums: List<String>,
     }
 
     override fun searchFilter(item: String, search: String) = !item.contains(search, true)
+
+    override fun playAll() {
+        if(mItems.size() == 0) {
+            return
+        }
+        val playlist = ArrayList<Song>()
+        mItems.forEach {
+            playlist.addAll(homefy.getLibrary().getAlbumSongs(it))
+        }
+        homefy.getPlayer().play(playlist.first(), playlist)
+    }
 
     private class AlbumSorter(adapter: AlbumAdapter) : SortedListAdapterCallback<String>(adapter) {
 

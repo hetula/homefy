@@ -10,3 +10,4 @@
 .externalNativeBuild
 output.json
 projectFilesBackup/
+keystore.properties

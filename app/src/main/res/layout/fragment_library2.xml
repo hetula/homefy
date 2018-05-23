@@ -62,13 +62,27 @@
         android:layout_height="1dp"
         android:focusable="true" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/libraryList"
+    <FrameLayout
+        android:id="@+id/libraryHolder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginEnd="2dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/libraryList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/playAllFloat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_shuffle_float"
+            tools:visibility="visible"
+            android:layout_gravity="bottom|end" />
+    </FrameLayout>
 
     <xyz.hetula.homefy.player.PlayerView
         android:id="@+id/nowPlayingView"

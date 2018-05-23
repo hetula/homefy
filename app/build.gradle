@@ -19,21 +19,37 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+    signingConfigs {
+        def keystorePropertiesFile = rootProject.file("keystore.properties")
+        def keystoreProperties = new Properties()
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+        config {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     compileSdkVersion compile_sdk
     defaultConfig {
-        applicationId "xyz.hetula.homefy"
+        applicationId homefy_app_id
         minSdkVersion min_sdk
         targetSdkVersion target_sdk
-        versionCode 5
-        versionName "1.3.0_alpha"
+        versionName homefy_version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.config
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
-        debug {}
+        debug {
+            signingConfig signingConfigs.config
+        }
     }
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
@@ -48,12 +64,17 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
-
     flavorDimensions "full"
-
     productFlavors {
         homefy {
             dimension "full"
+            minSdkVersion min_sdk
+            applicationId homefy_app_id
+            targetSdkVersion target_sdk
+            compileSdkVersion compile_sdk
+            versionCode homefy_version_code
+            versionName homefy_version
+            signingConfig signingConfigs.config
         }
     }
 }
@@ -61,7 +82,6 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-
     // Support libraries
     implementation "com.google.android.material:material:$supportx_version"
     implementation "androidx.core:core:$supportx_version"
@@ -71,17 +91,13 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:$supportx_version"
     implementation "androidx.emoji:emoji-appcompat:$supportx_version"
     implementation "androidx.emoji:emoji-bundled:$supportx_version"
-
     implementation "com.android.support.constraint:constraint-layout:$constraintl_version"
-
     // External libs
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.android.volley:volley:$volley_version"
-
     // Testing
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.0.6'
-
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

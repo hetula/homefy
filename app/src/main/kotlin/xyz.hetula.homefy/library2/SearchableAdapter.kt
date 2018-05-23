@@ -64,4 +64,6 @@ internal interface SearchableAdapter<T> {
         }
         mLastSearch = search
     }
+
+    fun playAll()
 }

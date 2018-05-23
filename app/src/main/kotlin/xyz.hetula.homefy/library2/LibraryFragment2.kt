@@ -32,6 +32,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_library2.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
@@ -50,6 +51,8 @@ class LibraryFragment2 : HomefyFragment() {
     private lateinit var mNowPlayingView: PlayerView
     private lateinit var mTopSearch: FrameLayout
     private lateinit var mSearchField: EditText
+    private lateinit var mLibraryHolder: FrameLayout
+    private lateinit var mPlayAllFloat: FloatingActionButton
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -73,6 +76,8 @@ class LibraryFragment2 : HomefyFragment() {
         mNowPlayingView.setHomefy(homefy())
         mTopSearch = main.topSearch
         mSearchField = main.searchField
+        mLibraryHolder = main.libraryHolder
+        mPlayAllFloat = main.playAllFloat
 
         mSearchField.addTextChangedListener(SearchTextListener(::searchWith))
         mSearchField.setOnEditorActionListener { view, actionId, keyEvent ->
@@ -87,10 +92,15 @@ class LibraryFragment2 : HomefyFragment() {
             }
         }
 
+        mPlayAllFloat.setOnClickListener {
+            playAll()
+        }
+
         mCurrentTab = NavigationTab.NONE
         selectTabItem(mLastSelectedTab)
         return main
     }
+
 
     private fun hideSoftKeyboard() {
         mHandler.post {
@@ -143,37 +153,37 @@ class LibraryFragment2 : HomefyFragment() {
     }
 
     private fun selectSongTab() = selectTabIfNotSelected(NavigationTab.SONG) {
-        mNowPlayingView.visibility = View.GONE
-        mLibraryList.visibility = View.VISIBLE
         mLibraryList.adapter = SongAdapter2(homefy().getLibrary().songs,
                 homefy().getPlayer(),
                 homefy().getPlaylists())
+        mNowPlayingView.visibility = View.GONE
+        mLibraryHolder.visibility = View.VISIBLE
     }
 
     private fun selectAlbumTab() = selectTabIfNotSelected(NavigationTab.ALBUM) {
-        mNowPlayingView.visibility = View.GONE
-        mLibraryList.visibility = View.VISIBLE
         mLibraryList.adapter = AlbumAdapter(homefy().getLibrary().albums, homefy(), this::showAlbumDialog)
+        mNowPlayingView.visibility = View.GONE
+        mLibraryHolder.visibility = View.VISIBLE
     }
 
     private fun selectArtistTab() = selectTabIfNotSelected(NavigationTab.ARTIST) {
-        mNowPlayingView.visibility = View.GONE
-        mLibraryList.visibility = View.VISIBLE
         mLibraryList.adapter = ArtistAdapter(homefy().getLibrary().artists, homefy(), this::showArtistDialog)
+        mNowPlayingView.visibility = View.GONE
+        mLibraryHolder.visibility = View.VISIBLE
     }
 
     private fun selectPlaylistTab() = selectTabIfNotSelected(NavigationTab.PLAYLIST) {
-        mNowPlayingView.visibility = View.GONE
-        mLibraryList.visibility = View.VISIBLE
         val playlists = ArrayList<Playlist>()
         playlists.add(homefy().getPlaylists().favorites)
         playlists.addAll(homefy().getPlaylists().getAllPlaylists())
         mLibraryList.adapter = PlaylistAdapter(playlists, this::showPlaylistContent)
+        mNowPlayingView.visibility = View.GONE
+        mLibraryHolder.visibility = View.VISIBLE
     }
 
     private fun selectNowPlayingTab() = selectTabIfNotSelected(NavigationTab.NOW_PLAYING) {
         mNowPlayingView.visibility = View.VISIBLE
-        mLibraryList.visibility = View.GONE
+        mLibraryHolder.visibility = View.GONE
         mLibraryList.adapter = null
 
     }
@@ -185,8 +195,10 @@ class LibraryFragment2 : HomefyFragment() {
             mLibraryList.adapter = null
             mSearchField.text.clear()
             mTopSearch.visibility = if (tab.noSearch()) {
+                mPlayAllFloat.hide()
                 View.GONE
             } else {
+                mPlayAllFloat.show()
                 View.VISIBLE
             }
             function()
@@ -231,6 +243,16 @@ class LibraryFragment2 : HomefyFragment() {
                 .replace(R.id.container, songsFragment)
                 .addToBackStack("SongsView_$title")
                 .commit()
+    }
+
+    private fun playAll() {
+        if (mCurrentTab.noSearch()) {
+            return
+        }
+        val adapter = mLibraryList.adapter ?: return
+        if (adapter is SearchableAdapter<*>) {
+            adapter.playAll()
+        }
     }
 
     private class SearchTextListener(private val onTextChanged: (String) -> Unit) : TextWatcher {

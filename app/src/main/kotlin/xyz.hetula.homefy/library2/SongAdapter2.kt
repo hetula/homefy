@@ -80,6 +80,15 @@ class SongAdapter2(private val originalSongs: List<Song>,
 
     }
 
+    override fun playAll() {
+        if(mItems.size() == 0) {
+            return
+        }
+        val playlist = ArrayList<Song>()
+        mItems.forEach { playlist.add(it) }
+        mPlayer.play(playlist.first(), playlist)
+    }
+
     private fun playSongWithCurrentList(song: Song) {
         val playContext = ArrayList<Song>()
         mItems.forEach { playContext.add(it) }
