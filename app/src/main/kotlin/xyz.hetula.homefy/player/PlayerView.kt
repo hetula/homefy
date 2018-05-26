@@ -94,7 +94,7 @@ class PlayerView : FrameLayout {
         }
         mBtnFavorite.setOnClickListener {
             val song = homefy().getPlayer().nowPlaying() ?: return@setOnClickListener
-            homefy().getPlaylists().favorites.toggle(homefy().getPlaylists(), song)
+            homefy().getPlaylists().favorites.toggle(context, homefy().getPlaylists(), song)
             updateFavIco(song)
         }
         mBtnPrevious.setOnClickListener({ _ ->

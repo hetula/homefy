@@ -28,6 +28,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media.session.MediaButtonReceiver
+import xyz.hetula.homefy.EasyBroadcastReceiver
 import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.MainActivity
 import xyz.hetula.homefy.R
@@ -36,6 +37,7 @@ import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.HomefyPlaylist
+import xyz.hetula.homefy.playlist.Playlist
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 
 /**
@@ -51,6 +53,7 @@ class HomefyService : Service() {
     private lateinit var mLibrary: HomefyLibrary
     private lateinit var mPlayer: HomefyPlayer
     private lateinit var mPlaylists: HomefyPlaylist
+    private lateinit var mFavoriteReceiver: EasyBroadcastReceiver
 
     private val mPlaybackListener = { _: Song?, state: Int, _: Int -> onPlay(state) }
     private var mSession: MediaSessionCompat? = null
@@ -78,17 +81,34 @@ class HomefyService : Service() {
         super.onCreate()
         createChannel()
 
-        mProtocol = ServiceInitializer.protocol(Unit)
+        mProtocol = ServiceInitializer.protocol()
         mLibrary = ServiceInitializer.library(mProtocol)
         mPlayer = ServiceInitializer.player(mProtocol, mLibrary)
-        mPlaylists = ServiceInitializer.playlist(Unit)
+        mPlaylists = ServiceInitializer.playlist(applicationContext)
 
         mProtocol.initialize(applicationContext)
+
+        mFavoriteReceiver = EasyBroadcastReceiver(Playlist.ACTION_PLAYLIST_SONG_ADD, Playlist.ACTION_PLAYLIST_SONG_REMOVED) {
+            val playlistId = it.getStringExtra(Playlist.EXTRA_PLAYLIST_ID)
+                    ?: return@EasyBroadcastReceiver
+            if (playlistId != Playlist.FAVORITES_PLAYLIST_ID) {
+                return@EasyBroadcastReceiver
+            }
+            val mediaSession = mSession ?: return@EasyBroadcastReceiver
+            val songPlaying = mPlayer.nowPlaying() ?: return@EasyBroadcastReceiver
+            val songId = it.getStringExtra(Playlist.EXTRA_SONG_ID) ?: return@EasyBroadcastReceiver
+            val song = mLibrary.getSongById(songId) ?: return@EasyBroadcastReceiver
+            if (songPlaying.id == song.id) {
+                updateNotification(mediaSession)
+            }
+        }
+        mFavoriteReceiver.register(applicationContext)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "Destroying Homefy Service")
+        mFavoriteReceiver.unregister(applicationContext)
         destroyChannel()
 
         mPlayer.unregisterPlaybackListener(mPlaybackListener)
@@ -152,10 +172,8 @@ class HomefyService : Service() {
     }
 
     private fun favoriteCurrentSong() {
-        val mediaSession = mSession ?: return
         val song = mPlayer.nowPlaying() ?: return
-        mPlaylists.favorites.toggle(mPlaylists, song)
-        updateNotification(mediaSession)
+        mPlaylists.favorites.toggle(this, mPlaylists, song)
     }
 
     private fun setupNotification(mediaSession: MediaSessionCompat): Notification {
@@ -164,14 +182,13 @@ class HomefyService : Service() {
         builder.setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setSmallIcon(R.drawable.ic_music_notification)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
-                .setOngoing(true)
                 .setShowWhen(false)
                 .setOnlyAlertOnce(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
         if (song == null) {
             builder.setContentTitle(getString(R.string.app_desc))
-                    .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
+                    .setDeleteIntent(closeIntent())
             return builder.build()
         }
 
@@ -211,11 +228,21 @@ class HomefyService : Service() {
                         .setMediaSession(mediaSession.sessionToken)
                         .setShowActionsInCompactView(2, 3, 4))
                 .setColorized(true)
+                .setOngoing(true)
                 .setLargeIcon(largeIcon)
                 .setContentIntent(contentIntent())
                 .setContentTitle(song.title)
                 .setContentText(song.album)
                 .setSubText(song.artist)
+
+        if (!mPlayer.isPaused) {
+            val playedMs = mPlayer.queryPositionMs()
+            builder.setWhen(System.currentTimeMillis() - playedMs)
+                    .setShowWhen(true)
+                    .setUsesChronometer(true)
+        } else {
+            builder.setWhen(System.currentTimeMillis())
+        }
 
         return builder.build()
     }

@@ -16,9 +16,12 @@
 
 package xyz.hetula.homefy.playlist
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.Expose
+import xyz.hetula.homefy.BroadcastHelper
 import xyz.hetula.homefy.player.Song
 import java.io.BufferedWriter
 import java.io.File
@@ -39,28 +42,40 @@ data class Playlist(@Expose val id: String,
         return songs.contains(song)
     }
 
-    fun toggle(homefyPlaylist: HomefyPlaylist, song: Song) {
+    fun toggle(context: Context, homefyPlaylist: HomefyPlaylist, song: Song) {
+        var added = false
         if (!songs.remove(song)) {
             songs.add(song)
+            added = true
         }
         save(homefyPlaylist.baseLocation)
+        if(added) {
+            sendAddedBroadcast(context, song.id)
+        } else {
+            sendRemovedBroadcast(context, song.id)
+        }
     }
 
-    fun add(homefyPlaylist: HomefyPlaylist, song: Song) {
+    fun add(context: Context, homefyPlaylist: HomefyPlaylist, song: Song) {
         if (!contains(song)) {
             songs.add(song)
             save(homefyPlaylist.baseLocation)
+            sendAddedBroadcast(context, song.id)
         }
     }
 
-    fun remove(homefyPlaylist: HomefyPlaylist, song: Song) {
+    fun remove(context: Context, homefyPlaylist: HomefyPlaylist, song: Song) {
         if (songs.remove(song)) {
             save(homefyPlaylist.baseLocation)
+            sendRemovedBroadcast(context, song.id)
         }
     }
 
-    fun create(homefyPlaylist: HomefyPlaylist) {
+    fun create(context: Context, homefyPlaylist: HomefyPlaylist) {
         save(homefyPlaylist.baseLocation)
+        val intent = Intent(ACTION_PLAYLIST_CREATED)
+        intent.putExtra(EXTRA_PLAYLIST_ID, id)
+        BroadcastHelper.sendLocalBroadcast(context, intent)
     }
 
     internal fun addAll(songs: List<Song>) {
@@ -81,6 +96,20 @@ data class Playlist(@Expose val id: String,
         }
     }
 
+    private fun sendAddedBroadcast(context: Context, songId: String) {
+        val intent = Intent(ACTION_PLAYLIST_SONG_ADD)
+        intent.putExtra(EXTRA_PLAYLIST_ID, id)
+        intent.putExtra(EXTRA_SONG_ID, songId)
+        BroadcastHelper.sendLocalBroadcast(context, intent)
+    }
+
+    private fun sendRemovedBroadcast(context: Context, songId: String) {
+        val intent = Intent(ACTION_PLAYLIST_SONG_REMOVED)
+        intent.putExtra(EXTRA_PLAYLIST_ID, id)
+        intent.putExtra(EXTRA_SONG_ID, songId)
+        BroadcastHelper.sendLocalBroadcast(context, intent)
+    }
+
     private fun resolveFile(base: File): File {
         if (favs) {
             return base.resolve("$id.json")
@@ -96,5 +125,11 @@ data class Playlist(@Expose val id: String,
 
     companion object {
         private val GSON = Gson()
+        const val FAVORITES_PLAYLIST_ID = "favorites"
+        const val ACTION_PLAYLIST_CREATED = "homefy.ACTION_PLAYLIST_CREATED"
+        const val ACTION_PLAYLIST_SONG_ADD = "homefy.ACTION_PLAYLIST_SONG_ADD"
+        const val ACTION_PLAYLIST_SONG_REMOVED = "homefy.ACTION_PLAYLIST_SONG_REMOVED"
+        const val EXTRA_PLAYLIST_ID = "homefy.EXTRA_PLAYLIST_ID"
+        const val EXTRA_SONG_ID = "homefy.EXTRA_SONG_ID"
     }
 }

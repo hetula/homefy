@@ -262,6 +262,12 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
         return player.currentPosition / 1000
     }
 
+    fun queryPositionMs(): Int {
+        if (mPlayback.hasPlayback()) return 0
+        val player = mPlayer ?: return 0
+        return player.currentPosition
+    }
+
     fun seekTo(position: Int) {
         mPlayer?.seekTo(position * 1000)
     }

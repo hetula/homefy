@@ -156,6 +156,8 @@ class HomefyLibrary(private val protocol: HomefyProtocol) {
         mSearchTask?.execute(SearchRequest(search, type))
     }
 
+    fun getSongById(songId: String): Song? = mSongDatabase?.get(songId)
+
     data class SearchRequest(val search: String, val type: SearchType)
 
     private class SearchTask(val music: List<Song>, val executor: Executor,

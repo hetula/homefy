@@ -16,6 +16,7 @@
 
 package xyz.hetula.homefy.service
 
+import android.content.Context
 import xyz.hetula.homefy.library.HomefyLibrary
 import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.playlist.HomefyPlaylist
@@ -23,11 +24,11 @@ import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 
 internal object ServiceInitializer {
-    internal var protocol: (Unit) -> HomefyProtocol = { DefaultHomefyProtocol() }
+    internal var protocol: () -> HomefyProtocol = { DefaultHomefyProtocol() }
 
     internal var library: (HomefyProtocol) -> HomefyLibrary = { protocol -> HomefyLibrary(protocol) }
 
     internal var player: (HomefyProtocol, HomefyLibrary) -> HomefyPlayer = { protocol, library -> HomefyPlayer(protocol, library) }
 
-    internal var playlist: (Unit) -> HomefyPlaylist = { HomefyPlaylist() }
+    internal var playlist: (Context) -> HomefyPlaylist = { HomefyPlaylist(it) }
 }

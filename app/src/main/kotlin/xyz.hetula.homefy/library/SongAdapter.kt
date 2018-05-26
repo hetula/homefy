@@ -80,7 +80,7 @@ class SongAdapter(songs: List<Song>,
             holder.btnSongFav.setImageResource(R.drawable.ic_not_favorite)
         }
         holder.btnSongFav.setOnClickListener {
-            mPlaylists.favorites.toggle(mPlaylists, song)
+            mPlaylists.favorites.toggle(it.context, mPlaylists, song)
             notifyItemChanged(position)
             onFav?.invoke(this, song)
         }
@@ -158,7 +158,7 @@ class SongAdapter(songs: List<Song>,
                             Snackbar.LENGTH_SHORT).show()
                 }
             } else {
-                playlist.remove(songAdapter.mPlaylists, song)
+                playlist.remove(itemView.context, songAdapter.mPlaylists, song)
                 songAdapter.mSongs.removeAt(adapterPosition)
                 songAdapter.notifyItemRemoved(adapterPosition)
                 Snackbar.make(itemView, R.string.playlist_dialog_removed,

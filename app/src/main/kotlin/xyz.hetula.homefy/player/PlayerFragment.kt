@@ -89,7 +89,7 @@ class PlayerFragment : HomefyFragment() {
         })
         main.btn_favorite.setOnClickListener {
             val song = homefy().getPlayer().nowPlaying() ?: return@setOnClickListener
-            homefy().getPlaylists().favorites.toggle(homefy().getPlaylists(), song)
+            homefy().getPlaylists().favorites.toggle(context!!, homefy().getPlaylists(), song)
             updateFavIco(song)
         }
         main.btn_add_to_playlist.setOnClickListener {

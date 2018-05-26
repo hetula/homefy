@@ -16,9 +16,11 @@
 
 package xyz.hetula.homefy.playlist
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.player.Song
 import java.io.BufferedReader
@@ -31,10 +33,10 @@ import java.util.*
  * @version 1.0
  * @since 1.0
  */
-open class HomefyPlaylist {
+open class HomefyPlaylist(private val mContext: Context) {
     private val playlistDirectory = "playlists/"
     private val mPlaylists = HashMap<String, Playlist>()
-    val favorites = Playlist("favorites", "Favorites", favs = true)
+    val favorites = Playlist(Playlist.FAVORITES_PLAYLIST_ID, mContext.getString(R.string.library_favs), favs = true)
     internal lateinit var baseLocation: File
 
     fun setBaseLocation(base: File) {
@@ -49,7 +51,7 @@ open class HomefyPlaylist {
     fun createPlaylist(name: String): Playlist {
         val pl = Playlist(Utils.randomId(), if (name.isBlank()) "Empty" else name)
         mPlaylists[pl.id] = pl
-        pl.create(this)
+        pl.create(mContext, this)
         return pl
     }
 

@@ -39,7 +39,7 @@ object PlaylistDialog {
             dialog.setAdapter(ArrayAdapter<Playlist>(context, android.R.layout.simple_list_item_1,
                     playlists)) { dlg, index ->
                 val selected = playlists[index]
-                selected.add(homefyPlaylists, song)
+                selected.add(context, homefyPlaylists, song)
                 dlg.dismiss()
                 onSuccess(Unit)
             }
