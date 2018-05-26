@@ -54,11 +54,14 @@ class AlbumAdapter(private val originalAlbums: List<String>,
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
         val album = mItems[position]
+        val context = holder.itemView.context
         val songs = homefy.getLibrary().getAlbumSongs(album)
         holder.albumTitle.text = album
         holder.artistNames.text = songs.map { it.artist }.distinct().reduce { allArtists, artist ->
             "$allArtists, $artist"
         }
+        val songCountText = context.resources.getQuantityString(R.plurals.song_count, songs.size, songs.size)
+        holder.albumSongCount.text = songCountText
         holder.albumBase.setOnClickListener {
             onAlbumClick(album)
         }
@@ -100,6 +103,7 @@ class AlbumAdapter(private val originalAlbums: List<String>,
         val albumTitle: TextView = view.albumTitle
         val artistNames: TextView = view.artistNames
         val albumBase: ConstraintLayout = view.albumViewBase
+        val albumSongCount: TextView = view.albumSongCount
     }
 }
 
