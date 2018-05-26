@@ -113,13 +113,14 @@ class PlayerView : FrameLayout {
         }
         mBtnStop.setOnClickListener { _ -> homefy().getPlayer().stop() }
         mBtnPausePlay.setOnClickListener { _ -> homefy().getPlayer().pauseResume() }
-        mBtnDownload.setOnClickListener {
-            TODO()
-        }
     }
 
     fun setHomefy(homefyService: HomefyService) {
         mHomefyService = homefyService
+    }
+
+    fun setOnDownloadClick(click: (View) -> Unit) {
+        mBtnDownload.setOnClickListener(click)
     }
 
     internal fun homefy() = mHomefyService

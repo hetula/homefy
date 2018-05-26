@@ -16,16 +16,25 @@
 
 package xyz.hetula.homefy
 
+import android.Manifest
+import android.app.DownloadManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.content.ContextCompat
 import androidx.emoji.bundled.BundledEmojiCompatConfig
 import androidx.emoji.text.EmojiCompat
 import xyz.hetula.homefy.library2.LibraryFragment2
+import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
+import java.util.HashMap
 
 /**
  * @author Tuomo Heino
@@ -33,6 +42,8 @@ import xyz.hetula.homefy.setup.SetupFragment
  * @since 1.0
  */
 class MainActivity : HomefyActivity() {
+    private val mPermissionRequestCode = 0x2231
+    private var song: Song? = null
     private var mSelectTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +61,11 @@ class MainActivity : HomefyActivity() {
 
         val startService = Intent(applicationContext, HomefyService::class.java)
         startService(startService)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mSelectTab = 0
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -93,7 +109,69 @@ class MainActivity : HomefyActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        val song = this.song
+        if (requestCode == mPermissionRequestCode && song != null) {
+            if (hasExternalStoragePermissions()) {
+                saveTheSong(song)
+            } else {
+                Log.w("PlayerActivity", "No permissions...")
+            }
+        }
+    }
+
     fun selectTab() = mSelectTab
+
+    fun download(song: Song?) {
+        if (song == null) {
+            return
+        }
+        val askPermissions = ArrayList<String>()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            askPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            askPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        if (askPermissions.isNotEmpty()) {
+            this.song = song
+            requestPermissions(askPermissions.toTypedArray(), mPermissionRequestCode)
+        } else {
+            saveTheSong(song)
+        }
+    }
+
+    private fun hasExternalStoragePermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun saveTheSong(song: Song) {
+        if (!isExternalStorageWritable()) {
+            Log.e("MainActivity", "Can't write to storage!")
+            return
+        }
+        song.getFileType {
+            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val request = DownloadManager.Request(Uri.parse(homefy.getLibrary().getPlayPath(song)))
+            val headers = HashMap<String, String>()
+            homefy.getProtocol().addAuthHeader(headers)
+            request.addRequestHeader("Authorization", headers["Authorization"])
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setVisibleInDownloadsUi(false)
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC,
+                    "Homefy/" + song.title + "." + it)
+            request.setTitle(song.title)
+            song.getMimeType { request.setMimeType(it) }
+            downloadManager.enqueue(request)
+        }
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+    }
 
     private fun doShutdown() {
         Log.d("MainActivity", "Shutting down!")
