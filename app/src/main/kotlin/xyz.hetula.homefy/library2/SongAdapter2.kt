@@ -16,6 +16,7 @@
 
 package xyz.hetula.homefy.library2
 
+import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.view.LayoutInflater
 import android.view.View
@@ -30,12 +31,13 @@ import xyz.hetula.homefy.R
 import xyz.hetula.homefy.forEach
 import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.Song
+import xyz.hetula.homefy.playlist.FavoriteChangeListener
 import xyz.hetula.homefy.playlist.HomefyPlaylist
 
 class SongAdapter2(private val originalSongs: List<Song>,
                    private val mPlayer: HomefyPlayer,
                    private val mPlaylists: HomefyPlaylist) :
-        RecyclerView.Adapter<SongAdapter2.SongViewHolder>(), SearchableAdapter<Song> {
+        RecyclerView.Adapter<SongAdapter2.SongViewHolder>(), SearchableAdapter<Song>, FavoriteChangeListener {
 
     override val mItems: SortedList<Song> = SortedList(Song::class.java, SongSorter(this))
     override var mLastSearch: String = ""
@@ -66,7 +68,7 @@ class SongAdapter2(private val originalSongs: List<Song>,
 
         holder.songFavorite.setOnCheckedChangeListener { button, isFavorite ->
             if (button.isPressed) {
-                setFavorite(song, isFavorite)
+                setFavorite(button.context, song, isFavorite)
             }
         }
         holder.songFavorite.isChecked = mPlaylists.isFavorite(song)
@@ -76,12 +78,23 @@ class SongAdapter2(private val originalSongs: List<Song>,
         }
     }
 
-    private fun setFavorite(song: Song, isFav: Boolean) {
+    override fun onFavoriteChanged(song: Song) {
+        val index = mItems.indexOf(song)
+        if (index != -1) {
+            mItems.updateItemAt(index, song)
+        }
+    }
 
+    private fun setFavorite(context: Context, song: Song, isFav: Boolean) {
+        if (isFav) {
+            mPlaylists.favorites.add(context, mPlaylists, song)
+        } else {
+            mPlaylists.favorites.remove(context, mPlaylists, song)
+        }
     }
 
     override fun playAll() {
-        if(mItems.size() == 0) {
+        if (mItems.size() == 0) {
             return
         }
         val playlist = ArrayList<Song>()

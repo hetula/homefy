@@ -29,11 +29,12 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_player.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
+import xyz.hetula.homefy.playlist.FavoriteChangeListener
 import xyz.hetula.homefy.playlist.PlaylistDialog
 import xyz.hetula.homefy.service.HomefyService
 import java.util.*
 
-class PlayerView : FrameLayout {
+class PlayerView : FrameLayout, FavoriteChangeListener {
     private val mPlaybackListener = this::onSongUpdate
 
     private val mTxtTitle: TextView
@@ -147,6 +148,12 @@ class PlayerView : FrameLayout {
         mTxtBuffering.visibility = View.INVISIBLE
     }
 
+    override fun onFavoriteChanged(song: Song) {
+        val current = homefy().getPlayer().nowPlaying() ?: return
+        if(song.id == current.id) {
+            updateFavIco(song)
+        }
+    }
 
     private fun onSongUpdate(song: Song?, state: Int, param: Int) {
         when (state) {

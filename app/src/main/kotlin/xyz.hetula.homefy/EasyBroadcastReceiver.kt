@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 
-class EasyBroadcastReceiver(vararg actions: String, private val onAction: (Intent) -> Unit) : BroadcastReceiver() {
+open class EasyBroadcastReceiver(vararg actions: String, private val onAction: ((Intent) -> Unit)? = null) : BroadcastReceiver() {
     private val mIntentFilter = IntentFilter()
     private var mRegistered = false
 
@@ -45,7 +45,7 @@ class EasyBroadcastReceiver(vararg actions: String, private val onAction: (Inten
     override fun onReceive(context: Context?, intent: Intent?) {
         intent ?: return
         if(mIntentFilter.matchAction(intent.action)) {
-            onAction(intent)
+            onAction?.invoke(intent)
         }
     }
 

@@ -42,6 +42,8 @@ import xyz.hetula.homefy.MainActivity
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.PlayerView
 import xyz.hetula.homefy.player.Song
+import xyz.hetula.homefy.playlist.FavoriteChangeListener
+import xyz.hetula.homefy.playlist.FavoriteChangeReceiver
 import xyz.hetula.homefy.playlist.Playlist
 
 class LibraryFragment2 : HomefyFragment() {
@@ -57,11 +59,14 @@ class LibraryFragment2 : HomefyFragment() {
     private lateinit var mSearchField: EditText
     private lateinit var mLibraryHolder: FrameLayout
     private lateinit var mPlayAllFloat: FloatingActionButton
+    private lateinit var mFavoriteChangeReceiver: FavoriteChangeReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mHandler = Handler()
         mInputManager = context!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        mFavoriteChangeReceiver = FavoriteChangeReceiver(homefy().getLibrary(), ::updateFavoriteListeners)
+        mFavoriteChangeReceiver.register(context!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -107,6 +112,11 @@ class LibraryFragment2 : HomefyFragment() {
         }
         selectTabItem(mLastSelectedTab)
         return mMain
+    }
+
+    override fun onDestroy() {
+        mFavoriteChangeReceiver.unregister(context!!)
+        super.onDestroy()
     }
 
 
@@ -293,6 +303,16 @@ class LibraryFragment2 : HomefyFragment() {
             d.cancel()
         })
         ask.create().show()
+    }
+
+    private fun updateFavoriteListeners(song: Song) {
+        val adapter = mLibraryList.adapter
+        if(adapter is FavoriteChangeListener) {
+            adapter.onFavoriteChanged(song)
+        }
+        if(mCurrentTab == NavigationTab.NOW_PLAYING) {
+            mNowPlayingView.onFavoriteChanged(song)
+        }
     }
 
     private fun onFloatAction() {
