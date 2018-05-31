@@ -34,7 +34,6 @@ import xyz.hetula.homefy.MainActivity
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.library.HomefyLibrary
 import xyz.hetula.homefy.player.HomefyPlayer
-import xyz.hetula.homefy.player.PlayerActivity
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.HomefyPlaylist
 import xyz.hetula.homefy.playlist.Playlist
@@ -254,11 +253,7 @@ class HomefyService : Service() {
         launchMe.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-
-        val taskStack = TaskStackBuilder.create(this)
-        taskStack.addParentStack(PlayerActivity::class.java)
-        taskStack.addNextIntent(launchMe)
-        return taskStack.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)!!
+        return PendingIntent.getActivity(this,0, launchMe, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
     private fun closeIntent(): PendingIntent {

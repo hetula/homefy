@@ -40,7 +40,8 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_album_light" />
+            app:srcCompat="@drawable/ic_album_light"
+            android:importantForAccessibility="no"/>
 
         <android.support.constraint.Guideline
             android:id="@+id/guideline"

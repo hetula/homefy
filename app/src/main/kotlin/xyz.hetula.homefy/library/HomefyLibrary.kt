@@ -18,15 +18,12 @@ package xyz.hetula.homefy.library
 
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.SystemClock
 import android.util.Log
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 import java.util.*
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -51,8 +48,6 @@ class HomefyLibrary(private val protocol: HomefyProtocol) {
     private var mMusic: MutableList<Song> = Collections.emptyList()
     private var mAlbums: MutableList<String> = Collections.emptyList()
     private var mArtists: MutableList<String> = Collections.emptyList()
-
-    private var mSearchTask: AsyncTask<SearchRequest, Void, List<Song>>? = null
 
     private var mReady = false
 
@@ -149,131 +144,7 @@ class HomefyLibrary(private val protocol: HomefyProtocol) {
         return protocol.server + "/play/" + song.id
     }
 
-    @Synchronized
-    fun search(search: String, type: SearchType, callback: (List<Song>) -> Unit) {
-        mSearchTask?.cancel(true)
-        mSearchTask = SearchTask(mMusic, mSearchExecutor, callback)
-        mSearchTask?.execute(SearchRequest(search, type))
-    }
-
     fun getSongById(songId: String): Song? = mSongDatabase?.get(songId)
-
-    data class SearchRequest(val search: String, val type: SearchType)
-
-    private class SearchTask(val music: List<Song>, val executor: Executor,
-                             val callback: (List<Song>) -> Unit) :
-            AsyncTask<SearchRequest, Void, List<Song>>() {
-
-        override fun doInBackground(vararg params: SearchRequest?): List<Song> {
-            val req = params[0]!!
-            val start = SystemClock.elapsedRealtime()
-            val result = search(req.search.toLowerCase(), req.type)
-            Log.d(TAG, "Search done in: ${(SystemClock.elapsedRealtime() - start)} ms")
-            return result
-        }
-
-        override fun onPostExecute(result: List<Song>?) {
-            if (result != null) {
-                callback(result)
-            }
-        }
-
-        private fun search(search: String, type: SearchType): List<Song> {
-            val results = ArrayList<Song>()
-            val workers = getThreadCount(music.size)
-
-            if (workers == 1) {
-                processAll(results, search, type)
-            } else {
-                lickitySplit(workers, results, search, type)
-            }
-            return results
-        }
-
-        private fun processAll(results: MutableList<Song>, search: String, type: SearchType) {
-            SearchWorker(music, search, type, this::isCancelled) {
-                results.addAll(it)
-            }.run()
-        }
-
-        private fun lickitySplit(workers: Int,
-                                 results: MutableList<Song>,
-                                 search: String, type: SearchType) {
-            val reqSize = music.size / workers
-            val latch = CountDownLatch(workers)
-            var lastIndex = 0
-            for (i in 0 until workers - 1) {
-                lastIndex = i * reqSize + reqSize
-                val list = music.subList(i * reqSize, lastIndex)
-                executor.execute(SearchWorker(list, search, type, this::isCancelled, latch) {
-                    synchronized(results) {
-                        results.addAll(it)
-                    }
-                })
-            }
-            val list = music.subList(lastIndex, music.size)
-            SearchWorker(list, search, type, this::isCancelled, latch) {
-                synchronized(results) {
-                    results.addAll(it)
-                }
-            }.run()
-
-            latch.await()
-            if (isCancelled) return
-            results.sort()
-        }
-
-        private fun getThreadCount(size: Int): Int {
-            if (size < 500) {
-                return 1
-            }
-            if (size < 1000) {
-                return 2
-            }
-            return Math.max(3, Runtime.getRuntime().availableProcessors())
-        }
-    }
-
-    private class SearchWorker(val searchList: List<Song>,
-                               val search: String,
-                               val type: SearchType,
-                               val cancel: () -> Boolean,
-                               val latch: CountDownLatch? = null,
-                               val callback: (List<Song>) -> Unit) : Runnable {
-        override fun run() {
-            val results = ArrayList<Song>()
-            for (song in searchList) {
-                if (cancel()) {
-                    latch?.countDown()
-                    return
-                }
-                if (filter(song, search, type)) {
-                    results.add(song)
-                }
-            }
-            callback(results)
-            latch?.countDown()
-        }
-
-        private fun filter(song: Song, search: String, type: SearchType): Boolean {
-            return when (type) {
-                SearchType.TITLE -> contains(song.title, search)
-                SearchType.ALBUM -> contains(song.album, search)
-                SearchType.ARTIST -> contains(song.artist, search)
-                SearchType.GENRE -> contains(song.genre, search)
-                else -> contains(song.title, search) ||
-                        contains(song.album, search) ||
-                        contains(song.artist, search)
-            }
-        }
-
-        private fun contains(value: String, search: String): Boolean {
-            if (search.length > value.length) {
-                return false
-            }
-            return value.toLowerCase().contains(search)
-        }
-    }
 
     companion object {
         const val TAG = "HomefyLibrary"

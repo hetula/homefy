@@ -182,7 +182,7 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
     }
 
     private fun onBuffer(buffered: Int) {
-        Log.d(PlayerFragment.TAG, "Buffering $buffered")
+        Log.d(TAG, "Buffering $buffered")
         if (buffered >= 100) {
             mTxtBuffering.visibility = View.INVISIBLE
             mTxtBuffering.text = context.getString(R.string.player_buffering, 0)
@@ -276,7 +276,7 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
     }
 
     private fun doShutdown() {
-        Log.d(PlayerFragment.TAG, "Shutting down!")
+        Log.d(TAG, "Shutting down!")
         val context = context.applicationContext
         context.stopService(Intent(context, HomefyService::class.java))
         //activity!!.finishAffinity()
@@ -297,5 +297,8 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
         override fun onStopTrackingTouch(seekBar: SeekBar?) {
             player.mPositionLoop.post(player.mUpdateRunnable)
         }
+    }
+    companion object {
+        private const val TAG = "PlayerView"
     }
 }

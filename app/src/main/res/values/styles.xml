@@ -16,40 +16,7 @@
 
 <resources>
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar"/>
-
-    <style name="NavigationDivider">
-        <item name="android:background">@color/divider</item>
-    </style>
-
-    <style name="NavigationDivider.Vertical" parent="NavigationDivider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/nav_div_size</item>
-    </style>
-
-    <style name="NavigationDivider.Horizontal" parent="NavigationDivider">
-        <item name="android:layout_width">@dimen/nav_div_size</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <style name="NavigationView">
-        <item name="android:layout_height">@dimen/nav_view_height</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:background">@drawable/bg_nav</item>
-        <item name="android:clickable">true</item>
-    </style>
-
-    <style name="NavigationView.Content">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:textColor">@color/icons</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textSize">@dimen/nav_font_size</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:drawablePadding">@dimen/nav_drawable_padding</item>
-        <item name="android:clickable">false</item>
-    </style>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar" />
 
     <style name="AddPlaylistDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="android:padding">2dp</item>

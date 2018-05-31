@@ -84,7 +84,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     // Support libraries
     implementation "com.google.android.material:material:$supportx_version"
-    implementation "androidx.core:core:$supportx_version"
+    implementation "androidx.core:core:1.0.0-alpha2"
     implementation "androidx.media:media:$supportx_version"
     implementation "androidx.appcompat:appcompat:$supportx_version"
     implementation "androidx.recyclerview:recyclerview:$supportx_version"

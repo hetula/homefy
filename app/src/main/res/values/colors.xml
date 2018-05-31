@@ -32,9 +32,7 @@
     <color name="primaryText">@color/primaryTextColor</color>
     <color name="secondaryText">@color/secondaryTextColor</color>
     <color name="primaryTextDark">#010101</color>
-    <color name="colorSurface">@color/secondaryDarkColor</color>
 
-    <color name="divider">#BDBDBD</color>
     <color name="icons">#EEE</color>
     <color name="controls">@color/colorPrimaryDark</color>
     <color name="player_fade">#12121212</color>

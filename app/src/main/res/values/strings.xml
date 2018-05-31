@@ -26,6 +26,7 @@
     <string name="download_desc">Download song</string>
     <string name="shutdown_desc">Shutdown Player</string>
     <string name="add_to_playlist_desc">Add to Playlist</string>
+    <string name="song_more_desc">More</string>
     <!-- Content Desc END -->
 
     <string name="app_name">Homefy</string>
