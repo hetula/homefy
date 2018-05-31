@@ -58,31 +58,25 @@ class LibraryFragment2 : HomefyFragment() {
     private lateinit var mLibraryHolder: FrameLayout
     private lateinit var mPlayAllFloat: FloatingActionButton
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mHandler = Handler()
+        mInputManager = context!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        mHandler = Handler()
-        mInputManager = context!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        val selectTab = selectTab()
-        if (selectTab != 0) {
-            mLastSelectedTab = selectTab
-        }
+        mMain = inflater.inflate(R.layout.fragment_library2, container, false) as LinearLayout
+        mNavBar = mMain.navBar
+        mLibraryList = mMain.libraryList
+        mNowPlayingView = mMain.nowPlayingView
+        mTopSearch = mMain.topSearch
+        mSearchField = mMain.searchField
+        mLibraryHolder = mMain.libraryHolder
+        mPlayAllFloat = mMain.playAllFloat
 
-        val main = inflater.inflate(R.layout.fragment_library2, container, false) as LinearLayout
-        mMain = main
-        mNavBar = main.navBar
-        if (selectTab != 0) {
-            mNavBar.selectedItemId = selectTab
-        }
-        main.navBar.setOnNavigationItemSelectedListener(::navBarItemClick)
-        mLibraryList = main.libraryList
-        mNowPlayingView = main.nowPlayingView
         mNowPlayingView.setHomefy(homefy())
-        mTopSearch = main.topSearch
-        mSearchField = main.searchField
-        mLibraryHolder = main.libraryHolder
-        mPlayAllFloat = main.playAllFloat
-
+        mNavBar.setOnNavigationItemSelectedListener(::navBarItemClick)
         mSearchField.addTextChangedListener(SearchTextListener(::searchWith))
         mSearchField.setOnEditorActionListener { view, actionId, keyEvent ->
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
@@ -103,9 +97,16 @@ class LibraryFragment2 : HomefyFragment() {
             (activity as MainActivity).download(homefy().getPlayer().nowPlaying())
         }
 
-        mCurrentTab = NavigationTab.NONE
+        mCurrentTab = NavigationTab.NONE // Clean for fresh setup
+
+        val selectTab = getAndClearNewSetupTab()
+        if(selectTab != 0) {
+            Log.d(TAG, "Overriding with selected tab!")
+            mLastSelectedTab = selectTab
+            mNavBar.selectedItemId = selectTab
+        }
         selectTabItem(mLastSelectedTab)
-        return main
+        return mMain
     }
 
 
@@ -131,6 +132,7 @@ class LibraryFragment2 : HomefyFragment() {
     }
 
     private fun selectTabItem(itemId: Int): Boolean {
+        Log.d(TAG, "Selecting Tab item: $itemId")
         return when (itemId) {
             R.id.navSongs -> {
                 selectSongTab()

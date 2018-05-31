@@ -35,6 +35,7 @@ import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
 import java.util.HashMap
+import kotlin.collections.ArrayList
 
 /**
  * @author Tuomo Heino
@@ -65,6 +66,7 @@ class MainActivity : HomefyActivity() {
 
     override fun onPause() {
         super.onPause()
+        Log.d(TAG, ": Setting select tab to 0")
         mSelectTab = 0
     }
 
@@ -120,7 +122,11 @@ class MainActivity : HomefyActivity() {
         }
     }
 
-    fun selectTab() = mSelectTab
+    fun getAndClearNewSetupTab(): Int {
+        val tab = mSelectTab
+        mSelectTab = 0
+        return tab
+    }
 
     fun download(song: Song?) {
         if (song == null) {
@@ -180,6 +186,7 @@ class MainActivity : HomefyActivity() {
     }
 
     companion object {
+        private const val TAG = "MainActivity"
         const val EXTRA_SELECT_TAB = "MainActivity.EXTRA_SELECT_TAB"
     }
 }
