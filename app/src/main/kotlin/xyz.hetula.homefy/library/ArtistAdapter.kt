@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package xyz.hetula.homefy.library2
+package xyz.hetula.homefy.library
 
 import android.support.constraint.ConstraintLayout
 import android.view.LayoutInflater
@@ -24,47 +24,46 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
-import kotlinx.android.synthetic.main.list_item_album.view.*
+import kotlinx.android.synthetic.main.list_item_artist.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.forEach
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
 
-class AlbumAdapter(private val originalAlbums: List<String>,
-                   private val homefy: HomefyService,
-                   private val onAlbumClick: (String) -> Unit) :
-        RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>(), SearchableAdapter<String> {
+class ArtistAdapter(private val originalArtists: List<String>,
+                    private val homefy: HomefyService,
+                    private val onArtistClick: (String) -> Unit) :
+        RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>(), SearchableAdapter<String> {
 
-    override val mItems = SortedList<String>(String::class.java, AlbumSorter(this))
+    override val mItems = SortedList<String>(String::class.java, ArtistSorter(this))
     override var mLastSearch: String = ""
     override var mCurrentSearchTask: SearchTask<String>? = null
 
     init {
-        mItems.addAll(originalAlbums)
+        mItems.addAll(originalArtists)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return AlbumViewHolder(inflater.inflate(R.layout.list_item_album, parent, false))
+        return ArtistViewHolder(inflater.inflate(R.layout.list_item_artist, parent, false))
     }
 
-    override fun getOriginalItems() = originalAlbums
+    override fun getOriginalItems() = originalArtists
 
     override fun getItemCount() = mItems.size()
 
-    override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        val album = mItems[position]
+    override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
+        val artist = mItems[position]
+        holder.artistTitle.text = artist
+        holder.artistViewBase.setOnClickListener {
+            onArtistClick(artist)
+        }
+        val songs = homefy.getLibrary().getArtistSongs(artist)
+        val count = songs.map { it.album }.distinct().count()
         val context = holder.itemView.context
-        val songs = homefy.getLibrary().getAlbumSongs(album)
-        holder.albumTitle.text = album
-        holder.artistNames.text = songs.map { it.artist }.distinct().reduce { allArtists, artist ->
-            "$allArtists, $artist"
-        }
+        val albumCountText = context.resources.getQuantityString(R.plurals.album_count, count, count)
         val songCountText = context.resources.getQuantityString(R.plurals.song_count, songs.size, songs.size)
-        holder.albumSongCount.text = songCountText
-        holder.albumBase.setOnClickListener {
-            onAlbumClick(album)
-        }
+        holder.albumCount.text = context.getString(R.string.library_album_and_song_count, albumCountText, songCountText)
     }
 
     override fun searchFilter(item: String, search: String) = !item.contains(search, true)
@@ -75,13 +74,12 @@ class AlbumAdapter(private val originalAlbums: List<String>,
         }
         val playlist = ArrayList<Song>()
         mItems.forEach {
-            playlist.addAll(homefy.getLibrary().getAlbumSongs(it))
+            playlist.addAll(homefy.getLibrary().getArtistSongs(it))
         }
         homefy.getPlayer().play(playlist.first(), playlist)
     }
 
-    private class AlbumSorter(adapter: AlbumAdapter) : SortedListAdapterCallback<String>(adapter) {
-
+    private class ArtistSorter(adapter: ArtistAdapter) : SortedListAdapterCallback<String>(adapter) {
         override fun areItemsTheSame(item1: String?, item2: String?): Boolean {
             return item1 == item2
         }
@@ -94,17 +92,13 @@ class AlbumAdapter(private val originalAlbums: List<String>,
         }
 
         override fun areContentsTheSame(oldItem: String?, newItem: String?): Boolean {
-            return false
+            return oldItem.equals(newItem)
         }
-
     }
 
-    class AlbumViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val albumTitle: TextView = view.albumTitle
-        val artistNames: TextView = view.artistNames
-        val albumBase: ConstraintLayout = view.albumViewBase
-        val albumSongCount: TextView = view.albumSongCount
+    class ArtistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val artistViewBase: ConstraintLayout = view.artistViewBase
+        val artistTitle: TextView = view.artistTitle
+        val albumCount: TextView = view.albumCount
     }
 }
-
-

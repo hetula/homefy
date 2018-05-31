@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package xyz.hetula.homefy.library2
+package xyz.hetula.homefy.library
 
 import androidx.recyclerview.widget.SortedList
 import xyz.hetula.homefy.forEach
@@ -49,7 +49,7 @@ internal interface SearchableAdapter<T> {
                 mItems.beginBatchedUpdates()
                 for (i in mItems.size() - 1 downTo 0) {
                     item = mItems[i]
-                    if(!it.contains(item)) {
+                    if (!it.contains(item)) {
                         mItems.removeItemAt(i)
                     } else {
                         it.remove(item)

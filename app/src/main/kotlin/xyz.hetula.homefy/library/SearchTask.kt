@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package xyz.hetula.homefy.library2
+package xyz.hetula.homefy.library
 
 import android.os.AsyncTask
 

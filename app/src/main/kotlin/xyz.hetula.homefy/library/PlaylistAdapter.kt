@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package xyz.hetula.homefy.library2
+package xyz.hetula.homefy.library
 
 import android.support.constraint.ConstraintLayout
 import android.view.LayoutInflater
@@ -24,7 +24,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
-import kotlinx.android.synthetic.main.list_item_playlist2.view.*
+import kotlinx.android.synthetic.main.list_item_playlist.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.playlist.Playlist
 
@@ -39,7 +39,7 @@ class PlaylistAdapter(playlists: List<Playlist>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return PlaylistViewHolder(inflater.inflate(R.layout.list_item_playlist2, parent, false))
+        return PlaylistViewHolder(inflater.inflate(R.layout.list_item_playlist, parent, false))
     }
 
     override fun getItemCount() = mPlaylists.size()

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package xyz.hetula.homefy.library2
+package xyz.hetula.homefy.library
 
 import android.content.Context
 import android.support.constraint.ConstraintLayout
@@ -26,7 +26,7 @@ import androidx.emoji.widget.EmojiAppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
 import androidx.recyclerview.widget.SortedListAdapterCallback
-import kotlinx.android.synthetic.main.list_item_song2.view.*
+import kotlinx.android.synthetic.main.list_item_song.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.forEach
 import xyz.hetula.homefy.player.HomefyPlayer
@@ -34,10 +34,10 @@ import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.FavoriteChangeListener
 import xyz.hetula.homefy.playlist.HomefyPlaylist
 
-class SongAdapter2(private val originalSongs: List<Song>,
-                   private val mPlayer: HomefyPlayer,
-                   private val mPlaylists: HomefyPlaylist) :
-        RecyclerView.Adapter<SongAdapter2.SongViewHolder>(), SearchableAdapter<Song>, FavoriteChangeListener {
+class SongAdapter(private val originalSongs: List<Song>,
+                  private val mPlayer: HomefyPlayer,
+                  private val mPlaylists: HomefyPlaylist) :
+        RecyclerView.Adapter<SongAdapter.SongViewHolder>(), SearchableAdapter<Song>, FavoriteChangeListener {
 
     override val mItems: SortedList<Song> = SortedList(Song::class.java, SongSorter(this))
     override var mLastSearch: String = ""
@@ -49,7 +49,7 @@ class SongAdapter2(private val originalSongs: List<Song>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return SongViewHolder(inflater.inflate(R.layout.list_item_song2, parent, false))
+        return SongViewHolder(inflater.inflate(R.layout.list_item_song, parent, false))
     }
 
     override fun getOriginalItems() = originalSongs

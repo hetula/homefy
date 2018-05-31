@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package xyz.hetula.homefy.library2
+package xyz.hetula.homefy.library
 
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -57,7 +57,7 @@ class SongsFragment : HomefyFragment() {
         mSongsDuration.text = DateUtils.formatElapsedTime(duration)
 
         mSongList.layoutManager = LinearLayoutManager(context)
-        mSongList.adapter = SongAdapter2(mSongs, homefy().getPlayer(), homefy().getPlaylists())
+        mSongList.adapter = SongAdapter(mSongs, homefy().getPlayer(), homefy().getPlaylists())
         return root
     }
 

@@ -30,7 +30,7 @@ import android.view.MenuItem
 import androidx.core.content.ContextCompat
 import androidx.emoji.bundled.BundledEmojiCompatConfig
 import androidx.emoji.text.EmojiCompat
-import xyz.hetula.homefy.library2.LibraryFragment2
+import xyz.hetula.homefy.library.LibraryFragment
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.setup.SetupFragment
@@ -84,7 +84,7 @@ class MainActivity : HomefyActivity() {
                 .beginTransaction()
                 .replace(R.id.container,
                         if (service.getLibrary().isLibraryReady()) {
-                            LibraryFragment2()
+                            LibraryFragment()
                         } else {
                             SetupFragment()
                         })

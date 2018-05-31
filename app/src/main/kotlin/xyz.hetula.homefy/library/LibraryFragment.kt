@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package xyz.hetula.homefy.library2
+package xyz.hetula.homefy.library
 
 import android.content.Context
 import android.os.Bundle
@@ -36,7 +36,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.synthetic.main.fragment_library2.view.*
+import kotlinx.android.synthetic.main.fragment_library.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.MainActivity
 import xyz.hetula.homefy.R
@@ -46,7 +46,7 @@ import xyz.hetula.homefy.playlist.FavoriteChangeListener
 import xyz.hetula.homefy.playlist.FavoriteChangeReceiver
 import xyz.hetula.homefy.playlist.Playlist
 
-class LibraryFragment2 : HomefyFragment() {
+class LibraryFragment : HomefyFragment() {
     private var mCurrentTab = NavigationTab.NONE
     private var mLastSelectedTab = R.id.navSongs
     private lateinit var mHandler: Handler
@@ -71,7 +71,7 @@ class LibraryFragment2 : HomefyFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        mMain = inflater.inflate(R.layout.fragment_library2, container, false) as LinearLayout
+        mMain = inflater.inflate(R.layout.fragment_library, container, false) as LinearLayout
         mNavBar = mMain.navBar
         mLibraryList = mMain.libraryList
         mNowPlayingView = mMain.nowPlayingView
@@ -172,7 +172,7 @@ class LibraryFragment2 : HomefyFragment() {
     }
 
     private fun selectSongTab() = selectTabIfNotSelected(NavigationTab.SONG) {
-        mLibraryList.adapter = SongAdapter2(homefy().getLibrary().songs,
+        mLibraryList.adapter = SongAdapter(homefy().getLibrary().songs,
                 homefy().getPlayer(),
                 homefy().getPlaylists())
         mNowPlayingView.visibility = View.GONE

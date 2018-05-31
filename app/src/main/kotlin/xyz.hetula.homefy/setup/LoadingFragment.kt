@@ -33,7 +33,7 @@ import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_loading.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
-import xyz.hetula.homefy.library2.LibraryFragment2
+import xyz.hetula.homefy.library.LibraryFragment
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 import java.io.File
@@ -157,7 +157,7 @@ class LoadingFragment : HomefyFragment() {
         homefy().getLibrary().initialize(context!!.applicationContext, songs)
         fragmentManager!!
                 .beginTransaction()
-                .replace(R.id.container, LibraryFragment2())
+                .replace(R.id.container, LibraryFragment())
                 .commit()
     }
 
