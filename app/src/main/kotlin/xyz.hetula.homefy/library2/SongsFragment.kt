@@ -28,8 +28,8 @@ import kotlinx.android.synthetic.main.fragment_songs.view.*
 import xyz.hetula.homefy.HomefyFragment
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.Song
-import xyz.hetula.homefy.service.HomefyService
 import java.util.*
+import java.util.stream.Collectors
 
 class SongsFragment : HomefyFragment() {
     private lateinit var mTitleText: TextView
@@ -38,20 +38,7 @@ class SongsFragment : HomefyFragment() {
     private lateinit var mSongsDuration: TextView
     private lateinit var mSongList: RecyclerView
 
-    private lateinit var homefy: HomefyService
     private var mSongs = Collections.emptyList<Song>()
-    private var mTitle = ""
-    private var mSubtitle = ""
-
-    fun setup(homefy: HomefyService,
-              title: String,
-              subtitle: String,
-              songs: List<Song>) {
-        this.homefy = homefy
-        this.mTitle = title
-        this.mSubtitle = subtitle
-        this.mSongs = songs
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_songs, container, false)
@@ -61,14 +48,30 @@ class SongsFragment : HomefyFragment() {
         mSongsDuration = root.songsDuration
         mSongList = root.songList
 
-        mTitleText.text = mTitle
-        mSubTitleText.text = mSubtitle
+        mTitleText.text = arguments?.getString(ARGUMENT_TITLE)
+        mSubTitleText.text = arguments?.getString(ARGUMENT_SUBTITLE)
+        parseSongsFromArgs()
+
         mSongCount.text = context!!.resources.getQuantityString(R.plurals.song_count, mSongs.size, mSongs.size)
         val duration: Long = mSongs.map { it.length }.sum()
         mSongsDuration.text = DateUtils.formatElapsedTime(duration)
 
         mSongList.layoutManager = LinearLayoutManager(context)
-        mSongList.adapter = SongAdapter2(mSongs, homefy.getPlayer(), homefy.getPlaylists())
+        mSongList.adapter = SongAdapter2(mSongs, homefy().getPlayer(), homefy().getPlaylists())
         return root
+    }
+
+    private fun parseSongsFromArgs() {
+        val songIds = arguments?.getStringArray(ARGUMENT_SONGS)!!.toList()
+        mSongs = songIds.stream()
+                .map { homefy().getLibrary().getSongById(it) }
+                .filter { it != null }
+                .collect(Collectors.toList())
+    }
+
+    companion object {
+        const val ARGUMENT_TITLE = "SongsFragment.ARGUMENT_TITLE"
+        const val ARGUMENT_SUBTITLE = "SongsFragment.ARGUMENT_SUBTITLE"
+        const val ARGUMENT_SONGS = "SongsFragment.ARGUMENT_SONGS"
     }
 }

@@ -257,8 +257,11 @@ class LibraryFragment2 : HomefyFragment() {
 
     private fun showSongFragment(title: String, subtitle: String, songs: List<Song>) {
         val songsFragment = SongsFragment()
-        // TODO: This should use proper setting methods, not garbage like this as it can be destroyed.
-        songsFragment.setup(homefy(), title, subtitle, songs)
+        val args = Bundle()
+        args.putString(SongsFragment.ARGUMENT_TITLE, title)
+        args.putString(SongsFragment.ARGUMENT_SUBTITLE, subtitle)
+        args.putStringArray(SongsFragment.ARGUMENT_SONGS, songs.map { it.id }.toTypedArray())
+        songsFragment.arguments = args
         fragmentManager!!.beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .replace(R.id.container, songsFragment)
