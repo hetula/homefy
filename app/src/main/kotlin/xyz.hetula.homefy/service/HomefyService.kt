@@ -179,8 +179,7 @@ class HomefyService : Service() {
     private fun setupNotification(mediaSession: MediaSessionCompat): Notification {
         val song = mPlayer.nowPlaying()
         val builder = NotificationCompat.Builder(applicationContext, homefyNotificationId)
-        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setSmallIcon(R.drawable.ic_music_notification)
+        builder.setSmallIcon(R.drawable.ic_music_notification)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                 .setShowWhen(false)
                 .setOnlyAlertOnce(true)
@@ -188,6 +187,7 @@ class HomefyService : Service() {
 
         if (song == null) {
             builder.setContentTitle(getString(R.string.app_desc))
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setDeleteIntent(closeIntent())
             return builder.build()
         }
@@ -219,6 +219,7 @@ class HomefyService : Service() {
                 ?: BitmapFactory.decodeResource(resources, R.drawable.ic_album_big)
         builder.setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this,
                 PlaybackStateCompat.ACTION_STOP))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .addAction(R.drawable.ic_close_notify, "Close", closeIntent())
                 .addAction(R.drawable.ic_skip_previous_notification, "Previous", previousIntent)
                 .addAction(playDrawable, playDesc, playPauseIntent)
