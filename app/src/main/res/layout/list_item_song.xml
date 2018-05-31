@@ -24,7 +24,7 @@
     android:layout_marginRight="2dp"
     android:minHeight="48dp">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/songBase"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -89,6 +89,6 @@
             android:contentDescription="@string/song_more_desc"
             app:srcCompat="@drawable/ic_more" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

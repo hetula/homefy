@@ -37,7 +37,7 @@ android {
         minSdkVersion min_sdk
         targetSdkVersion target_sdk
         versionName homefy_version
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.config
     }
 
@@ -98,7 +98,10 @@ dependencies {
     // Testing
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.0.6'
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.0', {
+    // Instrumentation
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 }

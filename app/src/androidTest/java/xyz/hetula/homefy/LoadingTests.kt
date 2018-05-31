@@ -16,14 +16,16 @@
 
 package xyz.hetula.homefy
 
+import android.content.Context
 import android.content.Intent
-import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.action.ViewActions.click
-import android.support.test.espresso.action.ViewActions.replaceText
-import android.support.test.espresso.assertion.ViewAssertions.matches
-import android.support.test.espresso.matcher.ViewMatchers.*
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.InstrumentationRegistry
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.rule.ActivityTestRule
+import androidx.test.runner.AndroidJUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -39,10 +41,11 @@ class LoadingTests : TestBase() {
 
     @Rule
     @JvmField
-    val loadingActivity = ActivityTestRule<MainActivity>(MainActivity::class.java, false, false)
+    val loadingActivity = ActivityTestRule<HomefyActivity>(HomefyActivity::class.java, false, false)
 
     @Before
     fun initialize() {
+        InstrumentationRegistry.getTargetContext().getSharedPreferences("HomefyActivity", Context.MODE_PRIVATE).edit().clear().commit()
         createServices()
         loadingActivity.launchActivity(Intent())
     }
@@ -64,7 +67,7 @@ class LoadingTests : TestBase() {
         }
         protocol.requestPages = { pageLength, pagesConsumer ->
             assertEquals(context.resources.getInteger(R.integer.load_page_song_count), pageLength)
-            waitSome(500)
+            waitSome(1500)
             loadingActivity.runOnUiThread {
                 pagesConsumer(arrayOf())
             }
@@ -77,14 +80,5 @@ class LoadingTests : TestBase() {
         assertEquals("Url already set!", "", protocol.server)
         onView(withId(R.id.btn_connect)).perform(click())
         assertEquals("Url Mismatch!", url, protocol.server)
-        onView(withText(R.string.load_loading)).check(matches(isDisplayed()))
-
-        waitSome(750)
-        onView(withText(R.string.library_music)).check(matches(isDisplayed()))
-        onView(withText(R.string.library_albums)).check(matches(isDisplayed()))
-        onView(withText(R.string.library_artists)).check(matches(isDisplayed()))
-        onView(withText(R.string.library_favs)).check(matches(isDisplayed()))
-        onView(withText(R.string.library_playlists)).check(matches(isDisplayed()))
-        onView(withText(R.string.library_search)).check(matches(isDisplayed()))
     }
 }

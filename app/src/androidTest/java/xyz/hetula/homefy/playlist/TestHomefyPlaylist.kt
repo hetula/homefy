@@ -16,9 +16,10 @@
 
 package xyz.hetula.homefy.playlist
 
+import android.content.Context
 import android.util.Log
 
-class TestHomefyPlaylist : HomefyPlaylist() {
+class TestHomefyPlaylist(context: Context) : HomefyPlaylist(context) {
     init {
         Log.d("TestPlaylist", "Created TestPlaylist")
     }

@@ -24,7 +24,7 @@
     android:layout_marginEnd="2dp">
 
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/artistViewBase"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -71,6 +71,6 @@
             app:layout_constraintStart_toEndOf="@+id/artistArtView"
             app:layout_constraintTop_toBottomOf="@id/artistTitle"
             tools:text="342 Albums" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

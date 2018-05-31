@@ -17,11 +17,11 @@
 package xyz.hetula.homefy.library
 
 import android.content.Context
-import android.support.constraint.ConstraintLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.emoji.widget.EmojiAppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList

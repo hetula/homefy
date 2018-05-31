@@ -18,8 +18,8 @@ package xyz.hetula.homefy.service
 
 import android.content.Context
 import android.os.SystemClock
-import android.support.test.InstrumentationRegistry
 import android.util.Log
+import androidx.test.InstrumentationRegistry
 import xyz.hetula.homefy.library.HomefyLibrary
 import xyz.hetula.homefy.player.TestHomefyPlayer
 import xyz.hetula.homefy.playlist.TestHomefyPlaylist
@@ -44,7 +44,7 @@ abstract class TestBase {
             player
         }
         ServiceInitializer.playlist = {
-            playlist = TestHomefyPlaylist()
+            playlist = TestHomefyPlaylist(InstrumentationRegistry.getTargetContext())
             playlist
         }
     }
