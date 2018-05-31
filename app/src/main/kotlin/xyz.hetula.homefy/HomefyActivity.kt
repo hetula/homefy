@@ -16,23 +16,38 @@
 
 package xyz.hetula.homefy
 
+import android.Manifest
+import android.app.DownloadManager
 import android.content.*
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.os.IBinder
 import android.util.Log
-import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.emoji.bundled.BundledEmojiCompatConfig
+import androidx.emoji.text.EmojiCompat
+import xyz.hetula.homefy.library.LibraryFragment
+import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
+import xyz.hetula.homefy.setup.SetupFragment
+import java.util.HashMap
+import kotlin.collections.ArrayList
 
 /**
  * @author Tuomo Heino
  * @version 1.0
  * @since 1.0
  */
-abstract class HomefyActivity : AppCompatActivity() {
+class HomefyActivity : AppCompatActivity() {
     lateinit var homefy: HomefyService
     private val mHomefyConnection = HomefyConnection { serviceConnected(it) }
     private var mKillReceiver: BroadcastReceiver? = null
+    private val mPermissionRequestCode = 0x2231
+    private var song: Song? = null
+    private var mSelectTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.v(TAG, "Creating HomefyActivity")
@@ -48,10 +63,23 @@ abstract class HomefyActivity : AppCompatActivity() {
             }
         })
         applicationContext.registerReceiver(mKillReceiver, filter)
+        EmojiCompat.init(BundledEmojiCompatConfig(applicationContext))
+        setContentView(R.layout.activity_main)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        val bundle = intent.extras
+        if(bundle != null) {
+            mSelectTab = bundle.getInt(EXTRA_SELECT_TAB, 0)
+        }
+
+        val startService = Intent(applicationContext, HomefyService::class.java)
+        startService(startService)
     }
 
     override fun onStart() {
-        Log.v("HomefyActivity", "onStart(): " + javaClass.simpleName)
+        Log.v(TAG, "onStart(): " + javaClass.simpleName)
         super.onStart()
         val intent = Intent(this, HomefyService::class.java)
         if (!bindService(intent, mHomefyConnection,
@@ -60,8 +88,15 @@ abstract class HomefyActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, ": Setting select tab to 0")
+        mSelectTab = 0
+    }
+
+
     override fun onStop() {
-        Log.v("HomefyActivity", "onStop(): " + javaClass.simpleName)
+        Log.v(TAG, "onStop(): " + javaClass.simpleName)
         super.onStop()
         unbindService(mHomefyConnection)
     }
@@ -74,9 +109,98 @@ abstract class HomefyActivity : AppCompatActivity() {
         mKillReceiver = null
     }
 
-    @CallSuper
-    protected open fun serviceConnected(service: HomefyService) {
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val bundle = intent?.extras
+        if(bundle != null) {
+            mSelectTab = bundle.getInt(EXTRA_SELECT_TAB, 0)
+        }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        val song = this.song
+        if (requestCode == mPermissionRequestCode && song != null) {
+            if (hasExternalStoragePermissions()) {
+                saveTheSong(song)
+            } else {
+                Log.w(TAG, "No permissions...")
+            }
+        }
+    }
+
+    fun getAndClearNewSetupTab(): Int {
+        val tab = mSelectTab
+        mSelectTab = 0
+        return tab
+    }
+
+    fun download(song: Song?) {
+        if (song == null) {
+            return
+        }
+        val askPermissions = ArrayList<String>()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            askPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            askPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        if (askPermissions.isNotEmpty()) {
+            this.song = song
+            requestPermissions(askPermissions.toTypedArray(), mPermissionRequestCode)
+        } else {
+            saveTheSong(song)
+        }
+    }
+
+    private fun hasExternalStoragePermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun saveTheSong(song: Song) {
+        if (!isExternalStorageWritable()) {
+            Log.e(TAG, "Can't write to storage!")
+            return
+        }
+        song.getFileType {
+            val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val request = DownloadManager.Request(Uri.parse(homefy.getLibrary().getPlayPath(song)))
+            val headers = HashMap<String, String>()
+            homefy.getProtocol().addAuthHeader(headers)
+            request.addRequestHeader("Authorization", headers["Authorization"])
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setVisibleInDownloadsUi(false)
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC,
+                    "Homefy/" + song.title + "." + it)
+            request.setTitle(song.title)
+            song.getMimeType { request.setMimeType(it) }
+            downloadManager.enqueue(request)
+        }
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+    }
+
+    private fun serviceConnected(service: HomefyService) {
         homefy = service
+        supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.container,
+                        if (service.getLibrary().isLibraryReady()) {
+                            LibraryFragment()
+                        } else {
+                            SetupFragment()
+                        })
+                .commit()
     }
 
     internal class HomefyConnection(private val serviceCallback: (HomefyService) -> Unit) :
@@ -97,5 +221,6 @@ abstract class HomefyActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "HomefyActivity"
         const val KILL_INTENT = "xyz.hetula.homefy.KILL_INTENT"
+        const val EXTRA_SELECT_TAB = "HomefyActivity.EXTRA_SELECT_TAB"
     }
 }

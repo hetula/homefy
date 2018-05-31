@@ -33,7 +33,7 @@
         android:testOnly="false"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".MainActivity"
+            android:name=".HomefyActivity"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:screenOrientation="portrait">

@@ -279,7 +279,6 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
         Log.d(TAG, "Shutting down!")
         val context = context.applicationContext
         context.stopService(Intent(context, HomefyService::class.java))
-        //activity!!.finishAffinity()
     }
 
     private class SeekListener(val player: PlayerView) : SeekBar.OnSeekBarChangeListener {

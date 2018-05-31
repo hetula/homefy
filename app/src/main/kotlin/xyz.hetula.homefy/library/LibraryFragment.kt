@@ -37,8 +37,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_library.view.*
+import xyz.hetula.homefy.HomefyActivity
 import xyz.hetula.homefy.HomefyFragment
-import xyz.hetula.homefy.MainActivity
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.player.PlayerView
 import xyz.hetula.homefy.player.Song
@@ -99,7 +99,7 @@ class LibraryFragment : HomefyFragment() {
             onFloatAction()
         }
         mNowPlayingView.setOnDownloadClick {
-            (activity as MainActivity).download(homefy().getPlayer().nowPlaying())
+            (activity as HomefyActivity).download(homefy().getPlayer().nowPlaying())
         }
 
         mCurrentTab = NavigationTab.NONE // Clean for fresh setup

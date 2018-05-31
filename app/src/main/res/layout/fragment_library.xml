@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".HomefyActivity">
 
     <FrameLayout
         android:id="@+id/topSearch"
@@ -104,6 +104,6 @@
         app:itemIconTint="@color/selector_library_nav_bar"
         app:itemTextColor="@android:color/white"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/menu_library" />
+        app:menu="@menu/nav_menu_library" />
 
 </LinearLayout>
