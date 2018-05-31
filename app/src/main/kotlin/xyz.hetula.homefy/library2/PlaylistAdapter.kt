@@ -22,18 +22,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SortedList
+import androidx.recyclerview.widget.SortedListAdapterCallback
 import kotlinx.android.synthetic.main.list_item_playlist2.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.playlist.Playlist
 
-class PlaylistAdapter(private val mPlaylists: List<Playlist>,
+class PlaylistAdapter(playlists: List<Playlist>,
                       private val onClick: (Playlist) -> Unit) : RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder>() {
+
+    private val mPlaylists: SortedList<Playlist> = SortedList(Playlist::class.java, PlaylistSorter(this))
+
+    init {
+        mPlaylists.addAll(playlists)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return PlaylistViewHolder(inflater.inflate(R.layout.list_item_playlist2, parent, false))
     }
 
-    override fun getItemCount() = mPlaylists.size
+    override fun getItemCount() = mPlaylists.size()
 
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         val playlist = mPlaylists[position]
@@ -45,9 +54,37 @@ class PlaylistAdapter(private val mPlaylists: List<Playlist>,
         holder.songCount.text = holder.itemView.context.resources.getQuantityString(R.plurals.song_count, songCount, songCount)
     }
 
+    fun addPlaylist(playlist: Playlist) {
+        mPlaylists.add(playlist)
+    }
+
     class PlaylistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val playlistViewBase: ConstraintLayout = view.playlistViewBase
         val playlistTitle: TextView = view.playlistTitle
         val songCount: TextView = view.songCount
+    }
+
+    class PlaylistSorter(adapter: PlaylistAdapter) : SortedListAdapterCallback<Playlist>(adapter) {
+        override fun areItemsTheSame(item1: Playlist?, item2: Playlist?): Boolean {
+            return item1?.id == item2?.id
+        }
+
+        override fun compare(o1: Playlist?, o2: Playlist?): Int {
+            if(o1 == null || o2 == null) {
+                return 1
+            }
+            if(o1.favs) {
+                return -1
+            }
+            if(o2.favs) {
+                return 1
+            }
+            return o1.name.compareTo(o2.name)
+        }
+
+        override fun areContentsTheSame(oldItem: Playlist?, newItem: Playlist?): Boolean {
+            return false
+        }
+
     }
 }

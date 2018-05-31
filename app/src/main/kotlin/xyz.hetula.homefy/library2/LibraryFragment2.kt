@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
@@ -28,6 +29,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -94,7 +97,7 @@ class LibraryFragment2 : HomefyFragment() {
         }
 
         mPlayAllFloat.setOnClickListener {
-            playAll()
+            onFloatAction()
         }
         mNowPlayingView.setOnDownloadClick {
             (activity as MainActivity).download(homefy().getPlayer().nowPlaying())
@@ -189,23 +192,26 @@ class LibraryFragment2 : HomefyFragment() {
         mNowPlayingView.visibility = View.VISIBLE
         mLibraryHolder.visibility = View.GONE
         mLibraryList.adapter = null
-
     }
 
-    private fun selectTabIfNotSelected(tab: NavigationTab, function: () -> Unit) {
+    private fun selectTabIfNotSelected(tab: NavigationTab, onSelect: () -> Unit) {
         if (mCurrentTab != tab) {
             hideSoftKeyboard()
             mLibraryList.layoutManager = LinearLayoutManager(context)
             mLibraryList.adapter = null
             mSearchField.text.clear()
             mTopSearch.visibility = if (tab.noSearch()) {
-                mPlayAllFloat.hide()
                 View.GONE
             } else {
-                mPlayAllFloat.show()
                 View.VISIBLE
             }
-            function()
+            if(tab.hasActionButton()) {
+                mPlayAllFloat.setImageResource(tab.fabIcon)
+                mPlayAllFloat.show()
+            } else {
+                mPlayAllFloat.hide()
+            }
+            onSelect()
             if (tab == NavigationTab.NOW_PLAYING) {
                 mNowPlayingView.show()
             } else if (mCurrentTab == NavigationTab.NOW_PLAYING) {
@@ -259,6 +265,46 @@ class LibraryFragment2 : HomefyFragment() {
         }
     }
 
+    private fun addPlaylist(playlist: Playlist) {
+        val adapter = mLibraryList.adapter
+        if(adapter is PlaylistAdapter) {
+            adapter.addPlaylist(playlist)
+        }
+    }
+
+    private fun newPlaylist() {
+        val ask = AlertDialog.Builder(activity!!, R.style.AddPlaylistDialog)
+        ask.setTitle(R.string.playlist_dialog_create_title)
+        val txtName = EditText(context)
+        txtName.inputType = InputType.TYPE_CLASS_TEXT
+        ask.setView(txtName)
+        ask.setPositiveButton(R.string.playlist_dialog_create, { d, _ ->
+            val name = txtName.text.toString()
+            if (name.isBlank()) {
+                d.cancel()
+            } else {
+                addPlaylist(homefy().getPlaylists().createPlaylist(name))
+            }
+            mHandler.postDelayed(this::hideSoftKeyboard, 50)
+        })
+        ask.setNegativeButton(android.R.string.cancel, { d, _ ->
+            mHandler.postDelayed(this::hideSoftKeyboard, 50)
+            d.cancel()
+        })
+        ask.create().show()
+    }
+
+    private fun onFloatAction() {
+        val tab = mCurrentTab
+        when(tab) {
+            NavigationTab.SONG -> playAll()
+            NavigationTab.ALBUM -> playAll()
+            NavigationTab.ARTIST -> playAll()
+            NavigationTab.PLAYLIST -> newPlaylist()
+            else -> {}
+        }
+    }
+
     private class SearchTextListener(private val onTextChanged: (String) -> Unit) : TextWatcher {
         override fun afterTextChanged(p0: Editable?) {
             onTextChanged(p0.toString())
@@ -274,15 +320,17 @@ class LibraryFragment2 : HomefyFragment() {
     }
 
 
-    private enum class NavigationTab(private val searchable: Boolean = false) {
-        SONG(true),
-        ALBUM(true),
-        ARTIST(true),
-        PLAYLIST,
+    private enum class NavigationTab(private val searchable: Boolean = false, @DrawableRes val fabIcon: Int = 0) {
+        SONG(true, fabIcon = R.drawable.ic_shuffle_float),
+        ALBUM(true, fabIcon = R.drawable.ic_shuffle_float),
+        ARTIST(true, fabIcon = R.drawable.ic_shuffle_float),
+        PLAYLIST(fabIcon = R.drawable.ic_add_to_playlist_24dp),
         NOW_PLAYING,
         NONE;
 
         fun noSearch(): Boolean = !searchable
+
+        fun hasActionButton(): Boolean = fabIcon != 0
     }
 
     companion object {

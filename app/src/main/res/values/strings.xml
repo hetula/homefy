@@ -76,6 +76,8 @@
     <string name="playlist_dialog_added">Song added!</string>
     <string name="playlist_dialog_removed">Song removed!</string>
     <string name="playlist_dialog_no_playlists">No suitable Playlists!</string>
+    <string name="playlist_dialog_create">Create</string>
+    <string name="playlist_dialog_create_title">New Playlist</string>
 
     <string name="library_album_and_song_count">%s - %s</string>
 
