@@ -207,11 +207,10 @@ class LibraryFragment2 : HomefyFragment() {
             } else {
                 View.VISIBLE
             }
+            mPlayAllFloat.hide()
             if(tab.hasActionButton()) {
                 mPlayAllFloat.setImageResource(tab.fabIcon)
-                mPlayAllFloat.show()
-            } else {
-                mPlayAllFloat.hide()
+                mHandler.post(mPlayAllFloat::show)
             }
             onSelect()
             if (tab == NavigationTab.NOW_PLAYING) {

@@ -15,12 +15,24 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#607D8B</color>
-    <color name="colorPrimaryDark">#455A64</color>
-    <color name="colorPrimaryLight">#CFD8DC</color>
-    <color name="colorAccent">#03A9F4</color>
-    <color name="primaryText">#212121</color>
-    <color name="secondaryText">#757575</color>
+    <!-- Colors from designer, keep as is for easy updating -->
+    <color name="primaryColor">#673ab7</color>
+    <color name="primaryLightColor">#9a67ea</color>
+    <color name="primaryDarkColor">#320b86</color>
+    <color name="secondaryColor">#311b92</color>
+    <color name="secondaryLightColor">#6746c3</color>
+    <color name="secondaryDarkColor">#000063</color>
+    <color name="primaryTextColor">#ffffff</color>
+    <color name="secondaryTextColor">#868686</color>
+
+    <color name="colorPrimary">@color/primaryColor</color>
+    <color name="colorPrimaryDark">@color/primaryDarkColor</color>
+    <color name="colorPrimaryLight">@color/primaryLightColor</color>
+    <color name="colorAccent">@color/secondaryColor</color>
+    <color name="primaryText">@color/primaryTextColor</color>
+    <color name="secondaryText">@color/secondaryTextColor</color>
+    <color name="primaryTextDark">#010101</color>
+    <color name="colorSurface">@color/secondaryDarkColor</color>
 
     <color name="divider">#BDBDBD</color>
     <color name="icons">#EEE</color>
