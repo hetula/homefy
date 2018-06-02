@@ -178,13 +178,14 @@ class HomefyService : Service() {
         val song = mPlayer.nowPlaying()
         val builder = NotificationCompat.Builder(applicationContext, homefyNotificationId)
         builder.setSmallIcon(R.drawable.ic_music_notification)
-                .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+                .setContentIntent(contentIntent(R.id.navSongs))
                 .setShowWhen(false)
-                .setOnlyAlertOnce(true)
+                .setOngoing(false)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
         if (song == null) {
             builder.setContentTitle(getString(R.string.app_desc))
+                    .setCategory(NotificationCompat.CATEGORY_SERVICE)
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setDeleteIntent(closeIntent())
             return builder.build()
@@ -226,10 +227,10 @@ class HomefyService : Service() {
                 .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(mediaSession.sessionToken)
                         .setShowActionsInCompactView(2, 3, 4))
+                .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                 .setColorized(true)
                 .setOngoing(true)
                 .setLargeIcon(largeIcon)
-                .setContentIntent(contentIntent())
                 .setContentTitle(song.title)
                 .setContentText(song.album)
                 .setSubText(song.artist)
@@ -246,9 +247,9 @@ class HomefyService : Service() {
         return builder.build()
     }
 
-    private fun contentIntent(): PendingIntent {
+    private fun contentIntent(tabId: Int = R.id.navNowPlaying): PendingIntent {
         val launchMe = Intent(this, HomefyActivity::class.java)
-        launchMe.putExtra(HomefyActivity.EXTRA_SELECT_TAB, R.id.navNowPlaying)
+        launchMe.putExtra(HomefyActivity.EXTRA_SELECT_TAB, tabId)
         launchMe.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
