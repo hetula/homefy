@@ -105,13 +105,19 @@ class LibraryFragment : HomefyFragment() {
 
         mCurrentTab = NavigationTab.NONE // Clean for fresh setup
 
-        val selectTab = getAndClearNewSetupTab()
-        if (selectTab != 0) {
-            Log.d(TAG, "Overriding with selected tab!")
-            mLastSelectedTab = selectTab
-            mNavBar.selectedItemId = selectTab
+        if (LibraryFragment.openPlaying) {
+            getAndClearNewSetupTab() // Clean
+            LibraryFragment.openPlaying = false
+            selectPlayingTab()
+        } else {
+            val selectTab = getAndClearNewSetupTab()
+            if (selectTab != 0) {
+                Log.d(TAG, "Overriding with selected tab!")
+                mLastSelectedTab = selectTab
+                mNavBar.selectedItemId = selectTab
+            }
+            selectTabItem(mLastSelectedTab)
         }
-        selectTabItem(mLastSelectedTab)
         return mMain
     }
 
@@ -331,15 +337,17 @@ class LibraryFragment : HomefyFragment() {
         }
     }
 
-    private fun <T : BaseAdapter<*>> initAdapter(adapter: T) : T {
+    private fun <T : BaseAdapter<*>> initAdapter(adapter: T): T {
         adapter.onSongPlay = this::selectPlayingTab
         return adapter
     }
 
     private fun selectPlayingTab() {
-        mLastSelectedTab = R.id.navNowPlaying
-        mNavBar.selectedItemId = mLastSelectedTab
-        selectTabItem(mLastSelectedTab)
+        mHandler.post {
+            mLastSelectedTab = R.id.navNowPlaying
+            mNavBar.selectedItemId = mLastSelectedTab
+            selectTabItem(mLastSelectedTab)
+        }
     }
 
     private class SearchTextListener(private val onTextChanged: (String) -> Unit) : TextWatcher {
@@ -372,5 +380,6 @@ class LibraryFragment : HomefyFragment() {
 
     companion object {
         private const val TAG = "LibraryFragment"
+        var openPlaying: Boolean = false
     }
 }

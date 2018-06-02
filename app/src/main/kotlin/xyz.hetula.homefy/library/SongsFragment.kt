@@ -57,7 +57,12 @@ class SongsFragment : HomefyFragment() {
         mSongsDuration.text = DateUtils.formatElapsedTime(duration)
 
         mSongList.layoutManager = LinearLayoutManager(context)
-        mSongList.adapter = SongAdapter(mSongs, homefy().getPlayer(), homefy().getPlaylists())
+        val adapter = SongAdapter(mSongs, homefy().getPlayer(), homefy().getPlaylists())
+        adapter.onSongPlay = {
+            LibraryFragment.openPlaying = true
+            fragmentManager!!.popBackStack()
+        }
+        mSongList.adapter = adapter
         return root
     }
 
