@@ -29,6 +29,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentTransaction
@@ -57,6 +58,7 @@ class LibraryFragment : HomefyFragment() {
     private lateinit var mLibraryList: RecyclerView
     private lateinit var mNowPlayingView: PlayerView
     private lateinit var mTopSearch: FrameLayout
+    private lateinit var mTopTitle: TextView
     private lateinit var mSearchField: EditText
     private lateinit var mLibraryHolder: FrameLayout
     private lateinit var mPlayAllFloat: FloatingActionButton
@@ -76,6 +78,7 @@ class LibraryFragment : HomefyFragment() {
         mLibraryList = mMain.libraryList
         mNowPlayingView = mMain.nowPlayingView
         mTopSearch = mMain.topSearch
+        mTopTitle = mMain.topTitle
         mSearchField = mMain.searchField
         mLibraryHolder = mMain.libraryHolder
         mPlayAllFloat = mMain.playAllFloat
@@ -219,11 +222,23 @@ class LibraryFragment : HomefyFragment() {
             mLibraryList.layoutManager = LinearLayoutManager(context)
             mLibraryList.adapter = null
             mSearchField.text.clear()
-            mTopSearch.visibility = if (tab.noSearch()) {
+            mSearchField.visibility = if (tab.noSearch()) {
                 View.GONE
             } else {
                 View.VISIBLE
             }
+            mTopTitle.visibility = if (tab != NavigationTab.PLAYLIST) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+            mTopSearch.visibility = if (tab == NavigationTab.NOW_PLAYING) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+
             mPlayAllFloat.hide()
             if (tab.hasActionButton()) {
                 mPlayAllFloat.setImageResource(tab.fabIcon)

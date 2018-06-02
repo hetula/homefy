@@ -26,7 +26,7 @@ import android.view.View
 import android.widget.*
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_player.view.*
+import kotlinx.android.synthetic.main.view_player.view.*
 import xyz.hetula.homefy.R
 import xyz.hetula.homefy.Utils
 import xyz.hetula.homefy.playlist.FavoriteChangeListener
@@ -65,7 +65,7 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(context, attrs, defStyleAttr, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes) {
         val inflater = LayoutInflater.from(context)
-        val root = inflater.inflate(R.layout.fragment_player, this, true)
+        val root = inflater.inflate(R.layout.view_player, this, true)
         mTxtTitle = root.txt_song_title
         mTxtArtist = root.txt_song_artist
         mTxtAlbum = root.txt_song_album
@@ -150,7 +150,7 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
 
     override fun onFavoriteChanged(song: Song) {
         val current = homefy().getPlayer().nowPlaying() ?: return
-        if(song.id == current.id) {
+        if (song.id == current.id) {
             updateFavIco(song)
         }
     }
@@ -208,8 +208,7 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
 
     private fun updateSongInfo(now: Song) {
         if (now.track >= 0) {
-            mTxtTitle.text = String.format(Locale.getDefault(),
-                    "%d - %s", now.track, now.title)
+            mTxtTitle.text = String.format(Locale.getDefault(), "%d - %s", now.track, now.title)
         } else {
             mTxtTitle.text = now.title
         }
@@ -256,7 +255,11 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
         }
         mSeekBar.max = dur.toInt()
         mSeekBar.progress = pos.toInt()
-        mTxtLength.text = Utils.parseTime(pos, dur)
+        mTxtLength.text = if (song == null) {
+            context.getString(R.string.app_desc)
+        } else {
+            Utils.parseTime(pos, dur)
+        }
         if (song != null && mIsShowing) {
             mPositionLoop.postDelayed(mUpdateRunnable, 750)
         }
@@ -297,6 +300,7 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
             player.mPositionLoop.post(player.mUpdateRunnable)
         }
     }
+
     companion object {
         private const val TAG = "PlayerView"
     }
