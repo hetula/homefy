@@ -35,6 +35,7 @@
 
     <color name="icons">#EEE</color>
     <color name="controls">@color/colorPrimaryDark</color>
-    <color name="player_fade">#12121212</color>
+    <!-- Uses Secondary Dark Color with transparency-->
+    <color name="player_fade">#99000063</color>
     <color name="buffer_font">#60121212</color>
 </resources>
