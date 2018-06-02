@@ -67,7 +67,6 @@ class LibraryFragment : HomefyFragment() {
         mHandler = Handler()
         mInputManager = context!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         mFavoriteChangeReceiver = FavoriteChangeReceiver(homefy().getLibrary(), ::updateFavoriteListeners)
-        mFavoriteChangeReceiver.register(context!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -118,12 +117,13 @@ class LibraryFragment : HomefyFragment() {
             }
             selectTabItem(mLastSelectedTab)
         }
+        mFavoriteChangeReceiver.register(context!!)
         return mMain
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         mFavoriteChangeReceiver.unregister(context!!)
-        super.onDestroy()
+        super.onDestroyView()
     }
 
 
