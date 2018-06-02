@@ -18,11 +18,13 @@ package xyz.hetula.homefy.library
 
 import androidx.recyclerview.widget.SortedList
 import xyz.hetula.homefy.forEach
+import java.util.*
 
-internal interface SearchableAdapter<T> {
+internal interface BaseAdapter<T> {
     val mItems: SortedList<T>
     var mCurrentSearchTask: SearchTask<T>?
     var mLastSearch: String
+    var onSongPlay: (() -> Unit)?
 
     fun searchFilter(item: T, search: String): Boolean
 

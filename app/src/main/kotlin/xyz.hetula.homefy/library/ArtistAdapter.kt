@@ -29,15 +29,17 @@ import xyz.hetula.homefy.R
 import xyz.hetula.homefy.forEach
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
+import java.util.*
 
 class ArtistAdapter(private val originalArtists: List<String>,
                     private val homefy: HomefyService,
                     private val onArtistClick: (String) -> Unit) :
-        RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>(), SearchableAdapter<String> {
+        RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>(), BaseAdapter<String> {
 
     override val mItems = SortedList<String>(String::class.java, ArtistSorter(this))
     override var mLastSearch: String = ""
     override var mCurrentSearchTask: SearchTask<String>? = null
+    override var onSongPlay: (() -> Unit)? = null
 
     init {
         mItems.addAll(originalArtists)
@@ -77,6 +79,7 @@ class ArtistAdapter(private val originalArtists: List<String>,
             playlist.addAll(homefy.getLibrary().getArtistSongs(it))
         }
         homefy.getPlayer().play(playlist.first(), playlist)
+        onSongPlay?.invoke()
     }
 
     private class ArtistSorter(adapter: ArtistAdapter) : SortedListAdapterCallback<String>(adapter) {

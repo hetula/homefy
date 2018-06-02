@@ -45,6 +45,7 @@ import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.FavoriteChangeListener
 import xyz.hetula.homefy.playlist.FavoriteChangeReceiver
 import xyz.hetula.homefy.playlist.Playlist
+import java.util.*
 
 class LibraryFragment : HomefyFragment() {
     private var mCurrentTab = NavigationTab.NONE
@@ -105,7 +106,7 @@ class LibraryFragment : HomefyFragment() {
         mCurrentTab = NavigationTab.NONE // Clean for fresh setup
 
         val selectTab = getAndClearNewSetupTab()
-        if(selectTab != 0) {
+        if (selectTab != 0) {
             Log.d(TAG, "Overriding with selected tab!")
             mLastSelectedTab = selectTab
             mNavBar.selectedItemId = selectTab
@@ -131,7 +132,7 @@ class LibraryFragment : HomefyFragment() {
             return
         }
         val adapter = mLibraryList.adapter ?: return
-        if (adapter is SearchableAdapter<*>) {
+        if (adapter is BaseAdapter<*>) {
             adapter.searchWith(search)
         }
     }
@@ -172,21 +173,21 @@ class LibraryFragment : HomefyFragment() {
     }
 
     private fun selectSongTab() = selectTabIfNotSelected(NavigationTab.SONG) {
-        mLibraryList.adapter = SongAdapter(homefy().getLibrary().songs,
+        mLibraryList.adapter = initAdapter(SongAdapter(homefy().getLibrary().songs,
                 homefy().getPlayer(),
-                homefy().getPlaylists())
+                homefy().getPlaylists()))
         mNowPlayingView.visibility = View.GONE
         mLibraryHolder.visibility = View.VISIBLE
     }
 
     private fun selectAlbumTab() = selectTabIfNotSelected(NavigationTab.ALBUM) {
-        mLibraryList.adapter = AlbumAdapter(homefy().getLibrary().albums, homefy(), this::showAlbumDialog)
+        mLibraryList.adapter = initAdapter(AlbumAdapter(homefy().getLibrary().albums, homefy(), this::showAlbumDialog))
         mNowPlayingView.visibility = View.GONE
         mLibraryHolder.visibility = View.VISIBLE
     }
 
     private fun selectArtistTab() = selectTabIfNotSelected(NavigationTab.ARTIST) {
-        mLibraryList.adapter = ArtistAdapter(homefy().getLibrary().artists, homefy(), this::showArtistDialog)
+        mLibraryList.adapter = initAdapter(ArtistAdapter(homefy().getLibrary().artists, homefy(), this::showArtistDialog))
         mNowPlayingView.visibility = View.GONE
         mLibraryHolder.visibility = View.VISIBLE
     }
@@ -218,7 +219,7 @@ class LibraryFragment : HomefyFragment() {
                 View.VISIBLE
             }
             mPlayAllFloat.hide()
-            if(tab.hasActionButton()) {
+            if (tab.hasActionButton()) {
                 mPlayAllFloat.setImageResource(tab.fabIcon)
                 mHandler.post(mPlayAllFloat::show)
             }
@@ -274,14 +275,14 @@ class LibraryFragment : HomefyFragment() {
             return
         }
         val adapter = mLibraryList.adapter ?: return
-        if (adapter is SearchableAdapter<*>) {
+        if (adapter is BaseAdapter<*>) {
             adapter.playAll()
         }
     }
 
     private fun addPlaylist(playlist: Playlist) {
         val adapter = mLibraryList.adapter
-        if(adapter is PlaylistAdapter) {
+        if (adapter is PlaylistAdapter) {
             adapter.addPlaylist(playlist)
         }
     }
@@ -310,23 +311,35 @@ class LibraryFragment : HomefyFragment() {
 
     private fun updateFavoriteListeners(song: Song) {
         val adapter = mLibraryList.adapter
-        if(adapter is FavoriteChangeListener) {
+        if (adapter is FavoriteChangeListener) {
             adapter.onFavoriteChanged(song)
         }
-        if(mCurrentTab == NavigationTab.NOW_PLAYING) {
+        if (mCurrentTab == NavigationTab.NOW_PLAYING) {
             mNowPlayingView.onFavoriteChanged(song)
         }
     }
 
     private fun onFloatAction() {
         val tab = mCurrentTab
-        when(tab) {
+        when (tab) {
             NavigationTab.SONG -> playAll()
             NavigationTab.ALBUM -> playAll()
             NavigationTab.ARTIST -> playAll()
             NavigationTab.PLAYLIST -> newPlaylist()
-            else -> {}
+            else -> {
+            }
         }
+    }
+
+    private fun <T : BaseAdapter<*>> initAdapter(adapter: T) : T {
+        adapter.onSongPlay = this::selectPlayingTab
+        return adapter
+    }
+
+    private fun selectPlayingTab() {
+        mLastSelectedTab = R.id.navNowPlaying
+        mNavBar.selectedItemId = mLastSelectedTab
+        selectTabItem(mLastSelectedTab)
     }
 
     private class SearchTextListener(private val onTextChanged: (String) -> Unit) : TextWatcher {

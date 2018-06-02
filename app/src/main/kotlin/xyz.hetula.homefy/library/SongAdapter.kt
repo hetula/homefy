@@ -33,15 +33,17 @@ import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.playlist.FavoriteChangeListener
 import xyz.hetula.homefy.playlist.HomefyPlaylist
+import java.util.*
 
 class SongAdapter(private val originalSongs: List<Song>,
                   private val mPlayer: HomefyPlayer,
                   private val mPlaylists: HomefyPlaylist) :
-        RecyclerView.Adapter<SongAdapter.SongViewHolder>(), SearchableAdapter<Song>, FavoriteChangeListener {
+        RecyclerView.Adapter<SongAdapter.SongViewHolder>(), BaseAdapter<Song>, FavoriteChangeListener {
 
     override val mItems: SortedList<Song> = SortedList(Song::class.java, SongSorter(this))
     override var mLastSearch: String = ""
     override var mCurrentSearchTask: SearchTask<Song>? = null
+    override var onSongPlay: (() -> Unit)? = null
 
     init {
         mItems.addAll(originalSongs)
@@ -100,12 +102,14 @@ class SongAdapter(private val originalSongs: List<Song>,
         val playlist = ArrayList<Song>()
         mItems.forEach { playlist.add(it) }
         mPlayer.play(playlist.first(), playlist)
+        onSongPlay?.invoke()
     }
 
     private fun playSongWithCurrentList(song: Song) {
         val playContext = ArrayList<Song>()
         mItems.forEach { playContext.add(it) }
         mPlayer.play(song, playContext)
+        onSongPlay?.invoke()
     }
 
     override fun searchFilter(item: Song, search: String) = !item.title.contains(search, true)

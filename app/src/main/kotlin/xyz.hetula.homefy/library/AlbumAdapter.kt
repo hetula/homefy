@@ -29,15 +29,17 @@ import xyz.hetula.homefy.R
 import xyz.hetula.homefy.forEach
 import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
+import java.util.*
 
 class AlbumAdapter(private val originalAlbums: List<String>,
                    private val homefy: HomefyService,
                    private val onAlbumClick: (String) -> Unit) :
-        RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>(), SearchableAdapter<String> {
+        RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>(), BaseAdapter<String> {
 
     override val mItems = SortedList<String>(String::class.java, AlbumSorter(this))
     override var mLastSearch: String = ""
     override var mCurrentSearchTask: SearchTask<String>? = null
+    override var onSongPlay: (() -> Unit)? = null
 
     init {
         mItems.addAll(originalAlbums)
@@ -78,6 +80,7 @@ class AlbumAdapter(private val originalAlbums: List<String>,
             playlist.addAll(homefy.getLibrary().getAlbumSongs(it))
         }
         homefy.getPlayer().play(playlist.first(), playlist)
+        onSongPlay?.invoke()
     }
 
     private class AlbumSorter(adapter: AlbumAdapter) : SortedListAdapterCallback<String>(adapter) {
