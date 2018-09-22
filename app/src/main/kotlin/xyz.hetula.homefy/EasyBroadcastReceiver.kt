@@ -36,7 +36,7 @@ open class EasyBroadcastReceiver(vararg actions: String, private val onAction: (
     }
 
     fun unregister(context: Context) {
-        if(mRegistered) {
+        if (mRegistered) {
             BroadcastHelper.unregisterLocalReceiver(context, this)
             mRegistered = false
         }
@@ -44,7 +44,7 @@ open class EasyBroadcastReceiver(vararg actions: String, private val onAction: (
 
     override fun onReceive(context: Context?, intent: Intent?) {
         intent ?: return
-        if(mIntentFilter.matchAction(intent.action)) {
+        if (mIntentFilter.matchAction(intent.action)) {
             onAction?.invoke(intent)
         }
     }

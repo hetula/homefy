@@ -204,7 +204,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
 
     private fun play() {
         if (mPlayback.hasPlayback()) return
-        player {mediaPlayer ->
+        player { mediaPlayer ->
             mediaPlayer.start()
             mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)

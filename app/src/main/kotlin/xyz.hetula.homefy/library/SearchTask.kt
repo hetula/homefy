@@ -30,7 +30,7 @@ class SearchTask<T>(private val searchables: MutableSet<T>,
             if (filter(item)) {
                 iter.remove()
             }
-            if(isCancelled) {
+            if (isCancelled) {
                 break
             }
         }

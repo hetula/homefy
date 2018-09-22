@@ -28,14 +28,14 @@ internal interface BaseAdapter<T> {
 
     fun searchFilter(item: T, search: String): Boolean
 
-    fun getOriginalItems() : List<T>
+    fun getOriginalItems(): List<T>
 
     fun searchWith(search: String) {
         if (search == mLastSearch) {
             return
         }
         mCurrentSearchTask?.cancel(true)
-        if(search.isEmpty()) {
+        if (search.isEmpty()) {
             mItems.clear()
             mItems.addAll(getOriginalItems())
         } else {

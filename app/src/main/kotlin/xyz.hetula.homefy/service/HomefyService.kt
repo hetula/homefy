@@ -253,7 +253,7 @@ class HomefyService : Service() {
         launchMe.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
                 Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-        return PendingIntent.getActivity(this,0, launchMe, PendingIntent.FLAG_UPDATE_CURRENT)!!
+        return PendingIntent.getActivity(this, 0, launchMe, PendingIntent.FLAG_UPDATE_CURRENT)!!
     }
 
     private fun closeIntent(): PendingIntent {

@@ -70,13 +70,13 @@ class PlaylistAdapter(playlists: List<Playlist>,
         }
 
         override fun compare(o1: Playlist?, o2: Playlist?): Int {
-            if(o1 == null || o2 == null) {
+            if (o1 == null || o2 == null) {
                 return 1
             }
-            if(o1.favs) {
+            if (o1.favs) {
                 return -1
             }
-            if(o2.favs) {
+            if (o2.favs) {
                 return 1
             }
             return o1.name.compareTo(o2.name)

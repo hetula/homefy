@@ -41,7 +41,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_album_light"
-            android:importantForAccessibility="no"/>
+            android:importantForAccessibility="no" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"

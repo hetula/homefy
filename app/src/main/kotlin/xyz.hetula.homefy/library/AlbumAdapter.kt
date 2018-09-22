@@ -72,7 +72,7 @@ class AlbumAdapter(private val originalAlbums: List<String>,
     override fun searchFilter(item: String, search: String) = !item.contains(search, true)
 
     override fun playAll() {
-        if(mItems.size() == 0) {
+        if (mItems.size() == 0) {
             return
         }
         val playlist = ArrayList<Song>()

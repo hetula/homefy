@@ -70,7 +70,7 @@ class HomefyActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
         val bundle = intent.extras
-        if(bundle != null) {
+        if (bundle != null) {
             mSelectTab = bundle.getInt(EXTRA_SELECT_TAB, 0)
         }
 
@@ -112,7 +112,7 @@ class HomefyActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         val bundle = intent?.extras
-        if(bundle != null) {
+        if (bundle != null) {
             mSelectTab = bundle.getInt(EXTRA_SELECT_TAB, 0)
         }
     }

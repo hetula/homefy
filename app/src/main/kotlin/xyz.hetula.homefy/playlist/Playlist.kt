@@ -49,7 +49,7 @@ data class Playlist(@Expose val id: String,
             added = true
         }
         save(homefyPlaylist.baseLocation)
-        if(added) {
+        if (added) {
             sendAddedBroadcast(context, song.id)
         } else {
             sendRemovedBroadcast(context, song.id)

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2018 Tuomo Heino
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,24 +16,29 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/navSongs"
+    <item
+        android:id="@+id/navSongs"
         android:title="@string/library_music"
-        android:icon="@drawable/ic_library_music"/>
+        android:icon="@drawable/ic_library_music" />
 
-    <item android:id="@+id/navAlbums"
+    <item
+        android:id="@+id/navAlbums"
         android:title="@string/library_albums"
-        android:icon="@drawable/ic_library_albums"/>
+        android:icon="@drawable/ic_library_albums" />
 
-    <item android:id="@+id/navArtists"
+    <item
+        android:id="@+id/navArtists"
         android:title="@string/library_artists"
-        android:icon="@drawable/ic_library_artists"/>
+        android:icon="@drawable/ic_library_artists" />
 
-    <item android:id="@+id/navPlaylists"
+    <item
+        android:id="@+id/navPlaylists"
         android:title="@string/library_playlists"
-        android:icon="@drawable/ic_library_playlists"/>
+        android:icon="@drawable/ic_library_playlists" />
 
-    <item android:id="@+id/navNowPlaying"
+    <item
+        android:id="@+id/navNowPlaying"
         android:title="@string/library_now_playing"
-        android:icon="@drawable/ic_library_playing"/>
+        android:icon="@drawable/ic_library_playing" />
 
 </menu>
