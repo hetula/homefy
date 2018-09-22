@@ -170,7 +170,7 @@ class HomefyActivity : AppCompatActivity() {
             Log.e(TAG, "Can't write to storage!")
             return
         }
-        song.getFileType {
+        song.getFileType { fileType ->
             val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val request = DownloadManager.Request(Uri.parse(homefy.getLibrary().getPlayPath(song)))
             val headers = HashMap<String, String>()
@@ -179,7 +179,7 @@ class HomefyActivity : AppCompatActivity() {
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             request.setVisibleInDownloadsUi(false)
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC,
-                    "Homefy/" + song.title + "." + it)
+                    "Homefy/" + song.title + "." + fileType)
             request.setTitle(song.title)
             song.getMimeType { request.setMimeType(it) }
             downloadManager.enqueue(request)

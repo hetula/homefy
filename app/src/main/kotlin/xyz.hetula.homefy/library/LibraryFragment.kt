@@ -314,7 +314,7 @@ class LibraryFragment : HomefyFragment() {
         val txtName = EditText(context)
         txtName.inputType = InputType.TYPE_CLASS_TEXT
         ask.setView(txtName)
-        ask.setPositiveButton(R.string.playlist_dialog_create, { d, _ ->
+        ask.setPositiveButton(R.string.playlist_dialog_create) { d, _ ->
             val name = txtName.text.toString()
             if (name.isBlank()) {
                 d.cancel()
@@ -322,11 +322,11 @@ class LibraryFragment : HomefyFragment() {
                 addPlaylist(homefy().getPlaylists().createPlaylist(name))
             }
             mHandler.postDelayed(this::hideSoftKeyboard, 50)
-        })
-        ask.setNegativeButton(android.R.string.cancel, { d, _ ->
+        }
+        ask.setNegativeButton(android.R.string.cancel) { d, _ ->
             mHandler.postDelayed(this::hideSoftKeyboard, 50)
             d.cancel()
-        })
+        }
         ask.create().show()
     }
 

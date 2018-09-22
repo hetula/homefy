@@ -86,7 +86,7 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
         mBtnPlayback.setOnClickListener(this::onPlaybackModeClick)
         mSeekBar.setOnSeekBarChangeListener(PlayerView.SeekListener(this))
         mBtnShutdown.setOnClickListener { doShutdown() }
-        mBtnAddToPlaylist.setOnClickListener {
+        mBtnAddToPlaylist.setOnClickListener { _ ->
             val song = homefy().getPlayer().nowPlaying() ?: return@setOnClickListener
             PlaylistDialog.addToPlaylist(context, song, homefy().getPlaylists()) {
                 Snackbar.make(this, R.string.playlist_dialog_added,
@@ -98,13 +98,13 @@ class PlayerView : FrameLayout, FavoriteChangeListener {
             homefy().getPlaylists().favorites.toggle(context, homefy().getPlaylists(), song)
             updateFavIco(song)
         }
-        mBtnPrevious.setOnClickListener({ _ ->
+        mBtnPrevious.setOnClickListener { _ ->
             homefy().getPlayer().previous()
             val song = homefy().getPlayer().nowPlaying()
             if (song != null) {
                 updateSongInfo(song)
             }
-        })
+        }
         mBtnNext.setOnClickListener { _ ->
             homefy().getPlayer().next()
             val song = homefy().getPlayer().nowPlaying()

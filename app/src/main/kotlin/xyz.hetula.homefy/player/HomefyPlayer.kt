@@ -194,9 +194,9 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
     }
 
     private fun pause() {
-        player {
-            if (mPlayback.hasPlayback() || !it.isPlaying) return
-            it.pause()
+        player { mediaPlayer ->
+            if (mPlayback.hasPlayback() || !mediaPlayer.isPlaying) return
+            mediaPlayer.pause()
             mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_PAUSE, -1) }
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
         }
@@ -204,8 +204,8 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
 
     private fun play() {
         if (mPlayback.hasPlayback()) return
-        player {
-            it.start()
+        player {mediaPlayer ->
+            mediaPlayer.start()
             mPlaybackListeners.forEach { it(nowPlaying()!!, STATE_RESUME, -1) }
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
         }

@@ -105,21 +105,21 @@ class SetupFragment : HomefyFragment() {
 
     private fun onConnect() {
         mConnecting = true
-        homefy().getProtocol().requestVersionInfo(this::onVersionInfo,
-                { err ->
-                    Snackbar.make(mMain, getRequestErrorStringRes(err), Snackbar.LENGTH_SHORT).show()
-                    mConnecting = false
-                })
+        homefy().getProtocol().requestVersionInfo(this::onVersionInfo
+        ) { err ->
+            Snackbar.make(mMain, getRequestErrorStringRes(err), Snackbar.LENGTH_SHORT).show()
+            mConnecting = false
+        }
     }
 
     private fun onAuth(user: String, pass: String) {
         mConnecting = true
         homefy().getProtocol().setAuth(user, pass)
-        homefy().getProtocol().requestVersionInfoAuth(this::onVersionInfoAuth,
-                { err ->
-                    Snackbar.make(mMain, getRequestErrorStringRes(err), Snackbar.LENGTH_SHORT).show()
-                    mConnecting = false
-                })
+        homefy().getProtocol().requestVersionInfoAuth(this::onVersionInfoAuth
+        ) { err ->
+            Snackbar.make(mMain, getRequestErrorStringRes(err), Snackbar.LENGTH_SHORT).show()
+            mConnecting = false
+        }
     }
 
     private fun onVersionInfo(versionInfo: VersionInfo) {

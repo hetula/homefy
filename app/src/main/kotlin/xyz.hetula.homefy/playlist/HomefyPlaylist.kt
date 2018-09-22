@@ -63,7 +63,7 @@ open class HomefyPlaylist(private val mContext: Context) {
             favorites.addAll(favList.songs)
         }
         val playlistFolder = base.resolve(playlistDirectory)
-        val playlists = playlistFolder.list({ _, name -> name.endsWith(".json") })
+        val playlists = playlistFolder.list { _, name -> name.endsWith(".json") }
         if (playlists == null || playlists.isEmpty()) {
             Log.i("HomefyPlaylist", "No playlists found! $playlistFolder")
             return

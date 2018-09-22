@@ -69,11 +69,11 @@ class DefaultHomefyProtocol : HomefyProtocol {
                     info = v
                     versionConsumer(v)
                 },
-                Response.ErrorListener({ error ->
+                Response.ErrorListener { error ->
                     Log.e(TAG, error.toString())
                     val code = getErrorCode(error)
                     errorConsumer(RequestError(code, error))
-                }))
+                })
         mQueryQueue?.add(versionReq)
     }
 
@@ -86,11 +86,11 @@ class DefaultHomefyProtocol : HomefyProtocol {
                     info = v
                     versionConsumer(v)
                 },
-                Response.ErrorListener({ error ->
+                Response.ErrorListener { error ->
                     Log.e(TAG, error.toString())
                     val code = getErrorCode(error)
                     errorConsumer(RequestError(code, error))
-                }))
+                })
         appendHeaders(versionReq)
         mQueryQueue?.add(versionReq)
     }
@@ -102,11 +102,11 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 "$server/songs/pages?length=$pageLength",
                 Array<String>::class.java,
                 pagesConsumer,
-                Response.ErrorListener({ error ->
+                Response.ErrorListener { error ->
                     Log.e(TAG, error.toString())
                     val code = getErrorCode(error)
                     errorConsumer(RequestError(code, error))
-                }))
+                })
         appendHeaders(pagesRequest)
         mQueryQueue?.add(pagesRequest)
     }
@@ -134,11 +134,11 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 "$server/songs" + params.toString(),
                 Array<Song>::class.java,
                 songsConsumer,
-                Response.ErrorListener({ error ->
+                Response.ErrorListener { error ->
                     Log.e(TAG, error.toString())
                     val code = getErrorCode(error)
                     errorConsumer(RequestError(code, error))
-                }))
+                })
         appendHeaders(songsReq)
         mQueryQueue?.add(songsReq)
     }
@@ -150,11 +150,11 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 "$server/song/$id",
                 Song::class.java,
                 songConsumer,
-                Response.ErrorListener({ error ->
+                Response.ErrorListener { error ->
                     Log.e(TAG, error.toString())
                     val code = getErrorCode(error)
                     errorConsumer(RequestError(code, error))
-                }))
+                })
         appendHeaders(songReq)
         mQueryQueue?.add(songReq)
     }
@@ -167,11 +167,11 @@ class DefaultHomefyProtocol : HomefyProtocol {
                 url,
                 clasz,
                 consumer,
-                Response.ErrorListener({ error ->
+                Response.ErrorListener { error ->
                     Log.e(TAG, error.toString())
                     val code = getErrorCode(error)
                     errorConsumer(RequestError(code, error))
-                }))
+                })
         appendHeaders(request)
         mQueryQueue?.add(request)
     }
