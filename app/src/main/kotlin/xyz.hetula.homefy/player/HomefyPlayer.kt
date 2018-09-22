@@ -292,7 +292,7 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
             player.reset()
             val headers = HashMap<String, String>()
             mProtocol.addAuthHeader(headers)
-            player.setDataSource(mContext, uri, headers)
+            player.setDataSource(mContext!!, uri, headers)
             mediaSession { it.setMetadata(song.toMediaMetadata(showAlbumArtInLockScreen)) }
 
             AlbumArtRetriever(song, uri, headers) { originalSong, bitmap ->
@@ -301,10 +301,10 @@ open class HomefyPlayer(private val mProtocol: HomefyProtocol,
                 if (now.id != originalSong.id) {
                     return@AlbumArtRetriever
                 }
-                mediaSession {
+                mediaSession { mediaSession ->
                     Log.d(TAG, "AlbumArtRetriever: Setting new Metadata!")
                     song.albumArt = bitmap
-                    it.setMetadata(song.toMediaMetadata(showAlbumArtInLockScreen))
+                    mediaSession.setMetadata(song.toMediaMetadata(showAlbumArtInLockScreen))
                     mPlaybackListeners.forEach { it(song, STATE_PLAY, -1) }
                 }
             }.execute()
