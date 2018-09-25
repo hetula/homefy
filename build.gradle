@@ -16,13 +16,13 @@
 
 buildscript {
     ext.homefy_app_id = "xyz.hetula.homefy"
-    ext.homefy_version = '1.3.0_rc1'
-    ext.homefy_version_code = 6
+    ext.homefy_version = '1.3.0_rc2'
+    ext.homefy_version_code = 7
 
     ext.min_sdk = 27
     ext.target_sdk = 28
     ext.compile_sdk = 28
-    ext.gradle_version = '3.2.0-rc03'
+    ext.gradle_version = '3.2.0'
 
     ext.kotlin_version = '1.2.61'
     ext.supportx_version = '1.0.0'
