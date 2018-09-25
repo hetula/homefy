@@ -22,11 +22,12 @@ import xyz.hetula.homefy.player.HomefyPlayer
 import xyz.hetula.homefy.playlist.HomefyPlaylist
 import xyz.hetula.homefy.service.protocol.DefaultHomefyProtocol
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
+import java.util.concurrent.Executors
 
 internal object ServiceInitializer {
     internal var protocol: () -> HomefyProtocol = { DefaultHomefyProtocol() }
 
-    internal var library: (HomefyProtocol) -> HomefyLibrary = { protocol -> HomefyLibrary(protocol) }
+    internal var library: (HomefyProtocol) -> HomefyLibrary = { protocol -> HomefyLibrary(protocol, Executors.newCachedThreadPool()) }
 
     internal var player: (HomefyProtocol, HomefyLibrary) -> HomefyPlayer = { protocol, library -> HomefyPlayer(protocol, library) }
 

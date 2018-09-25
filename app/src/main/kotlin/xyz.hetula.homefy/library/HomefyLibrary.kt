@@ -24,7 +24,7 @@ import xyz.hetula.homefy.player.Song
 import xyz.hetula.homefy.service.HomefyService
 import xyz.hetula.homefy.service.protocol.HomefyProtocol
 import java.util.*
-import java.util.concurrent.Executors
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
@@ -40,8 +40,7 @@ import kotlin.collections.ArrayList
  * @version 1.0
  * @since 1.0
  */
-class HomefyLibrary(private val protocol: HomefyProtocol) {
-    private val mSearchExecutor = Executors.newCachedThreadPool()
+class HomefyLibrary(private val protocol: HomefyProtocol, private val mSearchExecutor: ExecutorService) {
     private var mSongDatabase: MutableMap<String, Song>? = null
     private val mArtistCache = HashMap<String, ArrayList<Song>>()
     private val mAlbumCache = HashMap<String, ArrayList<Song>>()

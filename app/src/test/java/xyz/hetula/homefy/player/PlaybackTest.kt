@@ -19,7 +19,7 @@ package xyz.hetula.homefy.player
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import xyz.hetula.homefy.useFor
+import xyz.hetula.homefy.TestHelper.makeSongList
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -126,20 +126,5 @@ class PlaybackTest {
         assertEquals(3, playback.getPrevious().size)
         assertEquals(songs[2], playback.getPrevious().last)
         assertEquals(2, playback.getNext().size)
-    }
-
-    private fun makeSongList(count: Int): ArrayList<Song> {
-        val songs = ArrayList<Song>()
-        count.useFor {
-            songs.add(Song(
-                    id = "$it",
-                    title = "title_$it",
-                    artist = "artist_$it",
-                    album = "album_$it",
-                    length = it * 1000L
-            ))
-        }
-        assertEquals(count, songs.size)
-        return songs
     }
 }

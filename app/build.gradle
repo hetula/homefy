@@ -77,6 +77,11 @@ android {
             signingConfig signingConfigs.config
         }
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -98,7 +103,10 @@ dependencies {
     // Testing
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit:1.0.6'
+    testImplementation 'org.robolectric:robolectric:4.0-alpha-3'
+    testImplementation 'org.mockito:mockito-core:2.22.0'
     // Instrumentation
+    androidTestImplementation 'org.mockito:mockito-android:2.22.0'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
